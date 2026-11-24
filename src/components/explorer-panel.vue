@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type { CatalogPoint, GameId, PointAnnotation } from '@/domain/game'
+import type { ProgressRow } from '@/domain/exploration'
+import type { CatalogPoint, GameId, PointAnnotation, PointStatus } from '@/domain/game'
 import type { ProfileView, SaveProfile } from '@/storage/profiles'
 import { CollapsibleContent, CollapsibleRoot, CollapsibleTrigger, PaginationEllipsis, PaginationList, PaginationListItem, PaginationNext, PaginationPrev, PaginationRoot, TabsContent, TabsList, TabsRoot, TabsTrigger, ToggleGroupItem, ToggleGroupRoot } from 'reka-ui'
 import { useGameLabels } from '@/composables/game-labels'
@@ -28,6 +29,8 @@ onMounted(() => {
     panelOpen.value = false
 })
 const pointList = ref<HTMLElement>()
+const panelTab = ref('discover')
+const completionUndo = shallowRef(new Map<string, PointStatus | undefined>())
 const saving = reactive(new Set<string>())
 const pageSize = 40
 const selected = ref('')
@@ -61,8 +64,12 @@ function formatCategoryProgress(category: string) {
   const count = categoryProgress.value.get(category)
   return count ? `${count.done.toLocaleString(currentLocale.value)} / ${count.total.toLocaleString(currentLocale.value)}` : ''
 }
-const pageCount = computed(() => Math.ceil(filtered.value.length / pageSize))
-const paged = computed(() => filtered.value.slice((page.value - 1) * pageSize, page.value * pageSize))
+const checklistRows = computed(() => completionUndo.value.size
+  ? filterRows(explorationRows.value, { ...view.value, status: 'all' }, true)
+      .filter(row => row.status === 'incomplete' || completionUndo.value.has(row.point.id))
+  : filtered.value)
+const pageCount = computed(() => Math.ceil(checklistRows.value.length / pageSize))
+const paged = computed(() => checklistRows.value.slice((page.value - 1) * pageSize, page.value * pageSize))
 const current = computed(() => rows.value.find(r => r.point.id === selected.value))
 const children = computed(() => rows.value.filter(r => r.point.parentId === selected.value))
 
@@ -104,7 +111,11 @@ async function load() {
 }
 watch(() => [props.profile?.id, props.game], load, { immediate: true })
 watch(() => [view.value.search, view.value.categories?.join(), view.value.region, view.value.layer], () => {
+  completionUndo.value = new Map()
   page.value = 1
+})
+watch(panelTab, () => {
+  completionUndo.value = new Map()
 })
 watch(pageCount, count => page.value = Math.min(page.value, Math.max(1, count)))
 watch(page, () => {
@@ -134,17 +145,26 @@ function select(id: string) {
     focus.value = [...target.at]
   }
 }
-async function save(annotation: PointAnnotation) {
+async function save(annotation: PointAnnotation, fromChecklist = false) {
   const { pointId, profileId } = annotation
   if (props.profile?.id !== profileId || saving.has(pointId))
     return
   saving.add(pointId)
   error.value = undefined
   try {
-    await putAnnotation(annotation)
+    const record = await putAnnotation(annotation)
     if (props.profile?.id !== profileId)
       return
-    annotations.value = [...annotations.value.filter(record => record.pointId !== pointId), annotation]
+    if (fromChecklist) {
+      const next = new Map(completionUndo.value)
+      if (next.has(pointId))
+        next.delete(pointId)
+      else if (panelTab.value === 'results')
+        next.set(pointId, annotations.value.find(record => record.pointId === pointId)?.status)
+      completionUndo.value = next
+    }
+    const others = annotations.value.filter(record => record.pointId !== pointId)
+    annotations.value = record ? [...others, record] : others
     if (selected.value === pointId) {
       if (!filtered.value.some(row => row.point.id === pointId))
         focus.value = undefined
@@ -158,19 +178,14 @@ async function save(annotation: PointAnnotation) {
     saving.delete(pointId)
   }
 }
-async function completePoint(pointId: string, event: MouseEvent) {
+async function toggleChecklistCompletion(row: ProgressRow) {
   const profileId = props.profile?.id
+  const pointId = row.point.id
   if (!profileId)
     return
-  const button = event.currentTarget as HTMLButtonElement
-  const row = button.closest('.point-row')
-  const neighbor = row?.nextElementSibling ?? row?.previousElementSibling
-  await save({ profileId, pointId, status: 'complete', updatedAt: new Date().toISOString() })
-  await nextTick()
-  if (event.detail === 0 && !button.isConnected && document.activeElement === document.body) {
-    const next = neighbor?.isConnected ? neighbor : pointList.value
-    next?.querySelector<HTMLButtonElement>('.point-complete')?.focus()
-  }
+  const undo = completionUndo.value.has(pointId)
+  const status = undo ? completionUndo.value.get(pointId) : 'complete'
+  await save({ profileId, pointId, status, updatedAt: new Date().toISOString() }, true)
 }
 function locate(point: CatalogPoint) {
   const parent = point.parentId ? points.value.find(p => p.id === point.parentId) : undefined
@@ -219,7 +234,7 @@ function locate(point: CatalogPoint) {
               </ToggleGroupItem>
             </ToggleGroupRoot>
           </div>
-          <TabsRoot default-value="discover" class="exploration-tabs">
+          <TabsRoot v-model="panelTab" class="exploration-tabs">
             <TabsList class="panel-tabs" :aria-label="t('explore.views')">
               <TabsTrigger value="discover">
                 {{ t('explore.tab') }}
@@ -242,7 +257,7 @@ function locate(point: CatalogPoint) {
                 <div v-if="profile && !filtered.length" class="empty-results">
                   <h3>{{ t('explore.no-results') }}</h3>
                 </div>
-                <div v-for="row in paged" :key="row.point.id" class="point-row" :class="{ selected: row.point.id === selected }">
+                <div v-for="row in paged" :key="row.point.id" class="point-row" :class="{ selected: row.point.id === selected, complete: row.status === 'complete' }">
                   <button type="button" class="point-row-details" @click="select(row.point.id)">
                     <span class="point-symbol" :class="categoryIcon(row.point.category)" aria-hidden="true" />
                     <span class="point-copy"><strong>{{ row.point.name }}</strong><small>{{ row.point.regionLabel ?? row.point.region ?? categoryLabel(game, row.point.category) }}</small></span>
@@ -250,8 +265,14 @@ function locate(point: CatalogPoint) {
                       <span v-if="!profile" class="i-lucide:chevron-right" aria-hidden="true" /><small v-if="row.annotation?.status">{{ t('status.manual') }}</small>
                     </span>
                   </button>
-                  <button v-if="profile" type="button" class="icon-button point-complete" :aria-label="`${t('point.mark-complete')} · ${row.point.name}`" :title="t('point.mark-complete')" :disabled="saving.has(row.point.id)" @click="completePoint(row.point.id, $event)">
-                    <span class="i-lucide:check" aria-hidden="true" />
+                  <button
+                    v-if="profile" type="button" class="icon-button point-complete"
+                    :aria-label="`${t(row.status === 'complete' ? 'point.mark-incomplete' : 'point.mark-complete')} · ${row.point.name}`"
+                    :title="t(row.status === 'complete' ? 'point.mark-incomplete' : 'point.mark-complete')"
+                    :disabled="saving.has(row.point.id)"
+                    @click="toggleChecklistCompletion(row)"
+                  >
+                    <span :class="row.status === 'complete' ? 'i-lucide:undo-2' : 'i-lucide:check'" aria-hidden="true" />
                   </button>
                 </div>
               </section>
