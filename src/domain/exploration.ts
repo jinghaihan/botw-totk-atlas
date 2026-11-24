@@ -10,7 +10,9 @@ export interface ProgressRow {
   found: boolean
   chests?: { total: number | null, opened: number | null, complete: boolean | undefined }
 }
-export function resolveRows(snapshot: GameSnapshot, points: CatalogPoint[], annotations: PointAnnotation[]): ProgressRow[] {
+export function resolveRows(snapshot: GameSnapshot | undefined, points: CatalogPoint[], annotations: PointAnnotation[]): ProgressRow[] {
+  if (!snapshot)
+    return points.map(point => ({ point, automatic: 'unknown', status: 'unknown', found: false }))
   const reader = createProgressReader(snapshot)
   const notes = new Map(annotations.map(a => [a.pointId, a]))
   // Index children once; avoid scanning thousands of chests per shrine and filter update.

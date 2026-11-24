@@ -2370,3 +2370,61 @@ html[data-game='botw'] .category-tiles button[aria-pressed='true'] {
 .leaflet-tile-pane {
   filter: brightness(1.13) saturate(0.78);
 }
+.map-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #252a30;
+  color: #bbc0c4;
+  font-size: 13px;
+}
+.import-reading {
+  position: fixed;
+  top: 94px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  background: #252a30ed;
+  border: 1px solid #a9a58b40;
+  border-radius: 6px;
+  padding: 12px 20px;
+  color: #dcded7;
+  font-size: 12px;
+}
+
+.folder-import {
+  width: min(600px, calc(100vw - 32px));
+}
+.folder-save-group {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+.folder-save-group .folder-save-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.folder-save-heading strong {
+  font-size: 13px;
+  font-weight: 500;
+  color: #ded5b7;
+}
+.folder-save-path {
+  font-size: 11px;
+  overflow-wrap: anywhere;
+  color: #9fa3a7;
+}
+.folder-save-group small,
+.folder-save-group summary {
+  font-size: 11px;
+  color: #8d9298;
+}
+.folder-save-group summary {
+  cursor: pointer;
+  margin-bottom: 10px;
+}

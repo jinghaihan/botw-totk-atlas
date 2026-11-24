@@ -36,3 +36,8 @@ describe('exploration filters', () => {
     expect(mapToWorld(...worldToMap([123, -456]))).toEqual([123, -456])
   })
 })
+
+it('leaves all completion evidence unknown when browsing without a save', () => {
+  const points: CatalogPoint[] = [{ id: 'chest:1', name: 'Chest', category: 'chest', key: 'guid:123', rule: 'guid' }]
+  expect(resolveRows(undefined, points, [])).toEqual([{ point: points[0], automatic: 'unknown', status: 'unknown', found: false }])
+})

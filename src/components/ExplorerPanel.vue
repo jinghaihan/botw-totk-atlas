@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { CatalogPoint, PointAnnotation } from '@/domain/game'
+import type { CatalogPoint, GameId, PointAnnotation } from '@/domain/game'
 import type { ProfileView, SaveProfile } from '@/storage/profiles'
 import { CheckboxIndicator, CheckboxRoot, CollapsibleContent, CollapsibleRoot, CollapsibleTrigger, PaginationEllipsis, PaginationList, PaginationListItem, PaginationNext, PaginationPrev, PaginationRoot, PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger, TabsContent, TabsList, TabsRoot, TabsTrigger, ToggleGroupItem, ToggleGroupRoot } from 'reka-ui'
 import { useGameLabels } from '@/composables/game-labels'
@@ -12,8 +12,9 @@ import AtlasSelect from './AtlasSelect.vue'
 import PointDetail from './PointDetail.vue'
 import WorldMap from './WorldMap.vue'
 
-const props = defineProps<{ profile: SaveProfile }>()
-const gameLabels = useGameLabels(() => props.profile.game)
+const props = defineProps<{ profile?: SaveProfile, game: GameId }>()
+const emit = defineEmits<{ import: [] }>()
+const gameLabels = useGameLabels(() => props.game)
 const catalog = shallowRef<CatalogPoint[]>([])
 const annotations = shallowRef<PointAnnotation[]>([])
 const custom = shallowRef<CatalogPoint[]>([])
@@ -31,10 +32,10 @@ const selected = ref('')
 const detailOpen = ref(false)
 const placing = ref(false)
 const focus = ref<[number, number]>()
-const defaultView = (profileId: string): ProfileView => ({ profileId, categories: ['shrine', 'korok', 'chest'], status: 'incomplete', layer: 'surface', hideIgnored: true, search: '', region: 'all' })
-const view = ref(defaultView(props.profile.id))
+const defaultView = (profileId: string): ProfileView => ({ profileId, categories: props.profile ? ['shrine', 'korok', 'chest'] : ['shrine'], status: props.profile ? 'incomplete' : 'all', layer: 'surface', hideIgnored: true, search: '', region: 'all' })
+const view = ref(defaultView(props.profile?.id ?? `browse:${props.game}`))
 const points = computed(() => [...catalog.value.map(gameLabels.localize), ...custom.value])
-const rows = computed(() => resolveRows(props.profile.snapshot, points.value, annotations.value))
+const rows = computed(() => resolveRows(props.profile?.snapshot, points.value, annotations.value))
 const categories = computed(() => [...new Set(points.value.map(p => p.category))].sort((a, b) => t(categoryLabels[a] ?? a).localeCompare(t(categoryLabels[b] ?? b), currentLocale.value)))
 const regions = computed(() => [{ value: 'all', label: t('所有地区') }, ...[...new Set(points.value.map(p => p.region).filter((r): r is string => !!r))].sort().map(r => ({ value: r, label: gameLabels.text(r) }))])
 const filtered = computed(() => filterRows(rows.value, view.value))
@@ -69,13 +70,6 @@ function chooseCategory(category: string) {
   view.value.search = ''
   panelTab.value = 'results'
 }
-function preset(kind: 'shrine-chests' | 'chest' | 'camp') {
-  view.value.search = ''
-  view.value.region = 'all'
-  view.value.categories = [kind === 'shrine-chests' ? 'shrine' : kind]
-  view.value.status = kind === 'shrine-chests' ? 'shrine-chests' : kind === 'camp' ? 'all' : 'incomplete'
-  panelTab.value = 'results'
-}
 function resetFilters() {
   view.value.status = 'all'
   view.value.categories = []
@@ -90,20 +84,20 @@ watch(() => view.value.search, (value) => {
 let generation = 0
 async function load() {
   const revision = ++generation
-  const profileId = props.profile.id
+  const profileId = props.profile?.id
   loading.value = true
   selected.value = ''
   detailOpen.value = false
   placing.value = false
   error.value = ''
   try {
-    const [data, notes, savedView, pins] = await Promise.all([loadCatalog(props.profile.game), listAnnotations(profileId), db.views.get(profileId), db.pins.where('profileId').equals(profileId).toArray()])
+    const [data, notes, savedView, pins] = await Promise.all([loadCatalog(props.game), profileId ? listAnnotations(profileId) : [], profileId ? db.views.get(profileId) : undefined, profileId ? db.pins.where('profileId').equals(profileId).toArray() : []])
     if (revision !== generation)
       return
     catalog.value = data
     annotations.value = notes
     custom.value = pins
-    view.value = savedView ?? defaultView(profileId)
+    view.value = savedView ?? defaultView(profileId ?? `browse:${props.game}`)
     page.value = 1
   }
   catch (e) {
@@ -115,7 +109,7 @@ async function load() {
       loading.value = false
   }
 }
-watch(() => props.profile.id, load, { immediate: true })
+watch(() => [props.profile?.id, props.game], load, { immediate: true })
 watch(() => [view.value.search, view.value.status, view.value.categories.join(), view.value.region, view.value.layer, view.value.hideIgnored], () => {
   page.value = 1
 })
@@ -124,7 +118,7 @@ watch(() => view.value.status, (status) => {
     view.value.categories = ['shrine']
 })
 watchDebounced(view, async (value) => {
-  if (loading.value || value.profileId !== props.profile.id)
+  if (!props.profile || loading.value || value.profileId !== props.profile.id)
     return
   try {
     await db.views.put(toRaw(value))
@@ -147,11 +141,13 @@ function select(id: string) {
   }
 }
 async function save(annotation: PointAnnotation) {
+  if (!props.profile)
+    return
   error.value = ''
   try {
     await putAnnotation(annotation)
-    if (annotation.profileId === props.profile.id) {
-      annotations.value = await listAnnotations(props.profile.id)
+    if (annotation.profileId === props.profile?.id) {
+      annotations.value = await listAnnotations(props.profile?.id)
       detailOpen.value = false
     }
   }
@@ -169,6 +165,8 @@ function locate(point: CatalogPoint) {
   detailOpen.value = false
 }
 async function place(at: [number, number]) {
+  if (!props.profile)
+    return
   if (Math.abs(at[0]) > 6000 || Math.abs(at[1]) > 5000)
     return
   try {
@@ -183,10 +181,13 @@ async function place(at: [number, number]) {
   }
 }
 async function remove(id: string) {
+  const profileId = props.profile?.id
+  if (!profileId)
+    return
   try {
     await db.transaction('rw', db.pins, db.annotations, async () => {
       await db.pins.delete(id)
-      await db.annotations.delete([props.profile.id, id])
+      await db.annotations.delete([profileId, id])
     })
     custom.value = custom.value.filter(p => p.id !== id)
     annotations.value = annotations.value.filter(a => a.pointId !== id)
@@ -200,10 +201,10 @@ async function remove(id: string) {
 
 <template>
   <div class="explorer">
-    <WorldMap :game="profile.game" :layer="view.layer" :rows="mapRows" :focus="focus" :placing="placing" @select="select" @place="place" />
+    <WorldMap :game="game" :layer="view.layer" :rows="mapRows" :focus="focus" :placing="placing" @select="select" @place="place" />
     <CollapsibleRoot v-model:open="panelOpen" class="exploration-panel">
       <header class="exploration-heading">
-        <div><span class="eyebrow">{{ profile.game === 'botw' ? t('旷野之息') : t('王国之泪') }}</span><h1>{{ t('探索海拉鲁') }}</h1></div><CollapsibleTrigger class="icon-button panel-collapse" :aria-label="panelOpen ? t('收起探索面板') : t('展开探索面板')">
+        <div><span class="eyebrow">{{ game === 'botw' ? t('旷野之息') : t('王国之泪') }}</span><h1>{{ t('探索海拉鲁') }}</h1></div><CollapsibleTrigger class="icon-button panel-collapse" :aria-label="panelOpen ? t('收起探索面板') : t('展开探索面板')">
           <span :class="panelOpen ? 'i-lucide:panel-left-close' : 'i-lucide:panel-left-open'" aria-hidden="true" />
         </CollapsibleTrigger>
       </header>
@@ -231,7 +232,7 @@ async function remove(id: string) {
             </div>
             <div class="category-tiles">
               <button v-for="category in highlights" :key="category" :aria-pressed="view.categories.includes(category)" @click="chooseCategory(category)">
-                <span class="category-symbol" :class="categoryIcons[category] ?? 'i-lucide:map-pin'" aria-hidden="true" /><strong>{{ t(category === 'camp' ? '营地' : categoryLabels[category] ?? category) }}</strong><small>{{ categoryCounts[category]?.unknown === categoryCounts[category]?.total ? t('手动记录') : t('{count} 待探索', { count: categoryCounts[category]?.remaining ?? 0 }) }}</small>
+                <span class="category-symbol" :class="categoryIcons[category] ?? 'i-lucide:map-pin'" aria-hidden="true" /><strong>{{ t(category === 'camp' ? '营地' : categoryLabels[category] ?? category) }}</strong><small>{{ !profile ? t('{count} 个地点', { count: categoryCounts[category]?.total ?? 0 }) : categoryCounts[category]?.unknown === categoryCounts[category]?.total ? t('手动记录') : t('{count} 待探索', { count: categoryCounts[category]?.remaining ?? 0 }) }}</small>
               </button>
             </div>
             <PopoverRoot>
@@ -249,18 +250,6 @@ async function remove(id: string) {
                 </PopoverContent>
               </PopoverPortal>
             </PopoverRoot>
-            <div class="panel-section-heading routes-heading">
-              <h2>{{ t('继续你的旅程') }}</h2>
-            </div>
-            <div class="journey-links">
-              <button @click="preset('shrine-chests')">
-                <span class="i-lucide:landmark" aria-hidden="true" /><span><strong>{{ t('神庙里的遗漏') }}</strong><small>{{ t('已通关，但宝箱还没领完') }}</small></span><span class="i-lucide:chevron-right" aria-hidden="true" />
-              </button><button @click="preset('chest')">
-                <span class="i-lucide:archive" aria-hidden="true" /><span><strong>{{ t('寻宝之旅') }}</strong><small>{{ t('看看还有哪些宝箱没打开') }}</small></span><span class="i-lucide:chevron-right" aria-hidden="true" />
-              </button><button @click="preset('camp')">
-                <span class="i-lucide:tent" aria-hidden="true" /><span><strong>{{ t('营地笔记') }}</strong><small>{{ t('记录想去挑战的地方') }}</small></span><span class="i-lucide:chevron-right" aria-hidden="true" />
-              </button>
-            </div>
           </TabsContent>
           <TabsContent value="results" class="results-content">
             <div class="result-filters">
@@ -310,7 +299,7 @@ async function remove(id: string) {
           </TabsContent>
         </TabsRoot>
         <footer class="panel-footnote">
-          <span class="i-lucide:hard-drive" aria-hidden="true" /><span>{{ t('你的记录仅保存在此设备') }}</span><PopoverRoot>
+          <span class="i-lucide:hard-drive" aria-hidden="true" /><span>{{ profile ? t('你的记录仅保存在此设备') : t('导入存档后显示收集进度') }}</span><PopoverRoot>
             <PopoverTrigger class="icon-button" :aria-label="t('关于地图数据')">
               <span class="i-lucide:info" aria-hidden="true" />
             </PopoverTrigger><PopoverPortal>
@@ -323,11 +312,11 @@ async function remove(id: string) {
       </CollapsibleContent>
     </CollapsibleRoot>
     <div class="map-actions">
-      <button class="map-action" :class="{ active: placing }" :aria-pressed="placing" @click="placing = !placing">
+      <button class="map-action" :class="{ active: placing }" :aria-pressed="placing" @click="profile ? placing = !placing : emit('import')">
         <span :class="placing ? 'i-lucide:x' : 'i-lucide:map-pin-plus'" aria-hidden="true" /><span>{{ placing ? t('取消放置') : t('标记营地') }}</span>
       </button>
     </div>
-    <ToggleGroupRoot v-if="profile.game === 'totk'" :model-value="view.layer" type="single" class="map-layers" :aria-label="t('地图层级')" @update:model-value="value => { if (value === 'sky' || value === 'surface' || value === 'depths') view.layer = value }">
+    <ToggleGroupRoot v-if="game === 'totk'" :model-value="view.layer" type="single" class="map-layers" :aria-label="t('地图层级')" @update:model-value="value => { if (value === 'sky' || value === 'surface' || value === 'depths') view.layer = value }">
       <ToggleGroupItem value="sky">
         <span class="i-lucide:cloud" aria-hidden="true" />{{ t('天空') }}
       </ToggleGroupItem><ToggleGroupItem value="surface">
@@ -336,6 +325,6 @@ async function remove(id: string) {
         <span class="i-lucide:layers-2" aria-hidden="true" />{{ t('地底') }}
       </ToggleGroupItem>
     </ToggleGroupRoot>
-    <PointDetail v-model:open="detailOpen" :row="current" :profile-id="profile.id" :children="children" @save="save" @locate="locate" @select="select" @remove="remove" />
+    <PointDetail v-model:open="detailOpen" :row="current" :profile-id="profile?.id" :children="children" @save="save" @locate="locate" @select="select" @remove="remove" @import="emit('import')" />
   </div>
 </template>

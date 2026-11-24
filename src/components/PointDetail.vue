@@ -7,8 +7,8 @@ import { categoryLabels, statusLabels } from '@/games/catalog'
 import { tr as t } from '@/modules/i18n'
 import AtlasSelect from './AtlasSelect.vue'
 
-const props = defineProps<{ row?: ProgressRow, profileId: string, children: ProgressRow[] }>()
-const emit = defineEmits<{ save: [annotation: PointAnnotation], locate: [point: CatalogPoint], select: [id: string], remove: [id: string] }>()
+const props = defineProps<{ row?: ProgressRow, profileId?: string, children: ProgressRow[] }>()
+const emit = defineEmits<{ save: [annotation: PointAnnotation], locate: [point: CatalogPoint], select: [id: string], remove: [id: string], import: [] }>()
 const open = defineModel<boolean>('open', { required: true })
 const confirmDelete = ref(false)
 const status = ref('auto')
@@ -24,7 +24,7 @@ function toggleComplete() {
   save()
 }
 function save() {
-  if (!props.row)
+  if (!props.row || !props.profileId)
     return
   emit('save', { profileId: props.profileId, pointId: props.row.point.id, status: status.value === 'auto' ? undefined : status.value as PointStatus, ignored: ignored.value, note: note.value.trim(), updatedAt: new Date().toISOString() })
 }
@@ -35,7 +35,7 @@ function save() {
     <DialogPortal>
       <DialogContent v-if="row" class="point-detail" @interact-outside="$event.preventDefault()">
         <div class="detail-category">
-          <span class="i-lucide:map-pin" aria-hidden="true" />{{ t(categoryLabels[row.point.category] ?? row.point.category) }}<span class="detail-status" :data-status="row.status">{{ t(statusLabels[row.status]) }}</span>
+          <span class="i-lucide:map-pin" aria-hidden="true" />{{ t(categoryLabels[row.point.category] ?? row.point.category) }}<span class="detail-status" :data-status="row.status">{{ profileId ? t(statusLabels[row.status]) : t('未导入存档') }}</span>
         </div>
         <DialogTitle>{{ row.point.name }}</DialogTitle><DialogDescription>{{ row.point.regionLabel ?? row.point.region ?? t('海拉鲁') }}</DialogDescription>
         <p v-if="row.point.detail" class="detail-copy">
@@ -50,13 +50,15 @@ function save() {
           </button>
         </div>
         <div class="detail-main-actions">
-          <button class="button primary" @click="toggleComplete">
+          <button v-if="profileId" class="button primary" @click="toggleComplete">
             <span :class="row.status === 'complete' ? 'i-lucide:rotate-ccw' : 'i-lucide:check'" aria-hidden="true" />{{ row.status === 'complete' ? t('标为未完成') : t('标为已完成') }}
+          </button><button v-else class="button primary" @click="emit('import')">
+            {{ t('导入存档') }}
           </button><button v-if="row.point.at" class="icon-button" :aria-label="t('地图定位')" @click="emit('locate', row.point)">
             <span class="i-lucide:locate-fixed" aria-hidden="true" />
           </button>
         </div>
-        <form @submit.prevent="save">
+        <form v-if="profileId" @submit.prevent="save">
           <label>{{ t('冒险笔记') }}<textarea v-model="note" name="point-note" autocomplete="off" maxlength="4000" rows="3" :placeholder="t('记下路线、想法或稍后要做的事…')" /></label>
           <details class="tracking-options">
             <summary>{{ t('记录选项') }}<span class="i-lucide:chevron-down" aria-hidden="true" /></summary><AtlasSelect v-model="status" :label="t('完成状态')" :options="[{ value: 'auto', label: t('跟随存档记录') }, { value: 'complete', label: t('手动：已完成') }, { value: 'incomplete', label: t('手动：未完成') }, { value: 'unknown', label: t('手动：待确认') }]" /><label class="check-label"><input v-model="ignored" type="checkbox">{{ t('忽略此项目（可从筛选中恢复显示）') }}</label><p class="automatic-evidence">
