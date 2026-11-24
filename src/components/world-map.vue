@@ -33,7 +33,6 @@ const glyphs: Record<string, string> = {
   lightroot: 'M12 20V9M12 13C4 14 3 7 4 5c6 0 9 3 8 8ZM12 10c0-6 5-8 8-7 1 5-3 8-8 7',
   cave: 'M2 20 8 6l4 7 3-9 7 16ZM9 20v-4a3 3 0 0 1 6 0v4',
   well: 'M4 9h16v11H4ZM2 9l10-7 10 7M8 12v5M16 12v5',
-  camp: 'M12 3 22 21H2ZM8 21l4-8 4 8',
   shop: 'M4 10v11h16V10M3 7l2-4h14l2 4v3c0 2-3 2-3 0 0 2-4 2-4 0 0 2-4 2-4 0 0 2-4 2-4 0 0 2-3 2-3 0ZM10 21v-6h4v6',
   default: 'M12 3a7 7 0 0 1 7 7c0 5-7 11-7 11S5 15 5 10a7 7 0 0 1 7-7ZM10 10h4',
 }
