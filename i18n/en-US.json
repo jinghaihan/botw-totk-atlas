@@ -115,6 +115,7 @@
   "操作未完成，请重试。": "Could not finish the operation. Please try again.",
   "收起探索面板": "Collapse exploration panel",
   "收集": "Collection",
+  "新建档案": "New profile",
   "文件夹里没有找到 game_data.sav 或 progress.sav。": "No game_data.sav or progress.sav was found in this folder.",
   "方块魔像": "Flux Constructs",
   "无法加载探索记录。": "Could not load exploration records.",

@@ -57,6 +57,10 @@ watch(tab, (value) => {
 watch(() => urlParams.view, (value) => {
   tab.value = validTabs.includes(String(value)) ? String(value) : 'atlas'
 })
+watch([current, tab], ([profile, view]) => {
+  if (profile && !profile.snapshot && view === 'progress')
+    tab.value = 'atlas'
+})
 async function reload() {
   profiles.value = await listProfiles()
   if (!current.value)
@@ -64,7 +68,7 @@ async function reload() {
   if (!current.value)
     tab.value = 'atlas'
 }
-async function imported(profileId: string) {
+async function openProfile(profileId: string) {
   await reload()
   activeId.value = profileId
   tab.value = 'atlas'
@@ -81,7 +85,7 @@ onMounted(async () => {
       const existing = profiles.value.find(p => p.name === 'BOTW · 普通模式')
       if (existing?.snapshot?.fingerprint === parsed.fingerprint)
         activeId.value = existing.id
-      else await imported((await saveProfile(parsed, 'BOTW · 普通模式', existing?.id, 'normal', await loadCatalog('botw'))).id)
+      else await openProfile((await saveProfile(parsed, 'BOTW · 普通模式', existing?.id, 'normal', await loadCatalog('botw'))).id)
     }
   }
   catch (e) {
@@ -100,7 +104,7 @@ onMounted(async () => {
       <header class="atlas-header">
         <div class="header-main">
           <AtlasSelect v-if="profiles.length" v-model="activeId" class="header-profile" :label="t('切换存档 Profile')" :options="options" /><AtlasSelect v-else v-model="browseGame" class="header-profile" :label="t('选择游戏')" :options="[{ value: 'botw', label: t('旷野之息') }, { value: 'totk', label: t('王国之泪') }]" />
-          <TabsList v-if="current" class="atlas-navigation" :aria-label="t('存档内容')">
+          <TabsList v-if="snapshot" class="atlas-navigation" :aria-label="t('存档内容')">
             <TabsTrigger value="atlas" :aria-label="t('地图')">
               <span class="i-lucide:map" aria-hidden="true" /><span>{{ t('地图') }}</span>
             </TabsTrigger>
@@ -153,12 +157,14 @@ onMounted(async () => {
         </div>
       </main>
     </TabsRoot>
-    <ImportDialog ref="importer" v-model:open="importOpen" :profiles="profiles" @selected="managerOpen = false" @imported="imported" />
+    <ImportDialog ref="importer" v-model:open="importOpen" :profiles="profiles" @selected="managerOpen = false" @imported="openProfile" />
     <ProfileManager
       v-model:open="managerOpen"
       :profiles="profiles"
       :active-id="activeId"
+      :game="game"
       @changed="reload"
+      @created="openProfile"
       @restore="importer?.chooseFile('backup')"
       @select="activeId = $event"
     />

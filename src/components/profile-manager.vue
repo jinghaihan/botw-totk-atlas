@@ -1,22 +1,28 @@
 <script setup lang="ts">
+import type { GameId } from '@/domain/game'
 import type { SaveProfile } from '@/storage/profiles'
 import { AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogOverlay, AlertDialogPortal, AlertDialogRoot, AlertDialogTitle, DialogClose, DialogContent, DialogOverlay, DialogPortal, DialogRoot, DialogTitle } from 'reka-ui'
 import { tr as t } from '@/modules/i18n'
 import { downloadBackup } from '@/storage/backup'
-import { deleteProfile, renameProfile } from '@/storage/profiles'
+import { createProfile, deleteProfile, renameProfile } from '@/storage/profiles'
+import AtlasSelect from './atlas-select.vue'
 
-defineProps<{ profiles: SaveProfile[], activeId: string }>()
-const emit = defineEmits<{ changed: [], restore: [], select: [profileId: string] }>()
+const props = defineProps<{ profiles: SaveProfile[], activeId: string, game: GameId }>()
+const emit = defineEmits<{ changed: [], created: [profileId: string], restore: [], select: [profileId: string] }>()
 const open = defineModel<boolean>('open', { required: true })
 const error = ref('')
 const busy = ref(false)
 const deletion = shallowRef<SaveProfile>()
 const confirm = ref(false)
 const editing = ref('')
+const creating = ref(false)
+const selectedGame = ref<string>(props.game)
+const createNameInput = ref<HTMLInputElement>()
 const name = ref('')
 const nameInput = ref<HTMLInputElement[]>([])
 watch(open, () => {
   editing.value = ''
+  creating.value = false
   error.value = ''
 })
 async function action(fn: () => Promise<void>) {
@@ -37,6 +43,22 @@ async function action(fn: () => Promise<void>) {
 function selectProfile(id: string) {
   emit('select', id)
   open.value = false
+}
+async function startCreate() {
+  selectedGame.value = props.game
+  name.value = ''
+  editing.value = ''
+  error.value = ''
+  creating.value = true
+  await nextTick()
+  createNameInput.value?.focus()
+}
+function create() {
+  return action(async () => {
+    const profile = await createProfile(selectedGame.value === 'totk' ? 'totk' : 'botw', name.value)
+    emit('created', profile.id)
+    open.value = false
+  })
 }
 async function editName(profile: SaveProfile) {
   editing.value = profile.id
@@ -74,12 +96,15 @@ function backup(profileId?: string) {
       <DialogOverlay class="dialog-overlay" />
       <DialogContent class="dialog-content manager-dialog" :aria-describedby="undefined" @interact-outside="busy && $event.preventDefault()" @escape-key-down="busy && $event.preventDefault()">
         <header class="profile-manager-header">
-          <DialogTitle>{{ t('管理存档') }}</DialogTitle>
+          <DialogTitle>{{ t(creating ? '新建档案' : '管理存档') }}</DialogTitle>
           <div class="profile-manager-controls">
-            <button class="toolbar-control" :aria-label="t('备份')" :title="t('备份')" :disabled="busy || !profiles.length" @click="backup()">
+            <button v-if="!creating" class="toolbar-control" :aria-label="t('新建档案')" :title="t('新建档案')" :disabled="busy" @click="startCreate">
+              <span class="i-lucide:file-plus" aria-hidden="true" />
+            </button>
+            <button v-if="!creating" class="toolbar-control" :aria-label="t('备份')" :title="t('备份')" :disabled="busy || !profiles.length" @click="backup()">
               <span class="i-lucide:save" aria-hidden="true" />
             </button>
-            <button class="toolbar-control" :aria-label="t('恢复备份')" :title="t('恢复备份')" :disabled="busy" @click="emit('restore')">
+            <button v-if="!creating" class="toolbar-control" :aria-label="t('恢复备份')" :title="t('恢复备份')" :disabled="busy" @click="emit('restore')">
               <span class="i-lucide:upload" aria-hidden="true" />
             </button>
             <DialogClose class="toolbar-control" :aria-label="t('关闭档案管理')" :title="t('关闭档案管理')" :disabled="busy">
@@ -87,7 +112,22 @@ function backup(profileId?: string) {
             </DialogClose>
           </div>
         </header>
-        <ul v-if="profiles.length" class="profile-manager-list">
+        <form v-if="creating" @submit.prevent="create">
+          <AtlasSelect v-model="selectedGame" :label="t('选择游戏')" :options="[{ value: 'botw', label: t('旷野之息') }, { value: 'totk', label: t('王国之泪') }]" :disabled="busy" />
+          <label>
+            {{ t('存档名称') }}
+            <input ref="createNameInput" v-model="name" name="profile-name" autocomplete="off" required maxlength="80" :disabled="busy">
+          </label>
+          <div class="dialog-actions">
+            <button type="button" class="button secondary" :disabled="busy" @click="creating = false; error = ''">
+              {{ t('取消') }}
+            </button>
+            <button type="submit" class="button primary" :disabled="busy || !name.trim()">
+              {{ t('新建档案') }}
+            </button>
+          </div>
+        </form>
+        <ul v-else-if="profiles.length" class="profile-manager-list">
           <li v-for="profile in profiles" :key="profile.id" class="profile-manager-row">
             <form v-if="editing === profile.id" class="profile-manager-edit" @submit.prevent="rename(profile)">
               <input ref="nameInput" v-model="name" name="profile-name" :aria-label="t('存档名称')" autocomplete="off" required maxlength="80" :disabled="busy">

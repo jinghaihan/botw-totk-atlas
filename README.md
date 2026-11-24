@@ -7,6 +7,7 @@ Import a save, keep separate profiles for each playthrough, and find what remain
 ## Features
 
 - BOTW Normal / Master Mode and TOTK profiles, with separate manual progress and filters.
+- Create a profile without a save, track progress manually on the map, and import a save later.
 - Import a save file or a folder. Folder imports detect game mode from companion metadata.
 - Browse either game map before importing a save; unknown completion stays unknown.
 - Leaflet maps for BOTW and TOTK's Sky, Surface and Depths; category, region, status and text filters.
