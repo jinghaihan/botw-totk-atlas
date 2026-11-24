@@ -32,7 +32,7 @@ const gameLabel = (group: FolderSaveGroup) => group.game === 'botw' ? t('旷野�
 const modeLabel = (group: FolderSaveGroup) => group.mode === 'master' ? t('大师模式') : t('普通模式')
 const title = computed(() => backup.value || source.value === 'backup' ? t('恢复备份') : source.value === 'folder' ? t('导入存档文件夹') : t('导入存档'))
 function options(group: FolderSaveGroup) {
-  const compatible = props.profiles.filter(profile => profile.game === group.game && (group.mode === 'unknown' || profile.mode === group.mode))
+  const compatible = props.profiles.filter(profile => profile.game === group.game && (group.mode === 'unknown' || profile.mode === group.mode || (!profile.snapshot && profile.mode === 'unknown')))
   return [{ value: 'new', label: t('创建新的 Profile') }, ...compatible.map(profile => ({ value: profile.id, label: t('更新：{name}', { name: profile.name }) }))]
 }
 function chooseFile(from: ImportSource = 'file') {
@@ -125,7 +125,7 @@ async function save() {
         const candidate = group.candidates.find(item => item.path === selected.value[group.id])!
         const snapshot = singleSave.value ?? await parseSave(candidate.file, candidate.path)
         const catalog = await loadCatalog(snapshot.game)
-        const matches = props.profiles.filter(profile => profile.game === snapshot.game && profile.snapshot.fingerprint === snapshot.fingerprint
+        const matches = props.profiles.filter(profile => profile.game === snapshot.game && profile.snapshot?.fingerprint === snapshot.fingerprint
           && (profile.mode === group.mode || profile.mode === 'unknown' || group.mode === 'unknown'))
         const target = targets.value[group.id] === 'new' ? (matches.length === 1 ? matches[0] : undefined) : props.profiles.find(profile => profile.id === targets.value[group.id])
         return { group, snapshot, catalog, target }

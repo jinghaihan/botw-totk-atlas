@@ -11,9 +11,7 @@ export interface ProgressRow {
   chests?: { total: number | null, opened: number | null, complete: boolean | undefined }
 }
 export function resolveRows(snapshot: GameSnapshot | undefined, points: CatalogPoint[], annotations: PointAnnotation[]): ProgressRow[] {
-  if (!snapshot)
-    return points.map(point => ({ point, status: 'incomplete', found: false }))
-  const reader = createProgressReader(snapshot)
+  const reader = snapshot ? createProgressReader(snapshot) : undefined
   const annotationsByPoint = new Map(annotations.map(a => [a.pointId, a]))
   // Index children once; avoid scanning thousands of chests per shrine and filter update.
   const children = new Map<string, CatalogPoint[]>()
@@ -22,10 +20,10 @@ export function resolveRows(snapshot: GameSnapshot | undefined, points: CatalogP
       children.set(p.parentId, [...children.get(p.parentId) ?? [], p])
   }
   return points.map((point) => {
-    const automatic = reader.status(point)
+    const automatic = reader?.status(point)
     const annotation = annotationsByPoint.get(point.id)
     const status = annotation?.status ?? automatic ?? 'incomplete'
-    return { point, automatic, status, annotation, found: reader.found(point), ...(point.category === 'shrine' ? { chests: reader.shrineChests(point, children.get(point.id) ?? []) } : {}) }
+    return { point, automatic, status, annotation, found: reader?.found(point) ?? status === 'complete', ...(reader && point.category === 'shrine' ? { chests: reader.shrineChests(point, children.get(point.id) ?? []) } : {}) }
   })
 }
 

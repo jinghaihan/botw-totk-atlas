@@ -19,9 +19,9 @@ const snapshot = z.object({
 const change = z.object({ id, name: text })
 export const backupSchema = z.object({
   format: z.enum(['zelda-notes', 'wilds-atlas']),
-  version: z.union([z.literal(1), z.literal(2)]),
+  version: z.union([z.literal(1), z.literal(2), z.literal(3)]),
   exportedAt: z.iso.datetime(),
-  profiles: z.array(z.object({ id, name: z.string().min(1).max(80), game: z.enum(['botw', 'totk']), mode: z.enum(['normal', 'master', 'unknown']), updatedAt: z.iso.datetime(), snapshot })).max(100),
+  profiles: z.array(z.object({ id, name: z.string().min(1).max(80), game: z.enum(['botw', 'totk']), mode: z.enum(['normal', 'master', 'unknown']), updatedAt: z.iso.datetime(), snapshot: snapshot.optional() })).max(100),
   annotations: z.array(z.object({ profileId: id, pointId: id, status: z.enum(['complete', 'incomplete', 'unknown']).optional().transform(status => status === 'unknown' ? undefined : status), updatedAt: z.iso.datetime() })).max(100000),
   imports: z.array(z.object({ profileId: id, importedAt: z.iso.datetime(), filename: text, fingerprint: text, initial: z.boolean(), changes: z.array(change), regressions: z.array(change).optional() })).max(10000),
   views: z.array(z.object({ profileId: id, categories: z.array(id).nullable(), status: z.enum(['all', 'complete', 'incomplete', 'unknown', 'found-unfinished', 'shrine-chests']).transform(status => status === 'unknown' ? 'incomplete' : status), layer: z.enum(['surface', 'sky', 'depths']), search: text, region: text.optional() })).max(100),
@@ -30,7 +30,7 @@ export const backupSchema = z.object({
   if (ids.size !== backup.profiles.length)
     ctx.addIssue({ code: 'custom', message: '备份包含重复的 Profile。' })
   for (const p of backup.profiles) {
-    if (p.game !== p.snapshot.game || (p.game === 'totk' && p.mode === 'master'))
+    if ((p.snapshot ? p.game !== p.snapshot.game : backup.version < 3) || (p.game === 'totk' && p.mode === 'master'))
       ctx.addIssue({ code: 'custom', message: 'Profile 的游戏类型不一致。' })
   }
   for (const entry of [...backup.annotations, ...backup.imports, ...backup.views]) {
@@ -40,15 +40,18 @@ export const backupSchema = z.object({
 })
 
 export async function exportBackup(profileId?: string) {
-  return db.transaction('r', [db.profiles, db.annotations, db.imports, db.views], async () => ({
-    format: 'zelda-notes' as const,
-    version: 2 as const,
-    exportedAt: new Date().toISOString(),
-    profiles: (profileId ? await db.profiles.where('id').equals(profileId).toArray() : await db.profiles.toArray()).map(profile => ({ ...profile, snapshot: collectionSnapshot(profile.snapshot) })),
-    annotations: (profileId ? await db.annotations.where('profileId').equals(profileId).toArray() : await db.annotations.toArray()).filter(a => a.status && !a.pointId.startsWith('custom:')).map(({ profileId, pointId, status, updatedAt }) => ({ profileId, pointId, status, updatedAt })),
-    imports: profileId ? await db.imports.where('profileId').equals(profileId).toArray() : await db.imports.toArray(),
-    views: profileId ? await db.views.where('profileId').equals(profileId).toArray() : await db.views.toArray(),
-  }))
+  return db.transaction('r', [db.profiles, db.annotations, db.imports, db.views], async () => {
+    const profiles = (profileId ? await db.profiles.where('id').equals(profileId).toArray() : await db.profiles.toArray()).map(profile => ({ ...profile, snapshot: profile.snapshot && collectionSnapshot(profile.snapshot) }))
+    return {
+      format: 'zelda-notes' as const,
+      version: profiles.some(profile => !profile.snapshot) ? 3 as const : 2 as const,
+      exportedAt: new Date().toISOString(),
+      profiles,
+      annotations: (profileId ? await db.annotations.where('profileId').equals(profileId).toArray() : await db.annotations.toArray()).filter(a => a.status && !a.pointId.startsWith('custom:')).map(({ profileId, pointId, status, updatedAt }) => ({ profileId, pointId, status, updatedAt })),
+      imports: profileId ? await db.imports.where('profileId').equals(profileId).toArray() : await db.imports.toArray(),
+      views: profileId ? await db.views.where('profileId').equals(profileId).toArray() : await db.views.toArray(),
+    }
+  })
 }
 
 export async function restoreBackup(input: unknown) {

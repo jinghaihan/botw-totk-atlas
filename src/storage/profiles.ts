@@ -10,7 +10,7 @@ export interface SaveProfile {
   game: GameId
   mode: GameMode
   updatedAt: string
-  snapshot: GameSnapshot
+  snapshot?: GameSnapshot
 }
 export interface ImportRecord {
   id?: number
@@ -74,39 +74,56 @@ export function listProfiles() {
   return db.profiles.orderBy('updatedAt').reverse().toArray()
 }
 
-export async function saveProfile(snapshot: GameSnapshot, name: string, id?: string, mode: GameMode = 'unknown', catalog: CatalogPoint[] = []) {
-  const existing = id ? await db.profiles.get(id) : undefined
-  if (id && !existing)
-    throw new Error('目标 Profile 已不存在，请重新选择。')
-  if (existing && existing.game !== snapshot.game)
-    throw new Error('这份存档与目标 Profile 的游戏不同，请创建新的 Profile。')
-  if (mode === 'master' && snapshot.game === 'totk')
-    throw new Error('TOTK 没有大师模式。')
-  const normalizedName = name.trim() || `${snapshot.game.toUpperCase()} · ${mode === 'master' ? '大师模式' : mode === 'normal' ? '普通模式' : '存档'}`
-  if (normalizedName.length > 80)
-    throw new Error('Profile 名称最多 80 个字符。')
-  const profile: SaveProfile = {
-    id: id ?? crypto.randomUUID(),
-    name: normalizedName,
-    game: snapshot.game,
-    mode: snapshot.game === 'totk' ? 'normal' : mode === 'unknown' ? existing?.mode ?? 'unknown' : mode,
-    updatedAt: new Date().toISOString(),
-    snapshot: collectionSnapshot(snapshot),
-  }
-  const changes = existing ? compareProgress(existing.snapshot, snapshot, catalog) : []
-  const regressions = existing ? compareProgress(snapshot, existing.snapshot, catalog) : []
-  await db.transaction('rw', db.profiles, db.imports, async () => {
-    await db.profiles.put(profile)
-    await db.imports.add({ profileId: profile.id, importedAt: profile.updatedAt, filename: snapshot.filename, fingerprint: snapshot.fingerprint, initial: !existing, changes, regressions })
-  })
-  return profile
-}
-
-export async function renameProfile(id: string, name: string) {
+function validateProfileName(name: string) {
   const trimmed = name.trim()
   if (!trimmed || trimmed.length > 80)
     throw new Error('请输入 1–80 个字符的名称。')
-  if (await db.profiles.update(id, { name: trimmed }) === 0)
+  return trimmed
+}
+
+export async function createProfile(game: GameId, name: string) {
+  const profile: SaveProfile = {
+    id: crypto.randomUUID(),
+    name: validateProfileName(name),
+    game,
+    mode: game === 'totk' ? 'normal' : 'unknown',
+    updatedAt: new Date().toISOString(),
+  }
+  await db.profiles.add(profile)
+  return profile
+}
+
+export function saveProfile(snapshot: GameSnapshot, name: string, id?: string, mode: GameMode = 'unknown', catalog: CatalogPoint[] = []) {
+  return db.transaction('rw', db.profiles, db.imports, async () => {
+    const existing = id ? await db.profiles.get(id) : undefined
+    if (id && !existing)
+      throw new Error('目标 Profile 已不存在，请重新选择。')
+    if (existing && existing.game !== snapshot.game)
+      throw new Error('这份存档与目标 Profile 的游戏不同，请创建新的 Profile。')
+    if (mode === 'master' && snapshot.game === 'totk')
+      throw new Error('TOTK 没有大师模式。')
+    const normalizedName = name.trim() || `${snapshot.game.toUpperCase()} · ${mode === 'master' ? '大师模式' : mode === 'normal' ? '普通模式' : '存档'}`
+    if (normalizedName.length > 80)
+      throw new Error('Profile 名称最多 80 个字符。')
+    const profile = {
+      id: id ?? crypto.randomUUID(),
+      name: normalizedName,
+      game: snapshot.game,
+      mode: snapshot.game === 'totk' ? 'normal' : mode === 'unknown' ? existing?.mode ?? 'unknown' : mode,
+      updatedAt: new Date().toISOString(),
+      snapshot: collectionSnapshot(snapshot),
+    } satisfies SaveProfile
+    const previous = existing?.snapshot
+    const changes = previous ? compareProgress(previous, snapshot, catalog) : []
+    const regressions = previous ? compareProgress(snapshot, previous, catalog) : []
+    await db.profiles.put(profile)
+    await db.imports.add({ profileId: profile.id, importedAt: profile.updatedAt, filename: snapshot.filename, fingerprint: snapshot.fingerprint, initial: !previous, changes, regressions })
+    return profile
+  })
+}
+
+export async function renameProfile(id: string, name: string) {
+  if (await db.profiles.update(id, { name: validateProfileName(name) }) === 0)
     throw new Error('Profile 已不存在。')
 }
 

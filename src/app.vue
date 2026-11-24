@@ -79,7 +79,7 @@ onMounted(async () => {
         throw new Error(t('本地预览存档未找到。'))
       const parsed = await readSave(await response.arrayBuffer(), 'game_data.sav')
       const existing = profiles.value.find(p => p.name === 'BOTW · 普通模式')
-      if (existing?.snapshot.fingerprint === parsed.fingerprint)
+      if (existing?.snapshot?.fingerprint === parsed.fingerprint)
         activeId.value = existing.id
       else await imported((await saveProfile(parsed, 'BOTW · 普通模式', existing?.id, 'normal', await loadCatalog('botw'))).id)
     }

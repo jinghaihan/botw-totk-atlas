@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { exportBackup, restoreBackup } from '@/storage/backup'
-import { db, putAnnotation, saveProfile } from '@/storage/profiles'
+import { createProfile, db, listAnnotations, putAnnotation, saveProfile } from '@/storage/profiles'
 import { snapshot } from './helpers/snapshot'
 
 beforeEach(async () => {
@@ -9,6 +9,18 @@ beforeEach(async () => {
   })
 })
 describe('portable backups', () => {
+  it('round-trips a manual profile and its completions without a game save', async () => {
+    const profile = await createProfile('totk', 'Manual playthrough')
+    await putAnnotation({ profileId: profile.id, pointId: 'chest:1', status: 'complete', updatedAt: profile.updatedAt })
+    const backup = await exportBackup(profile.id)
+    expect(backup.version).toBe(3)
+    const [restoredId] = await restoreBackup(JSON.parse(JSON.stringify(backup)))
+    expect(await db.profiles.get(restoredId!)).toMatchObject({ game: 'totk', mode: 'normal' })
+    expect((await db.profiles.get(restoredId!))?.snapshot).toBeUndefined()
+    expect(await listAnnotations(restoredId!)).toMatchObject([{ pointId: 'chest:1', status: 'complete' }])
+    expect(backup.imports).toEqual([])
+  })
+
   it('preserves no-category selections and converts legacy all-category selections', async () => {
     const profile = await saveProfile(snapshot(), 'filters')
     await db.views.put({ profileId: profile.id, categories: [], status: 'all', layer: 'surface', search: '' })
