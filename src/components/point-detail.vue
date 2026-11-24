@@ -32,7 +32,7 @@ function toggleComplete() {
           {{ row.point.detail }}
         </p>
         <div v-if="row.chests" class="shrine-chest-summary">
-          <span class="i-lucide:archive" aria-hidden="true" /><div><strong>{{ t('神庙宝箱') }}</strong><span>{{ row.chests.complete === true ? t('已领完') : row.chests.complete === false ? t('尚未领完') : t('记录未知') }}</span></div><b v-if="row.chests.total !== null">{{ row.chests.opened }} / {{ row.chests.total }}</b>
+          <span :class="categoryIcon('chest')" aria-hidden="true" /><div><strong>{{ t('神庙宝箱') }}</strong><span>{{ row.chests.complete === true ? t('已领完') : row.chests.complete === false ? t('尚未领完') : t('记录未知') }}</span></div><b v-if="row.chests.total !== null">{{ row.chests.opened }} / {{ row.chests.total }}</b>
         </div>
         <div v-if="children.length" class="child-list">
           <button v-for="child in children" :key="child.point.id" @click="emit('select', child.point.id)">

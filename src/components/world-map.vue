@@ -27,7 +27,7 @@ const skullGlyph = skullIcon.replace(/<!--[\s\S]*?-->/g, '').trim()
 const glyphs: Record<string, string> = {
   shrine: 'M12 4 21 20H3Z M12 10v4 M12 17v1',
   korok: 'M19 4C7 3 3 9 6 16c7 5 14-1 13-12ZM5 20l10-11',
-  chest: 'M4 8h16v12H4ZM4 12h16M10 10h4v5h-4ZM6 8V5h12v3',
+  chest: 'M12 2 3 7v10l9 5 9-5V7ZM3 7l9 5 9-5M12 12v10M7.5 4.5l9 5',
   tower: 'M10 4h4l2 16H8ZM6 5 3 8l3 3M18 5l3 3-3 3',
   lightroot: 'M12 20V9M12 13C4 14 3 7 4 5c6 0 9 3 8 8ZM12 10c0-6 5-8 8-7 1 5-3 8-8 7',
   cave: 'M2 20 8 6l4 7 3-9 7 16ZM9 20v-4a3 3 0 0 1 6 0v4',

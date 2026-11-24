@@ -3,7 +3,7 @@ const monsters = new Set(['bubbul', 'hinox', 'talus', 'molduga', 'flux', 'frox',
 const icons: Record<string, string> = {
   shrine: 'i-lucide:landmark',
   korok: 'i-lucide:leaf',
-  chest: 'i-lucide:archive',
+  chest: 'i-lucide:package',
   tower: 'i-lucide:radio-tower',
   lightroot: 'i-lucide:sprout',
   cave: 'i-lucide:mountain',
