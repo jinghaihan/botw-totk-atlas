@@ -99,14 +99,7 @@ onMounted(async () => {
     <TabsRoot v-model="tab" class="app-frame">
       <header class="atlas-header">
         <div class="header-main">
-          <div class="header-identity">
-            <button class="atlas-brand" :aria-label="t('返回地图')" @click="tab = 'atlas'">
-              <svg viewBox="0 0 40 44" aria-hidden="true"><path d="M20 2 38 34H2Z M20 16 29 32H11Z M11 18 20 34 29 18" /></svg>
-              <span translate="no">ZELDA NOTES<small>{{ t('塞尔达笔记') }}</small></span>
-            </button>
-            <span class="identity-divider" />
-            <AtlasSelect v-if="profiles.length" v-model="activeId" class="header-profile" :label="t('切换存档 Profile')" :options="options" /><AtlasSelect v-else v-model="browseGame" class="header-profile" :label="t('选择游戏')" :options="[{ value: 'botw', label: t('旷野之息') }, { value: 'totk', label: t('王国之泪') }]" />
-          </div>
+          <AtlasSelect v-if="profiles.length" v-model="activeId" class="header-profile" :label="t('切换存档 Profile')" :options="options" /><AtlasSelect v-else v-model="browseGame" class="header-profile" :label="t('选择游戏')" :options="[{ value: 'botw', label: t('旷野之息') }, { value: 'totk', label: t('王国之泪') }]" />
           <TabsList v-if="current" class="atlas-navigation" :aria-label="t('存档内容')">
             <TabsTrigger value="atlas" :aria-label="t('地图')">
               <span class="i-lucide:map" aria-hidden="true" /><span>{{ t('地图') }}</span>
