@@ -517,6 +517,9 @@ button:hover:not(:disabled) {
   color: #879178;
   font-variant-numeric: tabular-nums;
 }
+.category-tiles .category-progress {
+  margin-block-start: auto;
+}
 .routes-heading {
   margin-top: 8px;
   padding-top: 15px;
