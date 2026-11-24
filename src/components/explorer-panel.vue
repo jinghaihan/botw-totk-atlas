@@ -37,10 +37,11 @@ const defaultView = (profileId: string): ProfileView => ({ profileId, categories
 const view = ref(defaultView(props.profile?.id ?? `browse:${props.game}`))
 const points = computed(() => [...catalog.value.map(gameLabels.localize), ...custom.value])
 const rows = computed(() => resolveRows(props.profile?.snapshot, points.value, annotations.value))
-const categories = computed(() => [...new Set(points.value.map(p => p.category))].sort((a, b) => t(categoryLabels[a] ?? a).localeCompare(t(categoryLabels[b] ?? b), currentLocale.value)))
-const regions = computed(() => [{ value: 'all', label: t('所有地区') }, ...[...new Set(points.value.map(p => p.region).filter((r): r is string => !!r))].sort().map(r => ({ value: r, label: gameLabels.text(r) }))])
-const filtered = computed(() => filterRows(rows.value, view.value))
-const mapRows = computed(() => filterRows(rows.value, view.value, true))
+const explorationRows = computed(() => rows.value.filter(row => row.point.at && !row.point.interior))
+const categories = computed(() => [...new Set(explorationRows.value.map(row => row.point.category))].sort((a, b) => t(categoryLabels[a] ?? a).localeCompare(t(categoryLabels[b] ?? b), currentLocale.value)))
+const regions = computed(() => [{ value: 'all', label: t('所有地区') }, ...[...new Set(explorationRows.value.map(row => row.point.region).filter((r): r is string => !!r))].sort().map(r => ({ value: r, label: gameLabels.text(r) }))])
+const filtered = computed(() => filterRows(explorationRows.value, view.value))
+const mapRows = computed(() => filterRows(explorationRows.value, view.value, true))
 const paged = computed(() => filtered.value.slice((page.value - 1) * 40, page.value * 40))
 const shrineChestsComplete = computed(() => {
   const shrines = rows.value.filter(row => row.point.category === 'shrine')
@@ -53,7 +54,7 @@ const statuses = computed(() => [{ value: 'all', label: t('全部状态') }, { v
 const categoryOrder = computed(() => [...categoryDisplayOrder.filter(id => categories.value.includes(id)), ...categories.value.filter(id => !categoryDisplayOrder.includes(id))])
 const categoryCounts = computed(() => {
   const counts: Record<string, { remaining: number, complete: number, unknown: number, total: number }> = {}
-  for (const row of rows.value) {
+  for (const row of explorationRows.value) {
     const count = counts[row.point.category] ??= { remaining: 0, complete: 0, unknown: 0, total: 0 }
     count.total++
     if (row.status === 'complete')
@@ -70,7 +71,7 @@ function chooseCategory(category: string) {
   view.value.search = ''
 }
 function resetFilters() {
-  view.value.status = 'all'
+  view.value.status = props.profile ? 'incomplete' : 'all'
   view.value.categories = null
   view.value.search = ''
   view.value.region = 'all'
@@ -93,6 +94,11 @@ async function load() {
     annotations.value = notes
     custom.value = pins
     view.value = savedView ?? defaultView(profileId ?? `browse:${props.game}`)
+    if (view.value.categories?.length) {
+      const available = new Set([...data, ...pins].filter(point => point.at && !point.interior).map(point => point.category))
+      const selected = view.value.categories.filter(category => available.has(category))
+      view.value.categories = selected.length ? selected : defaultView(view.value.profileId).categories
+    }
     page.value = 1
   }
   catch (e) {
