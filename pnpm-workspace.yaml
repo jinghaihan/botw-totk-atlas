@@ -20,9 +20,7 @@ catalogs:
     '@unocss/preset-web-fonts': ^66.7.3
     '@unocss/reset': ^66.7.3
     '@vueuse/core': ^14.3.0
-    crc-32: ^1.2.2
     dexie: ^4.4.7
-    murmurhash3js: ^3.0.1
     reka-ui: ^2.11.0
     unocss: ^66.7.3
     vue: ^3.5.39
@@ -48,6 +46,9 @@ catalogs:
     '@types/leaflet.markercluster': ^1.5.6
     '@types/murmurhash3js': ^3.0.7
     '@types/node': ^26.6.6
+  utils:
+    crc-32: ^1.2.2
+    murmurhash3js: ^3.0.1
 onlyBuiltDependencies:
   - esbuild
   - simple-git-hooks

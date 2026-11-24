@@ -38,15 +38,15 @@
     "@unhead/vue": "catalog:frontend",
     "@unocss/reset": "catalog:frontend",
     "@vueuse/core": "catalog:frontend",
-    "crc-32": "catalog:frontend",
     "dexie": "catalog:frontend",
-    "murmurhash3js": "catalog:frontend",
     "reka-ui": "catalog:frontend",
     "vue": "catalog:frontend",
     "vue-i18n": "catalog:frontend",
     "zod": "catalog:frontend",
     "leaflet": "catalog:map",
-    "leaflet.markercluster": "catalog:map"
+    "leaflet.markercluster": "catalog:map",
+    "crc-32": "catalog:utils",
+    "murmurhash3js": "catalog:utils"
   },
   "devDependencies": {
     "@octohash/vite-config": "catalog:build",
