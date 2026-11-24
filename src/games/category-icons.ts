@@ -46,7 +46,7 @@ const categoryIcons: Partial<Record<string, ExplorationIcon>> = {
   'armor': 'armor',
 }
 
-const landmarkIcons: Partial<Record<string, ExplorationIcon>> = {
+const pointIcons: Partial<Record<string, ExplorationIcon>> = {
   'temple:Wind_Relic': 'divine-bird',
   'temple:Fire_Relic': 'divine-lizard',
   'temple:Electric_Relic': 'divine-camel',
@@ -56,6 +56,22 @@ const landmarkIcons: Partial<Record<string, ExplorationIcon>> = {
   'temple:SageOfSoul': 'spirit-temple',
   'lab:Location_AncientLabo': 'akkala-lab',
   'lab:IsVisitLocation.AncientLabo': 'akkala-lab',
+  'rematch:Zora': 'blight-water',
+  'rematch:Rito': 'blight-wind',
+  'rematch:Goron': 'blight-fire',
+  'rematch:Gerudo': 'blight-thunder',
+  'rematch:ab170b3c': 'colgera',
+  'rematch:f86acd0': 'colgera',
+  'rematch:e18248e8': 'colgera',
+  'rematch:a0b5253d': 'gohma',
+  'rematch:f2b13c3f': 'gohma',
+  'rematch:ffb3f46b': 'gohma',
+  'rematch:a6e5f8f9': 'queen-gibdo',
+  'rematch:69a6fe': 'queen-gibdo',
+  'rematch:e72eb42e': 'queen-gibdo',
+  'rematch:8fd913f8': 'mucktorok',
+  'rematch:bc9fde5a': 'mucktorok',
+  'rematch:2730997d': 'mucktorok',
 }
 
 export { explorationIcons }
@@ -78,8 +94,8 @@ export function categoryIcon(game: GameId, category: string) {
 }
 
 export function pointIconName(game: GameId, point: Pick<CatalogPoint, 'id' | 'category'>): ExplorationIcon {
-  const landmark = Object.hasOwn(landmarkIcons, point.id) ? landmarkIcons[point.id] : undefined
-  return landmark ?? categoryIconName(game, point.category)
+  const icon = Object.hasOwn(pointIcons, point.id) ? pointIcons[point.id] : undefined
+  return icon ?? categoryIconName(game, point.category)
 }
 
 export function pointIcon(game: GameId, point: Pick<CatalogPoint, 'id' | 'category'>) {
