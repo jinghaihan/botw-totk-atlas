@@ -43,6 +43,26 @@ const explorationRows = computed(() => rows.value.filter(row => row.point.at && 
 const categories = computed(() => [...new Set(explorationRows.value.map(row => row.point.category))].sort((a, b) => t(categoryLabels[a] ?? a).localeCompare(t(categoryLabels[b] ?? b), currentLocale.value)))
 const regions = computed(() => [{ value: 'all', label: t('所有地区') }, ...[...new Set(explorationRows.value.map(row => row.point.region).filter((r): r is string => !!r))].sort().map(r => ({ value: r, label: gameLabels.text(r) }))])
 const filtered = computed(() => filterRows(explorationRows.value, view.value, true))
+const categoryProgress = computed(() => {
+  const counts = new Map<string, { done: number, total: number }>()
+  if (!props.profile)
+    return counts
+  const matching = filterRows(explorationRows.value, { ...view.value, categories: null, status: 'all' }, true)
+  for (const row of matching) {
+    if (row.status === 'unknown')
+      continue
+    const count = counts.get(row.point.category) ?? { done: 0, total: 0 }
+    count.total++
+    if (row.status === 'complete')
+      count.done++
+    counts.set(row.point.category, count)
+  }
+  return counts
+})
+function formatCategoryProgress(category: string) {
+  const count = categoryProgress.value.get(category)
+  return count ? `${count.done.toLocaleString(currentLocale.value)} / ${count.total.toLocaleString(currentLocale.value)}` : ''
+}
 const pageCount = computed(() => Math.ceil(filtered.value.length / pageSize))
 const paged = computed(() => filtered.value.slice((page.value - 1) * pageSize, page.value * pageSize))
 const current = computed(() => rows.value.find(r => r.point.id === selected.value))
@@ -233,6 +253,7 @@ async function remove(id: string) {
                   <ToggleGroupItem v-for="category in categoryOrder" :key="category" :value="category">
                     <span class="category-symbol" :class="categoryIcon(category)" aria-hidden="true" />
                     <strong>{{ categoryName(category) }}</strong>
+                    <small v-if="categoryProgress.has(category)" class="category-progress"><span class="sr-only">{{ t('已完成') }} </span>{{ formatCategoryProgress(category) }}</small>
                   </ToggleGroupItem>
                 </ToggleGroupRoot>
               </CollapsibleContent>
