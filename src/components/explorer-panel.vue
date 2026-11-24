@@ -27,6 +27,7 @@ onMounted(() => {
     panelOpen.value = false
 })
 const pointList = ref<HTMLElement>()
+const saving = reactive(new Set<string>())
 const pageSize = 40
 const selected = ref('')
 const detailOpen = ref(false)
@@ -131,20 +132,41 @@ function select(id: string) {
   }
 }
 async function save(annotation: PointAnnotation) {
-  if (!props.profile)
+  const { pointId, profileId } = annotation
+  if (props.profile?.id !== profileId || saving.has(pointId))
     return
+  saving.add(pointId)
   error.value = ''
   try {
     await putAnnotation(annotation)
-    if (annotation.profileId === props.profile?.id) {
-      annotations.value = await listAnnotations(props.profile?.id)
-      if (!filtered.value.some(row => row.point.id === annotation.pointId))
+    if (props.profile?.id !== profileId)
+      return
+    annotations.value = [...annotations.value.filter(record => record.pointId !== pointId), annotation]
+    if (selected.value === pointId) {
+      if (!filtered.value.some(row => row.point.id === pointId))
         focus.value = undefined
       detailOpen.value = false
     }
   }
   catch (e) {
     error.value = e instanceof Error ? e.message : t('记录保存失败。')
+  }
+  finally {
+    saving.delete(pointId)
+  }
+}
+async function completePoint(pointId: string, event: MouseEvent) {
+  const profileId = props.profile?.id
+  if (!profileId)
+    return
+  const button = event.currentTarget as HTMLButtonElement
+  const row = button.closest('.point-row')
+  const neighbor = row?.nextElementSibling ?? row?.previousElementSibling
+  await save({ profileId, pointId, status: 'complete', updatedAt: new Date().toISOString() })
+  await nextTick()
+  if (event.detail === 0 && !button.isConnected && document.activeElement === document.body) {
+    const next = neighbor?.isConnected ? neighbor : pointList.value
+    next?.querySelector<HTMLButtonElement>('.point-complete')?.focus()
   }
 }
 function locate(point: CatalogPoint) {
@@ -216,9 +238,19 @@ function locate(point: CatalogPoint) {
               <section ref="pointList" class="point-list" :aria-label="t('探索点位列表')">
                 <div v-if="profile && !filtered.length" class="empty-results">
                   <h3>{{ t('当前筛选没有结果') }}</h3>
-                </div><button v-for="row in paged" :key="row.point.id" class="point-row" :class="[row.status, { selected: row.point.id === selected }]" @click="select(row.point.id)">
-                  <span class="point-symbol" :class="categoryIcon(row.point.category)" aria-hidden="true" /><span class="point-copy"><strong>{{ row.point.name }}</strong><small>{{ row.point.regionLabel ?? row.point.region ?? t(categoryLabel(game, row.point.category)) }}</small></span><span class="point-state"><span class="i-lucide:chevron-right" aria-hidden="true" /><small v-if="row.annotation?.status">{{ t('手动') }}</small></span>
-                </button>
+                </div>
+                <div v-for="row in paged" :key="row.point.id" class="point-row" :class="{ selected: row.point.id === selected }">
+                  <button type="button" class="point-row-details" @click="select(row.point.id)">
+                    <span class="point-symbol" :class="categoryIcon(row.point.category)" aria-hidden="true" />
+                    <span class="point-copy"><strong>{{ row.point.name }}</strong><small>{{ row.point.regionLabel ?? row.point.region ?? t(categoryLabel(game, row.point.category)) }}</small></span>
+                    <span v-if="!profile || row.annotation?.status" class="point-state">
+                      <span v-if="!profile" class="i-lucide:chevron-right" aria-hidden="true" /><small v-if="row.annotation?.status">{{ t('手动') }}</small>
+                    </span>
+                  </button>
+                  <button v-if="profile" type="button" class="icon-button point-complete" :aria-label="`${t('标为已完成')} · ${row.point.name}`" :title="t('标为已完成')" :disabled="saving.has(row.point.id)" @click="completePoint(row.point.id, $event)">
+                    <span class="i-lucide:check" aria-hidden="true" />
+                  </button>
+                </div>
               </section>
               <PaginationRoot v-if="pageCount > 1" v-model:page="page" :total="filtered.length" :items-per-page="pageSize" :sibling-count="0" show-edges class="pagination">
                 <PaginationList v-slot="{ items }">
