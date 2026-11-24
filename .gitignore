@@ -25,3 +25,7 @@ dev-dist
 *.sw?
 
 public/assets/fonts
+
+# Private local save previews
+.local/
+*.sav

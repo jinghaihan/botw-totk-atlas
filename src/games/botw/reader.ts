@@ -1,29 +1,8 @@
+import type { GameSnapshot, InventoryItem } from '@/domain/game'
 import * as CRC32 from 'crc-32'
 import flags from './completion-flags.json'
 
-export interface InventoryItem {
-  slot: number
-  id: string
-  category: string
-  quantity: number
-  modifier?: number
-  modifierValue?: number
-}
-
-export interface BotwSnapshot {
-  filename: string
-  fingerprint: string
-  importedAt: string
-  size: number
-  rupees: number
-  mon: number
-  hearts: number
-  stamina: number
-  progress: { id: string, label: string, done: number, total: number }[]
-  milestones: { label: string, complete: boolean }[]
-  items: InventoryItem[]
-  horses: { name: string, actor: string, mane: string }[]
-}
+export type BotwSnapshot = GameSnapshot
 
 export async function readBotwSave(buffer: ArrayBuffer, filename: string): Promise<BotwSnapshot> {
   const view = new DataView(buffer)
@@ -94,6 +73,7 @@ export async function readBotwSave(buffer: ArrayBuffer, filename: string): Promi
         throw new Error('无法识别装备附加效果记录。')
       item.modifier = view.getUint32(a + index * 8, true)
       item.modifierValue = view.getUint32(b + index * 8, true)
+      item.durability = item.quantity / 100
       counts[category] = index + 1
     }
     items.push(item)
@@ -107,6 +87,7 @@ export async function readBotwSave(buffer: ArrayBuffer, filename: string): Promi
   const digest = await crypto.subtle.digest('SHA-256', buffer)
   const fingerprint = Array.from(new Uint8Array(digest), b => b.toString(16).padStart(2, '0')).join('')
   return {
+    game: 'botw',
     filename,
     fingerprint,
     importedAt: new Date().toISOString(),
@@ -118,6 +99,8 @@ export async function readBotwSave(buffer: ArrayBuffer, filename: string): Promi
     progress,
     items,
     horses,
+    scalars: Object.fromEntries(Array.from(offsets, ([key, pos]) => [String(key), view.getUint32(pos, true)])),
+    guids: [],
     milestones: [
       { label: '剑之试炼', complete: number('100enemy_Finish') === 1 },
       { label: '英杰们的诗篇', complete: number('BalladOfHeroes_Finish') === 1 },
