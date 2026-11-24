@@ -11,26 +11,26 @@ export function createProgressReader(snapshot: GameSnapshot) {
     return cache.get(name)!
   }
   const value = (key: string | number) => snapshot.scalars?.[String(typeof key === 'number' ? key : hash(key))]
-  function status(point: CatalogPoint): PointStatus {
+  function status(point: CatalogPoint): PointStatus | undefined {
     if (point.rule === 'manual' || point.key === undefined)
-      return 'unknown'
+      return undefined
     if (snapshot.game === 'totk' && ['quest:DefeatGanondorf', 'quest:MainChallenge'].includes(point.id) && value('IsGameClear') === 1)
       return 'complete'
     if (point.rule === 'guid') {
       if (!snapshot.guids)
-        return 'unknown'
+        return undefined
       return guids.has(String(point.key).replace('guid:', '')) ? 'complete' : 'incomplete'
     }
     const actual = value(point.key)
     if (actual === undefined)
-      return 'unknown'
+      return undefined
     if (snapshot.game === 'totk' && point.category === 'tablet' && actual !== hash('Complete'))
-      return 'unknown'
+      return undefined
     if (point.values?.length)
       return point.values.some(expected => hash(expected) === actual) ? 'complete' : 'incomplete'
     if (point.rule === 'positive')
       return actual > 0 ? 'complete' : 'incomplete'
-    return actual === 1 ? 'complete' : actual === 0 ? 'incomplete' : 'unknown'
+    return actual === 1 ? 'complete' : actual === 0 ? 'incomplete' : undefined
   }
   function found(point: CatalogPoint) {
     return status(point) === 'complete' || (!!point.found && (value(point.found) ?? 0) > 0)
@@ -45,7 +45,7 @@ export function createProgressReader(snapshot: GameSnapshot) {
     if (!children.length)
       return { children, total: null, opened: null, complete: undefined }
     const states = children.map(status)
-    return { children, total: children.length, opened: states.filter(s => s === 'complete').length, complete: states.includes('unknown') ? undefined : states.every(s => s === 'complete') }
+    return { children, total: children.length, opened: states.filter(s => s === 'complete').length, complete: states.includes(undefined) ? undefined : states.every(s => s === 'complete') }
   }
   return { hash, value, status, found, shrineChests }
 }

@@ -4,19 +4,15 @@ import { createProgressReader } from './completion'
 
 export interface ProgressRow {
   point: CatalogPoint
-  automatic: PointStatus
+  automatic?: PointStatus
   status: PointStatus
   annotation?: PointAnnotation
   found: boolean
   chests?: { total: number | null, opened: number | null, complete: boolean | undefined }
 }
-function untrackedStatus(point: CatalogPoint): PointStatus {
-  return point.category === 'lynel' ? 'incomplete' : 'unknown'
-}
-
 export function resolveRows(snapshot: GameSnapshot | undefined, points: CatalogPoint[], annotations: PointAnnotation[]): ProgressRow[] {
   if (!snapshot)
-    return points.map(point => ({ point, automatic: 'unknown', status: untrackedStatus(point), found: false }))
+    return points.map(point => ({ point, status: 'incomplete', found: false }))
   const reader = createProgressReader(snapshot)
   const annotationsByPoint = new Map(annotations.map(a => [a.pointId, a]))
   // Index children once; avoid scanning thousands of chests per shrine and filter update.
@@ -28,7 +24,7 @@ export function resolveRows(snapshot: GameSnapshot | undefined, points: CatalogP
   return points.map((point) => {
     const automatic = reader.status(point)
     const annotation = annotationsByPoint.get(point.id)
-    const status = annotation?.status ?? (automatic === 'unknown' ? untrackedStatus(point) : automatic)
+    const status = annotation?.status ?? automatic ?? 'incomplete'
     return { point, automatic, status, annotation, found: reader.found(point), ...(point.category === 'shrine' ? { chests: reader.shrineChests(point, children.get(point.id) ?? []) } : {}) }
   })
 }
@@ -45,7 +41,7 @@ export function filterRows(rows: ProgressRow[], view: Omit<ProfileView, 'profile
       return false
     if (query && !`${p.name} ${(p.aliases ?? []).join(' ')} ${p.id} ${p.detail ?? ''} ${p.region ?? ''}`.toLocaleLowerCase().includes(query))
       return false
-    if (['complete', 'incomplete', 'unknown'].includes(view.status) && row.status !== view.status)
+    if ((view.status === 'complete' || view.status === 'incomplete') && row.status !== view.status)
       return false
     if (view.status === 'found-unfinished' && (!row.found || row.status !== 'incomplete'))
       return false

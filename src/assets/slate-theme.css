@@ -424,8 +424,7 @@ html[data-game='botw'] .category-symbol {
 .category-symbol,
 html[data-game='botw'] .category-symbol,
 .point-symbol,
-.point-row.complete .point-symbol,
-.point-row.unknown .point-symbol {
+.point-row.complete .point-symbol {
   color: #c9b786;
 }
 .panel-tabs button[data-state='active'] {

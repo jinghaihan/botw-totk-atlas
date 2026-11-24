@@ -39,8 +39,8 @@ const glyphs: Record<string, string> = {
 function markerSvg(category: string, status: PointStatus) {
   const color = status === 'complete' ? '#a89e84' : '#d8bd7f'
   const glyph = isMonsterCategory(category) ? skullGlyph : category === 'stable' ? horseIcon : `<path d="${glyphs[category] ?? glyphs.default}"/>`
-  const badge = status === 'complete' ? '<path d="m20 25 2 2 4-5" fill="none" stroke="currentColor" stroke-width="2"/>' : '<text x="23" y="28" text-anchor="middle" fill="currentColor" font-size="11" font-family="sans-serif">?</text>'
-  return `<svg width="24" height="28" viewBox="0 0 30 34" aria-hidden="true" style="color:${color}"><path d="M15 1 28 8v16l-13 8L2 24V8Z" fill="${status === 'complete' ? '#3e3b32' : '#292b2c'}" stroke="currentColor" stroke-width="1.5" ${status === 'unknown' ? 'stroke-dasharray="3 2"' : ''}/><g transform="translate(3 3)" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">${glyph}</g>${status === 'incomplete' ? '' : `<circle cx="23" cy="25" r="6" fill="#292b2c"/>${badge}`}</svg>`
+  const badge = '<path d="m20 25 2 2 4-5" fill="none" stroke="currentColor" stroke-width="2"/>'
+  return `<svg width="24" height="28" viewBox="0 0 30 34" aria-hidden="true" style="color:${color}"><path d="M15 1 28 8v16l-13 8L2 24V8Z" fill="${status === 'complete' ? '#3e3b32' : '#292b2c'}" stroke="currentColor" stroke-width="1.5"/><g transform="translate(3 3)" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">${glyph}</g>${status === 'incomplete' ? '' : `<circle cx="23" cy="25" r="6" fill="#292b2c"/>${badge}`}</svg>`
 }
 function base() {
   if (!map)

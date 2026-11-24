@@ -21,15 +21,15 @@ describe('exploration filters', () => {
     expect(rows[0]).toMatchObject({ automatic: 'complete', status: 'incomplete' })
     expect(filterRows(rows, { ...view, status: 'incomplete' })).toHaveLength(1)
   })
-  it('shows unmarked Lynels in the default unfinished view until marked complete', () => {
+  it('shows unmarked Lynels and camps until each is marked complete', () => {
     const lynel: CatalogPoint = { id: 'lynel:1', name: 'Lynel', category: 'lynel', at: [0, 0], rule: 'manual' }
     const camp: CatalogPoint = { id: 'camp:1', name: 'Camp', category: 'camp', at: [0, 0], rule: 'manual' }
     const unfinished = { ...view, status: 'incomplete' as const }
     const save = snapshot()
     const rows = resolveRows(save, [lynel, camp], [])
-    expect(filterRows(rows, unfinished, true)).toMatchObject([{ point: lynel, automatic: 'unknown', status: 'incomplete' }])
+    expect(filterRows(rows, unfinished, true)).toMatchObject([{ point: lynel, status: 'incomplete' }, { point: camp, status: 'incomplete' }])
     const marked = resolveRows(save, [lynel, camp], [{ profileId: 'a', pointId: lynel.id, status: 'complete', updatedAt: new Date().toISOString() }])
-    expect(filterRows(marked, unfinished, true)).toEqual([])
+    expect(filterRows(marked, unfinished, true)).toMatchObject([{ point: camp, status: 'incomplete' }])
   })
   it('finds cleared shrines with unclaimed chests without treating unknown as missing', () => {
     const save = snapshot()
@@ -53,7 +53,7 @@ describe('exploration filters', () => {
   })
 })
 
-it('leaves all completion evidence unknown when browsing without a save', () => {
+it('shows points as unfinished when browsing without a save', () => {
   const points: CatalogPoint[] = [{ id: 'chest:1', name: 'Chest', category: 'chest', key: 'guid:123', rule: 'guid' }]
-  expect(resolveRows(undefined, points, [])).toEqual([{ point: points[0], automatic: 'unknown', status: 'unknown', found: false }])
+  expect(resolveRows(undefined, points, [])).toEqual([{ point: points[0], status: 'incomplete', found: false }])
 })

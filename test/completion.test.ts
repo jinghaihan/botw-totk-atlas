@@ -7,7 +7,7 @@ describe('completion evidence', () => {
   it('distinguishes an absent record from an explicit incomplete record', () => {
     const reader = createProgressReader(snapshot({ scalars: { 42: 0 } }))
     expect(reader.status({ id: 'a', name: 'a', category: 'chest', key: 42, rule: 'boolean' })).toBe('incomplete')
-    expect(reader.status({ id: 'b', name: 'b', category: 'chest', key: 43, rule: 'boolean' })).toBe('unknown')
+    expect(reader.status({ id: 'b', name: 'b', category: 'chest', key: 43, rule: 'boolean' })).toBeUndefined()
   })
   it('preserves 64-bit treasure IDs without floating point conversion', () => {
     const reader = createProgressReader(snapshot({ game: 'totk', guids: ['17027564096477698406'] }))
@@ -36,7 +36,7 @@ it('keeps individual tablets unknown until their overall quest is complete', () 
   const reader = createProgressReader(save)
   const tablet: CatalogPoint = { id: 'tablet:a', category: 'tablet', name: 'Tablet', key: 'Step_ZonauReliefSearch', values: ['Complete'], rule: 'enum' }
   save.scalars[String(reader.hash('Step_ZonauReliefSearch'))] = reader.hash('Research')
-  expect(reader.status(tablet)).toBe('unknown')
+  expect(reader.status(tablet)).toBeUndefined()
   save.scalars[String(reader.hash('Step_ZonauReliefSearch'))] = reader.hash('Complete')
   expect(reader.status(tablet)).toBe('complete')
 })

@@ -25,7 +25,7 @@ export interface ImportRecord {
 export interface ProfileView {
   profileId: string
   categories: string[] | null
-  status: 'all' | 'incomplete' | 'complete' | 'unknown' | 'found-unfinished' | 'shrine-chests'
+  status: 'all' | 'incomplete' | 'complete' | 'found-unfinished' | 'shrine-chests'
   layer: 'surface' | 'sky' | 'depths'
   search: string
   region?: string

@@ -595,9 +595,6 @@ button:hover:not(:disabled) {
 .point-row.complete .point-symbol {
   color: #6e8f6b;
 }
-.point-row.unknown .point-symbol {
-  color: #999c87;
-}
 .point-copy {
   flex: 1;
   min-width: 0;

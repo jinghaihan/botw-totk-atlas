@@ -148,4 +148,4 @@ export function categoryLabel(game: GameId, category: string) {
   return categoryLabels[category] ?? category
 }
 
-export const statusLabels = { complete: '已完成', incomplete: '未完成', unknown: '未知 / 手动记录' }
+export const statusLabels = { complete: '已完成', incomplete: '未完成' }

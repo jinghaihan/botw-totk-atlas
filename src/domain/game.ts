@@ -1,6 +1,6 @@
 export type GameId = 'botw' | 'totk'
 export type GameMode = 'normal' | 'master' | 'unknown'
-export type PointStatus = 'complete' | 'incomplete' | 'unknown'
+export type PointStatus = 'complete' | 'incomplete'
 export type MapLayer = 'surface' | 'sky' | 'depths'
 
 export interface GameSnapshot {
@@ -37,7 +37,7 @@ export interface CatalogPoint {
 export interface PointAnnotation {
   profileId: string
   pointId: string
-  status?: Exclude<PointStatus, 'unknown'>
+  status?: PointStatus
   updatedAt: string
 }
 

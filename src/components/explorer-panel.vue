@@ -45,8 +45,6 @@ const categoryProgress = computed(() => {
     return counts
   const matching = filterRows(explorationRows.value, { ...view.value, categories: null, status: 'all' }, true)
   for (const row of matching) {
-    if (row.status === 'unknown')
-      continue
     const count = counts.get(row.point.category) ?? { done: 0, total: 0 }
     count.total++
     if (row.status === 'complete')
