@@ -326,8 +326,7 @@ html[data-game='botw'] .category-symbol {
 .conflict {
   color: #c6ae7a;
 }
-.detail-coordinates,
-.record-details {
+.detail-coordinates {
   color: #6d7786;
 }
 .point-detail .dialog-close {

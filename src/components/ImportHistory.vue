@@ -46,7 +46,7 @@ watch(() => props.profile, async (profile) => {
             </li>
           </ul>
         </details>
-      </template><code>{{ record.fingerprint.slice(0, 16) }}</code>
+      </template>
     </article>
   </div>
 </template>

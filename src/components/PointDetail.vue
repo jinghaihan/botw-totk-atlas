@@ -36,6 +36,9 @@ function save() {
       <DialogContent v-if="row" class="point-detail" @interact-outside="$event.preventDefault()">
         <div class="detail-category">
           <span class="i-lucide:map-pin" aria-hidden="true" />{{ t(categoryLabels[row.point.category] ?? row.point.category) }}<span class="detail-status" :data-status="row.status">{{ profileId ? t(statusLabels[row.status]) : t('未导入存档') }}</span>
+          <DialogClose class="dialog-close icon-button" :aria-label="t('关闭点位详情')">
+            <span class="i-lucide:x" aria-hidden="true" />
+          </DialogClose>
         </div>
         <DialogTitle>{{ row.point.name }}</DialogTitle><DialogDescription>{{ row.point.regionLabel ?? row.point.region ?? t('海拉鲁') }}</DialogDescription>
         <p v-if="row.point.detail" class="detail-copy">
@@ -74,14 +77,9 @@ function save() {
         <div v-if="row.point.at" class="detail-coordinates">
           <span class="i-lucide:crosshair" aria-hidden="true" /><span translate="no">{{ coordinateLabel(row.point.at) }}</span>
         </div>
-        <details class="record-details">
-          <summary>{{ t('存档字段与来源') }}</summary><code>{{ row.point.id }}</code><code>{{ row.point.key ?? t('仅支持手动记录') }}</code><p>{{ t('自动记录来自存档；手动选择不会写入游戏存档。营地与可重复敌人的历史可能无法从存档可靠恢复。') }}</p><button v-if="row.point.id.startsWith('custom:')" class="button danger" @click="confirmDelete = true">
-            {{ t('删除自建标记') }}
-          </button>
-        </details>
-        <DialogClose class="dialog-close icon-button" :aria-label="t('关闭点位详情')">
-          <span class="i-lucide:x" aria-hidden="true" />
-        </DialogClose>
+        <button v-if="row.point.id.startsWith('custom:')" class="button danger delete-custom-point" @click="confirmDelete = true">
+          {{ t('删除自建标记') }}
+        </button>
       </DialogContent>
     </DialogPortal>
   </DialogRoot>

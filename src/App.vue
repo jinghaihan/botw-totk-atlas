@@ -135,7 +135,7 @@ onMounted(async () => {
             <SaveContents :snapshot="snapshot" />
             <TabsContent value="progress">
               <details class="save-provenance">
-                <summary>{{ t('存档与导入记录') }}</summary><p>{{ snapshot.filename }} · {{ time(snapshot.importedAt) }}</p><code>{{ snapshot.fingerprint }}</code><ImportHistory :profile="current" />
+                <summary>{{ t('存档与导入记录') }}</summary><p>{{ snapshot.filename }} · {{ time(snapshot.importedAt) }}</p><ImportHistory :profile="current" />
               </details>
             </TabsContent>
           </div>
