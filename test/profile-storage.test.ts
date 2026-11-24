@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import { db, deleteProfile, listAnnotations, listProfiles, putAnnotation, renameProfile, saveProfile } from '../src/storage/profiles'
 import { snapshot } from './helpers/snapshot'
-import 'fake-indexeddb/auto'
 
 afterEach(async () => {
   await db.transaction('rw', [db.profiles, db.annotations, db.imports, db.views], async () => {
