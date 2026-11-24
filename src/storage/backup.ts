@@ -25,7 +25,6 @@ export const backupSchema = z.object({
   annotations: z.array(z.object({ profileId: id, pointId: id, status: z.enum(['complete', 'incomplete', 'unknown']).optional(), ignored: z.boolean(), note: text, updatedAt: z.iso.datetime() })).max(100000),
   imports: z.array(z.object({ profileId: id, importedAt: z.iso.datetime(), filename: text, fingerprint: text, initial: z.boolean(), changes: z.array(change), regressions: z.array(change).optional() })).max(10000),
   views: z.array(z.object({ profileId: id, categories: z.array(id).nullable(), status: z.enum(['all', 'complete', 'incomplete', 'unknown', 'found-unfinished', 'shrine-chests']), layer: z.enum(['surface', 'sky', 'depths']), hideIgnored: z.boolean(), search: text, region: text.optional() })).max(100),
-  pins: z.array(z.object({ id, profileId: id, category: z.literal('camp'), name: z.string().min(1).max(120), layer: z.enum(['surface', 'sky', 'depths']), at: z.tuple([finite.min(-6000).max(6000), finite.min(-5000).max(5000)]), rule: z.literal('manual') })).max(10000),
 }).superRefine((backup, ctx) => {
   const ids = new Set(backup.profiles.map(p => p.id))
   if (ids.size !== backup.profiles.length)
@@ -34,38 +33,32 @@ export const backupSchema = z.object({
     if (p.game !== p.snapshot.game || (p.game === 'totk' && p.mode === 'master'))
       ctx.addIssue({ code: 'custom', message: 'Profile 的游戏类型不一致。' })
   }
-  for (const entry of [...backup.annotations, ...backup.imports, ...backup.views, ...backup.pins]) {
+  for (const entry of [...backup.annotations, ...backup.imports, ...backup.views]) {
     if (!ids.has(entry.profileId))
       ctx.addIssue({ code: 'custom', message: '备份包含没有对应 Profile 的记录。' })
   }
-  const pins = new Set(backup.pins.map(p => p.id))
-  if (pins.size !== backup.pins.length)
-    ctx.addIssue({ code: 'custom', message: '备份包含重复标记。' })
 })
 
 export async function exportBackup(profileId?: string) {
-  return db.transaction('r', [db.profiles, db.annotations, db.imports, db.views, db.pins], async () => ({
+  return db.transaction('r', [db.profiles, db.annotations, db.imports, db.views], async () => ({
     format: 'zelda-notes' as const,
     version: 2 as const,
     exportedAt: new Date().toISOString(),
     profiles: (profileId ? await db.profiles.where('id').equals(profileId).toArray() : await db.profiles.toArray()).map(profile => ({ ...profile, snapshot: collectionSnapshot(profile.snapshot) })),
-    annotations: profileId ? await db.annotations.where('profileId').equals(profileId).toArray() : await db.annotations.toArray(),
+    annotations: (profileId ? await db.annotations.where('profileId').equals(profileId).toArray() : await db.annotations.toArray()).filter(a => !a.pointId.startsWith('custom:')),
     imports: profileId ? await db.imports.where('profileId').equals(profileId).toArray() : await db.imports.toArray(),
     views: profileId ? await db.views.where('profileId').equals(profileId).toArray() : await db.views.toArray(),
-    pins: profileId ? await db.pins.where('profileId').equals(profileId).toArray() : await db.pins.toArray(),
   }))
 }
 
 export async function restoreBackup(input: unknown) {
   const backup = backupSchema.parse(input)
   const ids = new Map(backup.profiles.map(p => [p.id, crypto.randomUUID()]))
-  const pins = new Map(backup.pins.map(p => [p.id, `custom:${crypto.randomUUID()}`]))
-  await db.transaction('rw', [db.profiles, db.annotations, db.imports, db.views, db.pins], async () => {
+  await db.transaction('rw', [db.profiles, db.annotations, db.imports, db.views], async () => {
     await db.profiles.bulkAdd(backup.profiles.map(p => ({ ...p, id: ids.get(p.id)!, name: `${p.name.slice(0, 74)} · 恢复` })))
-    await db.annotations.bulkAdd(backup.annotations.map(a => ({ ...a, profileId: ids.get(a.profileId)!, pointId: pins.get(a.pointId) ?? a.pointId })))
+    await db.annotations.bulkAdd(backup.annotations.filter(a => !a.pointId.startsWith('custom:')).map(a => ({ ...a, profileId: ids.get(a.profileId)! })))
     await db.imports.bulkAdd(backup.imports.map(r => ({ ...r, profileId: ids.get(r.profileId)! })))
     await db.views.bulkAdd(backup.views.map(v => ({ ...v, categories: backup.version === 1 && v.categories?.length === 0 ? null : v.categories, profileId: ids.get(v.profileId)! })))
-    await db.pins.bulkAdd(backup.pins.map(p => ({ ...p, id: pins.get(p.id)!, profileId: ids.get(p.profileId)! })))
   })
   return [...ids.values()]
 }

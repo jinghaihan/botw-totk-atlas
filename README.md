@@ -12,7 +12,7 @@ Import a save, keep separate profiles for each playthrough, and find what remain
 - Leaflet maps for BOTW and TOTK's Sky, Surface and Depths; category, region, status and text filters.
 - Separate shrine completion and chest tracking, including a **cleared shrines with unopened chests** filter.
 - Collection checklists for shrines, treasure chests, quests and supported completion records.
-- Manual camp markers, notes and overrides that survive subsequent save imports.
+- Notes and manual progress survive subsequent save imports.
 - Single-profile and workspace JSON backup; validated restore creates independent copies in a transaction.
 - Simplified Chinese, Traditional Chinese, Japanese, Korean and English interfaces, with official localized game names where available.
 - Full-screen maps with charcoal and gold controls, built with Reka UI.

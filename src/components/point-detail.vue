@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ProgressRow } from '@/domain/exploration'
 import type { CatalogPoint, PointAnnotation, PointStatus } from '@/domain/game'
-import { AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogOverlay, AlertDialogPortal, AlertDialogRoot, AlertDialogTitle, DialogClose, DialogContent, DialogDescription, DialogPortal, DialogRoot, DialogTitle } from 'reka-ui'
+import { DialogClose, DialogContent, DialogDescription, DialogPortal, DialogRoot, DialogTitle } from 'reka-ui'
 import { coordinateLabel } from '@/domain/coordinates'
 import { categoryLabels, statusLabels } from '@/games/catalog'
 import { categoryIcon } from '@/games/category-icons'
@@ -9,9 +9,8 @@ import { tr as t } from '@/modules/i18n'
 import AtlasSelect from './atlas-select.vue'
 
 const props = defineProps<{ row?: ProgressRow, profileId?: string, children: ProgressRow[] }>()
-const emit = defineEmits<{ save: [annotation: PointAnnotation], locate: [point: CatalogPoint], select: [id: string], remove: [id: string], import: [] }>()
+const emit = defineEmits<{ save: [annotation: PointAnnotation], locate: [point: CatalogPoint], select: [id: string], import: [] }>()
 const open = defineModel<boolean>('open', { required: true })
-const confirmDelete = ref(false)
 const status = ref('auto')
 const ignored = ref(false)
 const note = ref('')
@@ -78,23 +77,7 @@ function save() {
         <div v-if="row.point.at" class="detail-coordinates">
           <span class="i-lucide:crosshair" aria-hidden="true" /><span translate="no">{{ coordinateLabel(row.point.at) }}</span>
         </div>
-        <button v-if="row.point.id.startsWith('custom:')" class="button danger delete-custom-point" @click="confirmDelete = true">
-          {{ t('删除自建标记') }}
-        </button>
       </DialogContent>
     </DialogPortal>
   </DialogRoot>
-  <AlertDialogRoot v-model:open="confirmDelete">
-    <AlertDialogPortal>
-      <AlertDialogOverlay class="dialog-overlay" /><AlertDialogContent class="dialog-content">
-        <AlertDialogTitle>{{ t('删除自建标记') }}</AlertDialogTitle><AlertDialogDescription>{{ t('删除「{name}」？', { name: row?.point.name ?? '' }) }}</AlertDialogDescription><div class="dialog-actions">
-          <AlertDialogCancel class="button secondary">
-            {{ t('取消') }}
-          </AlertDialogCancel><AlertDialogAction class="button danger" @click="row && emit('remove', row.point.id)">
-            {{ t('删除') }}
-          </AlertDialogAction>
-        </div>
-      </AlertDialogContent>
-    </AlertDialogPortal>
-  </AlertDialogRoot>
 </template>

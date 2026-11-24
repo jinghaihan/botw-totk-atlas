@@ -322,9 +322,6 @@ button:hover:not(:disabled) {
   background: #b5b99e;
   z-index: 0;
 }
-.placing .world-map {
-  cursor: crosshair;
-}
 .exploration-panel {
   position: absolute;
   top: 98px;
@@ -722,33 +719,6 @@ button:hover:not(:disabled) {
   color: #8e987e;
   font-size: 11px;
 }
-.map-actions {
-  position: absolute;
-  right: 22px;
-  top: 100px;
-  z-index: 15;
-}
-.map-action {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 15px;
-  min-height: 44px;
-  background: #f8f7eee8;
-  border: 1px solid #fff8;
-  border-radius: 7px;
-  color: #566b4d;
-  box-shadow: 0 3px 16px #10251c20;
-  backdrop-filter: blur(12px);
-  font-size: 11px;
-}
-.map-action > span:first-child {
-  font-size: 17px;
-}
-.map-action.active {
-  background: #e2edce;
-  color: #36592d;
-}
 .map-banner {
   position: absolute;
   top: 105px;
@@ -995,9 +965,6 @@ button:hover:not(:disabled) {
   font-size: 10px;
   color: #929b85;
   padding-top: 20px;
-}
-.delete-custom-point {
-  margin-top: 16px;
 }
 .point-detail .dialog-close {
   top: 14px;
@@ -1479,10 +1446,6 @@ button:hover:not(:disabled) {
     top: 112px;
     max-height: calc(100dvh - 140px);
   }
-  .map-actions {
-    right: 28px;
-    top: 112px;
-  }
 }
 @media (max-width: 1250px) {
   .header-identity {
@@ -1582,9 +1545,6 @@ button:hover:not(:disabled) {
     width: 300px;
     padding: 20px;
     max-height: calc(100dvh - 110px);
-  }
-  .map-actions {
-    top: 90px;
   }
   .journal-page {
     padding: 110px 32px 40px;
@@ -1725,17 +1685,6 @@ button:hover:not(:disabled) {
   .routes-heading {
     margin-top: 3px;
     padding-top: 13px;
-  }
-  .map-actions {
-    top: 122px;
-    right: 12px;
-  }
-  .map-action {
-    padding: 10px;
-    min-height: 40px;
-  }
-  .map-action > span:last-child {
-    display: none;
   }
   .leaflet-control-zoom {
     margin-right: 12px !important;

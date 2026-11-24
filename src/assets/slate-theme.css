@@ -189,16 +189,11 @@ html[data-game='botw'] .category-symbol {
 .pagination span {
   color: #818b98;
 }
-.map-action,
 .map-reset {
   background: #1f2125ed;
   color: #b4bac2;
   border-color: #b7b38a42;
   box-shadow: 0 4px 16px #0f101235;
-}
-.map-action.active {
-  background: #3d434b;
-  color: #dddcb6;
 }
 .leaflet-control-zoom {
   border-color: #b6b08a4a !important;

@@ -32,16 +32,11 @@ export interface ProfileView {
   region?: string
 }
 
-export interface CustomPoint extends CatalogPoint {
-  profileId: string
-}
-
 export const db = new Dexie('wilds-atlas') as Dexie & {
   profiles: EntityTable<SaveProfile, 'id'>
   annotations: Table<PointAnnotation, [string, string]>
   imports: EntityTable<ImportRecord, 'id'>
   views: EntityTable<ProfileView, 'profileId'>
-  pins: EntityTable<CustomPoint, 'id'>
 }
 db.version(1).stores({ profiles: '&id, name, game, updatedAt' })
 db.version(2).stores({
@@ -51,6 +46,7 @@ db.version(2).stores({
   views: '&profileId',
 })
 
+// Keep the old table definition so existing databases retain their stored data.
 db.version(3).stores({ pins: '&id, profileId' })
 db.version(4).stores({}).upgrade((transaction) => {
   return transaction.table('profiles').toCollection().modify((profile) => {
@@ -105,11 +101,10 @@ export async function renameProfile(id: string, name: string) {
 }
 
 export function deleteProfile(id: string) {
-  return db.transaction('rw', [db.profiles, db.annotations, db.imports, db.views, db.pins], async () => {
+  return db.transaction('rw', [db.profiles, db.annotations, db.imports, db.views], async () => {
     await db.annotations.where('profileId').equals(id).delete()
     await db.imports.where('profileId').equals(id).delete()
     await db.views.delete(id)
-    await db.pins.where('profileId').equals(id).delete()
     await db.profiles.delete(id)
   })
 }

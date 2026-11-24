@@ -3,7 +3,6 @@ import type { CatalogPoint, GameId, PointAnnotation } from '@/domain/game'
 import type { ProfileView, SaveProfile } from '@/storage/profiles'
 import { CollapsibleContent, CollapsibleRoot, CollapsibleTrigger, PaginationEllipsis, PaginationList, PaginationListItem, PaginationNext, PaginationPrev, PaginationRoot, TabsContent, TabsList, TabsRoot, TabsTrigger, ToggleGroupItem, ToggleGroupRoot } from 'reka-ui'
 import { useGameLabels } from '@/composables/game-labels'
-import { coordinateLabel } from '@/domain/coordinates'
 import { filterRows, resolveRows } from '@/domain/exploration'
 import { categoryDisplayOrder, categoryLabels, loadCatalog } from '@/games/catalog'
 import { categoryIcon } from '@/games/category-icons'
@@ -18,7 +17,6 @@ const emit = defineEmits<{ import: [] }>()
 const gameLabels = useGameLabels(() => props.game)
 const catalog = shallowRef<CatalogPoint[]>([])
 const annotations = shallowRef<PointAnnotation[]>([])
-const custom = shallowRef<CatalogPoint[]>([])
 const loading = ref(true)
 const error = ref('')
 const page = ref(1)
@@ -32,11 +30,10 @@ const pointList = ref<HTMLElement>()
 const pageSize = 40
 const selected = ref('')
 const detailOpen = ref(false)
-const placing = ref(false)
 const focus = ref<[number, number]>()
 const defaultView = (profileId: string): ProfileView => ({ profileId, categories: props.profile ? ['shrine', 'korok', 'chest'] : ['shrine'], status: 'incomplete', layer: 'surface', hideIgnored: true, search: '', region: 'all' })
 const view = ref(defaultView(props.profile?.id ?? `browse:${props.game}`))
-const points = computed(() => [...catalog.value.map(gameLabels.localize), ...custom.value])
+const points = computed(() => catalog.value.map(gameLabels.localize))
 const rows = computed(() => resolveRows(props.profile?.snapshot, points.value, annotations.value))
 const explorationRows = computed(() => rows.value.filter(row => row.point.at && !row.point.interior))
 const categories = computed(() => [...new Set(explorationRows.value.map(row => row.point.category))].sort((a, b) => t(categoryLabels[a] ?? a).localeCompare(t(categoryLabels[b] ?? b), currentLocale.value)))
@@ -82,18 +79,16 @@ async function load() {
   loading.value = true
   selected.value = ''
   detailOpen.value = false
-  placing.value = false
   error.value = ''
   try {
-    const [data, notes, savedView, pins] = await Promise.all([loadCatalog(props.game), profileId ? listAnnotations(profileId) : [], profileId ? db.views.get(profileId) : undefined, profileId ? db.pins.where('profileId').equals(profileId).toArray() : []])
+    const [data, notes, savedView] = await Promise.all([loadCatalog(props.game), profileId ? listAnnotations(profileId) : [], profileId ? db.views.get(profileId) : undefined])
     if (revision !== generation)
       return
     catalog.value = data
     annotations.value = notes
-    custom.value = pins
     view.value = savedView ? { ...savedView, status: 'incomplete' } : defaultView(profileId ?? `browse:${props.game}`)
     if (view.value.categories?.length) {
-      const available = new Set([...data, ...pins].filter(point => point.at && !point.interior).map(point => point.category))
+      const available = new Set(data.filter(point => point.at && !point.interior).map(point => point.category))
       const selected = view.value.categories.filter(category => available.has(category))
       view.value.categories = selected.length ? selected : defaultView(view.value.profileId).categories
     }
@@ -166,44 +161,11 @@ function locate(point: CatalogPoint) {
   focus.value = [...target.at]
   detailOpen.value = false
 }
-async function place(at: [number, number]) {
-  if (!props.profile)
-    return
-  if (Math.abs(at[0]) > 6000 || Math.abs(at[1]) > 5000)
-    return
-  try {
-    const point = { id: `custom:${crypto.randomUUID()}`, profileId: props.profile.id, name: `${t('营地')} · ${coordinateLabel(at)}`, category: 'camp', at, layer: view.value.layer, rule: 'manual' as const }
-    await db.pins.add(point)
-    custom.value = [...custom.value, point]
-    placing.value = false
-    select(point.id)
-  }
-  catch {
-    error.value = t('标记未能保存，请重试。')
-  }
-}
-async function remove(id: string) {
-  const profileId = props.profile?.id
-  if (!profileId)
-    return
-  try {
-    await db.transaction('rw', db.pins, db.annotations, async () => {
-      await db.pins.delete(id)
-      await db.annotations.delete([profileId, id])
-    })
-    custom.value = custom.value.filter(p => p.id !== id)
-    annotations.value = annotations.value.filter(a => a.pointId !== id)
-    detailOpen.value = false
-  }
-  catch {
-    error.value = t('无法删除标记，请重试。')
-  }
-}
 </script>
 
 <template>
   <div class="explorer">
-    <WorldMap :game="game" :layer="view.layer" :rows="filtered" :focus="focus" :placing="placing" @select="select" @place="place" />
+    <WorldMap :game="game" :layer="view.layer" :rows="filtered" :focus="focus" @select="select" />
     <CollapsibleRoot v-model:open="panelOpen" class="exploration-panel">
       <header class="exploration-heading">
         <div><span class="eyebrow">{{ game === 'botw' ? t('旷野之息') : t('王国之泪') }}</span><h1>{{ t('探索海拉鲁') }}</h1></div><CollapsibleTrigger class="icon-button panel-collapse" :aria-label="panelOpen ? t('收起探索面板') : t('展开探索面板')">
@@ -289,11 +251,6 @@ async function remove(id: string) {
         </template>
       </CollapsibleContent>
     </CollapsibleRoot>
-    <div class="map-actions">
-      <button class="map-action" :class="{ active: placing }" :aria-pressed="placing" @click="profile ? placing = !placing : emit('import')">
-        <span :class="placing ? 'i-lucide:x' : 'i-lucide:map-pin-plus'" aria-hidden="true" /><span>{{ placing ? t('取消放置') : t('标记营地') }}</span>
-      </button>
-    </div>
-    <PointDetail v-model:open="detailOpen" :row="current" :profile-id="profile?.id" :children="children" @save="save" @locate="locate" @select="select" @remove="remove" @import="emit('import')" />
+    <PointDetail v-model:open="detailOpen" :row="current" :profile-id="profile?.id" :children="children" @save="save" @locate="locate" @select="select" @import="emit('import')" />
   </div>
 </template>

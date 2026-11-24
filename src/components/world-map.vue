@@ -9,8 +9,8 @@ import { tr as t } from '@/modules/i18n'
 import 'leaflet/dist/leaflet.css'
 import 'leaflet.markercluster/dist/MarkerCluster.css'
 
-const props = defineProps<{ game: GameId, layer: MapLayer, rows: ProgressRow[], focus?: [number, number], placing: boolean }>()
-const emit = defineEmits<{ select: [id: string], place: [at: [number, number]] }>()
+const props = defineProps<{ game: GameId, layer: MapLayer, rows: ProgressRow[], focus?: [number, number] }>()
+const emit = defineEmits<{ select: [id: string] }>()
 const host = ref<HTMLElement>()
 const tileError = ref(false)
 const pointer = ref('')
@@ -109,10 +109,6 @@ onMounted(async () => {
   base()
   markers()
   locate()
-  map.on('click', (e) => {
-    if (props.placing)
-      emit('place', mapToWorld(e.latlng.lat, e.latlng.lng))
-  })
   observer = new ResizeObserver(() => map?.invalidateSize())
   observer.observe(host.value)
   mounted = true
@@ -127,11 +123,8 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="map-shell" :class="{ placing }">
+  <div class="map-shell">
     <div ref="host" class="world-map" role="region" :aria-label="t('海拉鲁交互地图；也可在旁边的列表选择点位')" />
-    <div v-if="placing" class="map-banner" role="status">
-      {{ t('点击地图放置营地标记') }}
-    </div>
     <div v-if="tileError" class="map-banner tile-warning" role="status">
       {{ t('底图暂时无法加载，点位列表仍可使用。') }}<button @click="base">
         {{ t('重试底图') }}

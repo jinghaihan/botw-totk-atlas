@@ -62,7 +62,7 @@ function download(profileId?: string) {
     a.download = `zelda-notes-${new Date().toISOString().slice(0, 10)}.json`
     a.click()
     setTimeout(() => URL.revokeObjectURL(url), 1000)
-    success.value = profileId ? t('Profile 备份已导出。') : t('备份已导出，包含所有 Profile、笔记、自建营地和导入历史。')
+    success.value = profileId ? t('Profile 备份已导出。') : t('备份已导出，包含所有 Profile、笔记和导入历史。')
   })
 }
 async function chooseBackup(event: Event) {
@@ -133,7 +133,7 @@ function restore() {
   <AlertDialogRoot v-model:open="confirm">
     <AlertDialogPortal>
       <AlertDialogOverlay class="dialog-overlay" /><AlertDialogContent class="dialog-content">
-        <AlertDialogTitle>{{ t('删除「{name}」？', { name: deletion?.name ?? '' }) }}</AlertDialogTitle><AlertDialogDescription>{{ t('这会删除此 Profile 的笔记、标记和导入历史。可先导出备份。') }}</AlertDialogDescription><div class="dialog-actions">
+        <AlertDialogTitle>{{ t('删除「{name}」？', { name: deletion?.name ?? '' }) }}</AlertDialogTitle><AlertDialogDescription>{{ t('这会删除此 Profile 的笔记和导入历史。可先导出备份。') }}</AlertDialogDescription><div class="dialog-actions">
           <AlertDialogCancel class="button secondary" :disabled="busy">
             {{ t('取消') }}
           </AlertDialogCancel><AlertDialogAction class="button danger" :disabled="busy" @click.prevent="remove">
