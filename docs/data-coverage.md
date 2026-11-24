@@ -46,4 +46,4 @@ Tile services require network access. Tile failure shows an inline notice and le
 
 Command-line tests cover malformed inputs, 64-bit IDs, missing-vs-false flags, shrine/chest rules, manual overrides, profile isolation, backup validation and transaction rollback, coordinate transforms, and locale completeness. The three real saves were read without changing their hashes. Production output excludes private fixtures.
 
-Browser and tab access is currently withheld by the user. No browser or headless browser is used for this development pass; visual layout, actual tile alignment, keyboard behavior and browser restart persistence still need browser review after permission is given.
+The user later authorized screenshots in an isolated headless environment while keeping their personal browser unopened. The redesigned map, point details and mobile layout were reviewed in Chromium Headless Shell, with a separate ephemeral context, overflow/runtime checks and an axe accessibility pass. See [UI review](ui-review.md). Broader browser/device and restart-persistence coverage remains limited.

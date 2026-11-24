@@ -32,7 +32,7 @@ pnpm exec vitest run
 pnpm build
 ```
 
-Parsing, completion rules, profile isolation, backup rollback and language coverage have command-line checks. Real saves are private local fixtures excluded from Git and production builds. Browser interaction and visual review still require a separate manual check.
+Parsing, completion rules, profile isolation, backup rollback and language coverage have command-line checks. Real saves are private local fixtures excluded from Git and production builds. The map, point details and mobile layout have also been checked in an isolated headless screenshot pass; see [UI review](docs/ui-review.md). Broader browser/device testing remains separate.
 
 The production output is a static SPA in `dist/`. Serve it over HTTPS (or localhost for development). Online map imagery is fetched from ZeldaMods; local progress remains available through the checklist if imagery fails. This is not an offline tile cache or a hosted service yet.
 
