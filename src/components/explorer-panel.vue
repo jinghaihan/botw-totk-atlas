@@ -6,6 +6,7 @@ import { useGameLabels } from '@/composables/game-labels'
 import { coordinateLabel } from '@/domain/coordinates'
 import { filterRows, resolveRows } from '@/domain/exploration'
 import { categoryLabels, loadCatalog, statusLabels } from '@/games/catalog'
+import { categoryIcon } from '@/games/category-icons'
 import { currentLocale, tr as t } from '@/modules/i18n'
 import { db, listAnnotations, putAnnotation } from '@/storage/profiles'
 import AtlasSelect from './atlas-select.vue'
@@ -49,7 +50,6 @@ const current = computed(() => rows.value.find(r => r.point.id === selected.valu
 const children = computed(() => rows.value.filter(r => r.point.parentId === selected.value || r.point.id === current.value?.point.relatedChestId))
 const statuses = computed(() => [{ value: 'all', label: t('全部状态') }, { value: 'incomplete', label: t('未完成') }, { value: 'complete', label: t('已完成') }, { value: 'unknown', label: t('未知 / 手动记录') }, { value: 'found-unfinished', label: t('已发现 · 未完成') }, { value: 'shrine-chests', label: t('已通关 · 宝箱未领完') }])
 
-const categoryIcons: Record<string, string> = { shrine: 'i-lucide:landmark', korok: 'i-lucide:leaf', chest: 'i-lucide:archive', tower: 'i-lucide:radio-tower', lightroot: 'i-lucide:sprout', cave: 'i-lucide:mountain', well: 'i-lucide:circle-dot', camp: 'i-lucide:tent', hinox: 'i-lucide:skull', talus: 'i-lucide:gem', molduga: 'i-lucide:fish', rematch: 'i-lucide:swords', gleeok: 'i-lucide:flame', lynel: 'i-lucide:swords' }
 const highlights = computed(() => ['shrine', 'korok', 'chest', 'tower', 'lightroot', 'cave', 'well', 'camp', 'hinox'].filter(id => categories.value.includes(id)))
 const categoryOrder = computed(() => [...highlights.value, ...categories.value.filter(id => !highlights.value.includes(id))])
 const categoryCounts = computed(() => {
@@ -228,7 +228,7 @@ async function remove(id: string) {
             </div>
             <ToggleGroupRoot type="multiple" class="category-tiles" :aria-label="t('筛选点位分类')" :model-value="view.categories ?? categories" @update:model-value="values => view.categories = Array.isArray(values) ? values.filter((value): value is string => typeof value === 'string') : []">
               <ToggleGroupItem v-for="category in categoryOrder" :key="category" :value="category">
-                <span class="category-symbol" :class="categoryIcons[category] ?? 'i-lucide:map-pin'" aria-hidden="true" /><strong>{{ t(category === 'camp' ? '营地' : categoryLabels[category] ?? category) }}</strong><small>{{ !profile ? t('{count} 个地点', { count: categoryCounts[category]?.total ?? 0 }) : categoryCounts[category]?.unknown === categoryCounts[category]?.total ? t('手动记录') : t('{count} 待探索', { count: categoryCounts[category]?.remaining ?? 0 }) }}</small>
+                <span class="category-symbol" :class="categoryIcon(category)" aria-hidden="true" /><strong>{{ t(category === 'camp' ? '营地' : categoryLabels[category] ?? category) }}</strong><small>{{ !profile ? t('{count} 个地点', { count: categoryCounts[category]?.total ?? 0 }) : categoryCounts[category]?.unknown === categoryCounts[category]?.total ? t('手动记录') : t('{count} 待探索', { count: categoryCounts[category]?.remaining ?? 0 }) }}</small>
               </ToggleGroupItem>
             </ToggleGroupRoot>
           </TabsContent>
@@ -257,7 +257,7 @@ async function remove(id: string) {
                   {{ t('返回探索') }}
                 </button>
               </div><button v-for="row in paged" :key="row.point.id" class="point-row" :class="[row.status, { selected: row.point.id === selected, ignored: row.annotation?.ignored }]" @click="select(row.point.id)">
-                <span class="point-symbol" :class="categoryIcons[row.point.category] ?? 'i-lucide:map-pin'" aria-hidden="true" /><span class="point-copy"><strong>{{ row.point.name }}</strong><small>{{ row.point.regionLabel ?? row.point.region ?? t(categoryLabels[row.point.category] ?? row.point.category) }}</small><small v-if="row.annotation?.note" class="note-excerpt">{{ row.annotation.note }}</small></span><span class="point-state" :aria-label="t(statusLabels[row.status])"><span v-if="row.status === 'complete'" class="i-lucide:check" aria-hidden="true" /><span v-else-if="row.status === 'unknown'">?</span><span v-else class="i-lucide:chevron-right" aria-hidden="true" /><small v-if="row.annotation?.status">{{ t('手动') }}</small></span>
+                <span class="point-symbol" :class="categoryIcon(row.point.category)" aria-hidden="true" /><span class="point-copy"><strong>{{ row.point.name }}</strong><small>{{ row.point.regionLabel ?? row.point.region ?? t(categoryLabels[row.point.category] ?? row.point.category) }}</small><small v-if="row.annotation?.note" class="note-excerpt">{{ row.annotation.note }}</small></span><span class="point-state" :aria-label="t(statusLabels[row.status])"><span v-if="row.status === 'complete'" class="i-lucide:check" aria-hidden="true" /><span v-else-if="row.status === 'unknown'">?</span><span v-else class="i-lucide:chevron-right" aria-hidden="true" /><small v-if="row.annotation?.status">{{ t('手动') }}</small></span>
               </button>
             </section>
             <PaginationRoot v-if="filtered.length > 40" v-model:page="page" :total="filtered.length" :items-per-page="40" :sibling-count="0" class="pagination">

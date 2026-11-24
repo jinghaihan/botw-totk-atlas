@@ -4,6 +4,7 @@ import type { CatalogPoint, PointAnnotation, PointStatus } from '@/domain/game'
 import { AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogOverlay, AlertDialogPortal, AlertDialogRoot, AlertDialogTitle, DialogClose, DialogContent, DialogDescription, DialogPortal, DialogRoot, DialogTitle } from 'reka-ui'
 import { coordinateLabel } from '@/domain/coordinates'
 import { categoryLabels, statusLabels } from '@/games/catalog'
+import { categoryIcon } from '@/games/category-icons'
 import { tr as t } from '@/modules/i18n'
 import AtlasSelect from './atlas-select.vue'
 
@@ -35,7 +36,7 @@ function save() {
     <DialogPortal>
       <DialogContent v-if="row" class="point-detail" @interact-outside="$event.preventDefault()">
         <div class="detail-category">
-          <span class="i-lucide:map-pin" aria-hidden="true" />{{ t(categoryLabels[row.point.category] ?? row.point.category) }}<span class="detail-status" :data-status="row.status">{{ profileId ? t(statusLabels[row.status]) : t('未导入存档') }}</span>
+          <span :class="categoryIcon(row.point.category)" aria-hidden="true" />{{ t(categoryLabels[row.point.category] ?? row.point.category) }}<span class="detail-status" :data-status="row.status">{{ profileId ? t(statusLabels[row.status]) : t('未导入存档') }}</span>
           <DialogClose class="dialog-close icon-button" :aria-label="t('关闭点位详情')">
             <span class="i-lucide:x" aria-hidden="true" />
           </DialogClose>
