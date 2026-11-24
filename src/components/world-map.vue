@@ -138,15 +138,15 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="map-shell">
-    <div ref="host" class="world-map" role="region" :aria-label="t('海拉鲁交互地图；也可在旁边的列表选择点位')" />
+    <div ref="host" class="world-map" role="region" :aria-label="t('map.accessible-name')" />
     <div v-if="tileError" class="map-banner tile-warning" role="status">
-      {{ t('底图暂时无法加载，点位列表仍可使用。') }}<button @click="base">
-        {{ t('重试底图') }}
+      {{ t('map.tiles-unavailable') }}<button @click="base">
+        {{ t('map.retry-tiles') }}
       </button>
     </div>
-    <div class="map-controls" role="group" :aria-label="t('地图')">
+    <div class="map-controls" role="group" :aria-label="t('map.title')">
       <div class="map-control-stack">
-        <button class="map-reset icon-button" :aria-label="t('俯瞰海拉鲁')" :title="t('俯瞰海拉鲁')" @click="resetView">
+        <button class="map-reset icon-button" :aria-label="t('map.reset-view')" :title="t('map.reset-view')" @click="resetView">
           <span class="i-lucide:scan" aria-hidden="true" />
         </button>
         <div ref="zoomHost" class="map-zoom" />

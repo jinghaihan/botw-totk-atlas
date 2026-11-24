@@ -1,5 +1,6 @@
 import type { GameSnapshot } from '@/domain/game'
 import * as CRC32 from 'crc-32'
+import { AppError } from '@/domain/errors'
 import { masterCycleName, progressLabels } from '@/domain/game'
 import flags from './completion-flags.json'
 
@@ -8,7 +9,7 @@ export type BotwSnapshot = GameSnapshot
 export async function readBotwSave(buffer: ArrayBuffer, filename: string): Promise<BotwSnapshot> {
   const view = new DataView(buffer)
   if (view.byteLength < 100_000 || view.byteLength > 4_000_000 || view.getUint32(4, true) !== 0xFFFFFFFF)
-    throw new Error('请选择 BOTW 的 game_data.sav。')
+    throw new AppError('error.select-botw-save')
 
   const offsets = new Map<number, number>()
   for (let p = 12; p + 8 <= view.byteLength; p += 8) {
@@ -20,7 +21,7 @@ export async function readBotwSave(buffer: ArrayBuffer, filename: string): Promi
   const position = (name: string) => {
     const p = offsets.get(hash(name))
     if (p === undefined)
-      throw new Error(`无法识别这份存档：缺少 ${name}。`)
+      throw new AppError('error.botw-missing-field', { name })
     return p
   }
   const number = (name: string) => view.getUint32(position(name), true)
@@ -30,7 +31,7 @@ export async function readBotwSave(buffer: ArrayBuffer, filename: string): Promi
   }
   const progress = Object.entries(flags).map(([id, keys]) => {
     if (keys.some(key => value(key) === undefined))
-      throw new Error('当前存档的收集标记不完整，请检查文件版本。')
+      throw new AppError('error.save-incomplete-progress')
     const labels: Record<string, string> = { koroks: progressLabels.koroks, hinoxes: '西诺克斯', taluses: '岩石巨人', moldugas: '莫尔德拉吉克', compendium: progressLabels.compendium }
     return { id, label: labels[id]!, done: keys.filter(key => value(key) === 1).length, total: keys.length }
   })

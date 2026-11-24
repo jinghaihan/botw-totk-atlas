@@ -2,6 +2,7 @@ import type { EntityTable, Table } from 'dexie'
 import type { CatalogPoint, GameId, GameMode, GameSnapshot, PointAnnotation } from '@/domain/game'
 import { Dexie } from 'dexie'
 import { compareProgress } from '@/domain/completion'
+import { AppError } from '@/domain/errors'
 import { collectionSnapshot } from '@/domain/game'
 
 export interface SaveProfile {
@@ -77,7 +78,7 @@ export function listProfiles() {
 function validateProfileName(name: string) {
   const trimmed = name.trim()
   if (!trimmed || trimmed.length > 80)
-    throw new Error('请输入 1–80 个字符的名称。')
+    throw new AppError('error.profile-invalid-name')
   return trimmed
 }
 
@@ -97,14 +98,14 @@ export function saveProfile(snapshot: GameSnapshot, name: string, id?: string, m
   return db.transaction('rw', db.profiles, db.imports, async () => {
     const existing = id ? await db.profiles.get(id) : undefined
     if (id && !existing)
-      throw new Error('目标 Profile 已不存在，请重新选择。')
+      throw new AppError('error.import-target-missing')
     if (existing && existing.game !== snapshot.game)
-      throw new Error('这份存档与目标 Profile 的游戏不同，请创建新的 Profile。')
+      throw new AppError('error.import-game-mismatch')
     if (mode === 'master' && snapshot.game === 'totk')
-      throw new Error('TOTK 没有大师模式。')
+      throw new AppError('error.totk-master-mode')
     const normalizedName = name.trim() || `${snapshot.game.toUpperCase()} · ${mode === 'master' ? '大师模式' : mode === 'normal' ? '普通模式' : '存档'}`
     if (normalizedName.length > 80)
-      throw new Error('Profile 名称最多 80 个字符。')
+      throw new AppError('error.profile-name-too-long')
     const profile = {
       id: id ?? crypto.randomUUID(),
       name: normalizedName,
@@ -124,7 +125,7 @@ export function saveProfile(snapshot: GameSnapshot, name: string, id?: string, m
 
 export async function renameProfile(id: string, name: string) {
   if (await db.profiles.update(id, { name: validateProfileName(name) }) === 0)
-    throw new Error('Profile 已不存在。')
+    throw new AppError('error.profile-missing')
 }
 
 export function deleteProfile(id: string) {
@@ -142,7 +143,7 @@ export function listAnnotations(profileId: string) {
 
 export async function putAnnotation(annotation: PointAnnotation) {
   if (!await db.profiles.get(annotation.profileId))
-    throw new Error('Profile 已不存在。')
+    throw new AppError('error.profile-missing')
   await db.annotations.put(annotation)
 }
 

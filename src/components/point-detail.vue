@@ -22,17 +22,17 @@ function toggleComplete() {
     <DialogPortal>
       <DialogContent v-if="row" class="point-detail" @interact-outside="$event.preventDefault()">
         <div class="detail-category">
-          <span :class="categoryIcon(row.point.category)" aria-hidden="true" />{{ t(categoryLabel(game, row.point.category)) }}<span class="detail-status" :data-status="row.status">{{ profileId ? t(statusLabels[row.status]) : t('未导入存档') }}</span>
-          <DialogClose class="dialog-close icon-button" :aria-label="t('关闭点位详情')">
+          <span :class="categoryIcon(row.point.category)" aria-hidden="true" />{{ categoryLabel(game, row.point.category) }}<span class="detail-status" :data-status="row.status">{{ profileId ? t(statusLabels[row.status]) : t('status.no-save') }}</span>
+          <DialogClose class="dialog-close icon-button" :aria-label="t('point.close')">
             <span class="i-lucide:x" aria-hidden="true" />
           </DialogClose>
         </div>
-        <DialogTitle>{{ row.point.name }}</DialogTitle><DialogDescription>{{ row.point.regionLabel ?? row.point.region ?? t('海拉鲁') }}</DialogDescription>
+        <DialogTitle>{{ row.point.name }}</DialogTitle><DialogDescription>{{ row.point.regionLabel ?? row.point.region ?? t('game.hyrule') }}</DialogDescription>
         <p v-if="row.point.detail" class="detail-copy">
           {{ row.point.detail }}
         </p>
         <div v-if="row.chests?.complete !== undefined" class="shrine-chest-summary">
-          <span :class="categoryIcon('chest')" aria-hidden="true" /><div><strong>{{ t('神庙宝箱') }}</strong><span>{{ row.chests.complete ? t('已领完') : t('尚未领完') }}</span></div><b v-if="row.chests.total !== null">{{ row.chests.opened }} / {{ row.chests.total }}</b>
+          <span :class="categoryIcon('chest')" aria-hidden="true" /><div><strong>{{ t('point.shrine-chests') }}</strong><span>{{ row.chests.complete ? t('status.chests-all-opened') : t('status.chests-not-all-opened') }}</span></div><b v-if="row.chests.total !== null">{{ row.chests.opened }} / {{ row.chests.total }}</b>
         </div>
         <div v-if="children.length" class="child-list">
           <button v-for="child in children" :key="child.point.id" @click="emit('select', child.point.id)">
@@ -41,10 +41,10 @@ function toggleComplete() {
         </div>
         <div class="detail-main-actions">
           <button v-if="profileId" class="button primary" @click="toggleComplete">
-            <span :class="row.status === 'complete' ? 'i-lucide:rotate-ccw' : 'i-lucide:check'" aria-hidden="true" />{{ row.status === 'complete' ? t('标为未完成') : t('标为已完成') }}
+            <span :class="row.status === 'complete' ? 'i-lucide:rotate-ccw' : 'i-lucide:check'" aria-hidden="true" />{{ row.status === 'complete' ? t('point.mark-incomplete') : t('point.mark-complete') }}
           </button><button v-else class="button primary" @click="emit('import')">
-            {{ t('导入存档') }}
-          </button><button v-if="row.point.at" class="icon-button" :aria-label="t('地图定位')" @click="emit('locate', row.point)">
+            {{ t('import.save') }}
+          </button><button v-if="row.point.at" class="icon-button" :aria-label="t('point.locate')" @click="emit('locate', row.point)">
             <span class="i-lucide:locate-fixed" aria-hidden="true" />
           </button>
         </div>

@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import type { MessageKey } from '@/modules/i18n'
 import type { SaveProfile } from '@/storage/profiles'
 import { TabsContent } from 'reka-ui'
-import { masterCycleName, progressLabels } from '@/domain/game'
+import { masterCycleName } from '@/domain/game'
 import { categoryDisplayOrder, categoryLabel, loadCatalog } from '@/games/catalog'
 import { currentLocale, tr as t } from '@/modules/i18n'
 import { listAnnotations } from '@/storage/profiles'
@@ -41,40 +42,84 @@ onMounted(async () => {
     loading.value = false
   }
 })
-const milestoneName = (label: string) => label === '大师摩托 Zero' ? masterCycleName : label
+const progressKeys: Partial<Record<string, MessageKey>> = {
+  'koroks': 'category.korok',
+  'hinoxes': 'category.hinox',
+  'taluses': 'category.talus',
+  'moldugas': 'category.molduga',
+  'compendium': 'category.compendium',
+  'shrines': 'progress.shrines-cleared',
+  'shrine-chests': 'progress.shrines-with-all-chests',
+  'SHRINES_STATUS': 'progress.shrines-cleared',
+  'LIGHTROOTS_STATUS': 'category.lightroot',
+  'KOROKS_HIDDEN': 'progress.koroks-hidden',
+  'KOROKS_CARRY': 'progress.koroks-carry',
+  'BUBBULS_DEFEATED': 'category.bubbul',
+  'LOCATION_CAVES_VISITED': 'progress.caves',
+  'LOCATION_WELLS_VISITED': 'category.well',
+  'LOCATIONS_VISITED': 'progress.map-locations',
+  'BOSSES_HINOXES_DEFEATED': 'category.hinox',
+  'BOSSES_TALUSES_DEFEATED': 'category.talus',
+  'BOSSES_MOLDUGAS_DEFEATED': 'category.molduga',
+  'BOSSES_FLUX_CONSTRUCT_DEFEATED': 'category.flux',
+  'BOSSES_FROXS_DEFEATED': 'category.frox',
+  'BOSSES_GLEEOKS_DEFEATED': 'category.gleeok',
+  'BOSSES_REMATCH_DEFEATED': 'progress.depths-boss-rematches',
+  'SAGE_WILLS_FOUND': 'category.sage-will',
+  'TREASURE_MAPS_FOUND': 'category.old-map',
+  'ADDISON_COMPLETED': 'category.addison',
+}
+// Backup snapshots store these labels rather than milestone IDs.
+const milestoneKeys = new Map<string, MessageKey>([
+  ['剑之试炼', 'progress.trial-of-the-sword'],
+  ['英杰们的诗篇', 'progress.champions-ballad'],
+  [masterCycleName, 'progress.master-cycle'],
+  ['大师摩托 Zero', 'progress.master-cycle'],
+  ['通关记录', 'progress.game-clear'],
+])
+function progressName(id: string, fallback: string) {
+  if (!props.profile.snapshot)
+    return categoryLabel(props.profile.game, id)
+  const key = Object.hasOwn(progressKeys, id) ? progressKeys[id] : undefined
+  return key ? t(key) : fallback
+}
+function milestoneName(label: string) {
+  const key = milestoneKeys.get(label)
+  return key ? t(key) : label
+}
 const number = (n: number) => n.toLocaleString(currentLocale.value)
 </script>
 
 <template>
   <TabsContent value="progress">
     <div class="section-heading">
-      <h2>{{ t('探索记录') }}</h2>
+      <h2>{{ t('progress.exploration-records') }}</h2>
     </div>
     <p v-if="loading" role="status">
-      {{ t('正在读取…') }}
+      {{ t('common.loading') }}
     </p>
     <p v-else-if="failed" role="alert" class="error-message">
-      {{ t('无法加载探索记录。') }}
+      {{ t('error.exploration-load') }}
     </p>
     <section v-else class="progress-grid">
       <article v-for="p in progress" :key="p.id" class="progress-card">
         <div class="card-heading">
-          <span>{{ t(profile.snapshot ? (Object.hasOwn(progressLabels, p.id) ? progressLabels[p.id] : p.label) : categoryLabel(profile.game, p.id)) }}</span><span class="complete-mark">{{ p.done === p.total ? t('已完成') : t('未完成') }}</span>
+          <span>{{ progressName(p.id, p.label) }}</span><span class="complete-mark">{{ p.done === p.total ? t('status.complete') : t('status.incomplete') }}</span>
         </div><div class="progress-number">
           {{ number(p.done) }}<span>/ {{ number(p.total) }}</span>
         </div><div class="progress-track">
           <span :style="{ width: `${p.done / p.total * 100}%` }" />
         </div><p>
-          {{ p.total - p.done === 0 ? t('已核对项目全部完成') : t('还有 {count} 项待完成', { count: p.total - p.done }) }}
+          {{ p.total - p.done === 0 ? t('progress.all-complete') : t('progress.remaining-count', { count: p.total - p.done }) }}
         </p>
       </article>
     </section>
     <div v-if="profile.snapshot" class="section-heading">
-      <h2>{{ t('挑战与解锁') }}</h2>
+      <h2>{{ t('progress.challenges-and-unlocks') }}</h2>
     </div>
     <section v-if="profile.snapshot" class="milestones">
       <div v-for="m in profile.snapshot.milestones" :key="m.label">
-        <strong>{{ t(milestoneName(m.label)) }}</strong><span class="milestone-state" :data-complete="m.complete">{{ milestoneName(m.label) === masterCycleName ? (m.complete ? t('已解锁') : t('未解锁')) : (m.complete ? t('已完成') : t('尚未完成')) }}</span>
+        <strong>{{ milestoneName(m.label) }}</strong><span class="milestone-state" :data-complete="m.complete">{{ milestoneKeys.get(m.label) === 'progress.master-cycle' ? (m.complete ? t('status.unlocked') : t('status.locked')) : (m.complete ? t('status.complete') : t('status.not-yet-complete')) }}</span>
       </div>
     </section>
   </TabsContent>

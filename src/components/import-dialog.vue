@@ -3,6 +3,7 @@ import type { GameSnapshot } from '@/domain/game'
 import type { FolderSaveGroup } from '@/games/import-folder'
 import type { SaveProfile } from '@/storage/profiles'
 import { CheckboxIndicator, CheckboxRoot, DialogClose, DialogContent, DialogOverlay, DialogPortal, DialogRoot, DialogTitle } from 'reka-ui'
+import { AppError } from '@/domain/errors'
 import { loadCatalog } from '@/games/catalog'
 import { inspectSaveFolder } from '@/games/import-folder'
 import { readSave } from '@/games/read-save'
@@ -25,15 +26,15 @@ const groups = shallowRef<FolderSaveGroup[]>([])
 const selected = ref<Record<string, string>>({})
 const targets = ref<Record<string, string>>({})
 const enabled = ref<Record<string, boolean>>({})
-const error = ref('')
+const error = shallowRef<AppError>()
 const busy = ref(false)
 const count = computed(() => groups.value.filter(group => enabled.value[group.id]).length)
-const gameLabel = (group: FolderSaveGroup) => group.game === 'botw' ? t('旷野之息') : t('王国之泪')
-const modeLabel = (group: FolderSaveGroup) => group.mode === 'master' ? t('大师模式') : t('普通模式')
-const title = computed(() => backup.value ? t('恢复备份') : source.value === 'folder' ? t('导入存档文件夹') : t('导入存档'))
+const gameLabel = (group: FolderSaveGroup) => group.game === 'botw' ? t('game.botw') : t('game.totk')
+const modeLabel = (group: FolderSaveGroup) => group.mode === 'master' ? t('game.master-mode') : t('game.normal-mode')
+const title = computed(() => backup.value ? t('import.restore-backup') : source.value === 'folder' ? t('import.folder') : t('import.save'))
 function options(group: FolderSaveGroup) {
   const compatible = props.profiles.filter(profile => profile.game === group.game && (group.mode === 'unknown' || profile.mode === group.mode || (!profile.snapshot && profile.mode === 'unknown')))
-  return [{ value: 'new', label: t('创建新的 Profile') }, ...compatible.map(profile => ({ value: profile.id, label: t('更新：{name}', { name: profile.name }) }))]
+  return [{ value: 'new', label: t('import.create-profile') }, ...compatible.map(profile => ({ value: profile.id, label: t('import.update-profile', { name: profile.name }) }))]
 }
 function chooseFile(from: ImportSource = 'file') {
   const input = from === 'folder' ? folderInput.value : fileInput.value
@@ -47,17 +48,17 @@ defineExpose({ chooseFile })
 
 async function parseSave(file: File, path: string) {
   if (file.size > 8_000_000)
-    throw new Error(t('存档文件过大，请选择单个 game_data.sav 或 progress.sav。'))
+    throw new AppError('error.save-too-large')
   return readSave(await file.arrayBuffer(), path)
 }
 async function previewBackup(file: File) {
   if (file.size > 30_000_000)
-    throw new Error(t('备份超过 30 MB，请检查文件。'))
+    throw new AppError('error.backup-too-large')
   try {
     return backupSchema.parse(JSON.parse(await file.text()))
   }
   catch {
-    throw new Error(t('备份格式不正确或版本不受支持，现有数据未改变。'))
+    throw new AppError('error.backup-invalid')
   }
 }
 async function choose(event: Event) {
@@ -69,7 +70,7 @@ async function choose(event: Event) {
   const fromFolder = input === folderInput.value
   busy.value = true
   emit('selected')
-  error.value = ''
+  error.value = undefined
   filename.value = fromFolder ? '' : file.name
   groups.value = []
   backup.value = undefined
@@ -79,13 +80,13 @@ async function choose(event: Event) {
     if (fromFolder) {
       found = await inspectSaveFolder(files)
       if (!found.length)
-        throw new Error(t('文件夹里没有找到 game_data.sav 或 progress.sav。'))
+        throw new AppError('error.folder-no-save')
     }
     else if (file.name.toLowerCase().endsWith('.json')) {
       backup.value = await previewBackup(file)
       if (!backup.value.profiles.length) {
         backup.value = undefined
-        throw new Error(t('备份里没有存档。'))
+        throw new AppError('error.backup-empty')
       }
     }
     else {
@@ -100,7 +101,7 @@ async function choose(event: Event) {
     targets.value = Object.fromEntries(found.map(group => [group.id, 'new']))
   }
   catch (e) {
-    error.value = e instanceof Error ? e.message : t('无法读取此存档。')
+    error.value = AppError.from(e, 'error.save-read')
   }
   finally {
     busy.value = false
@@ -111,7 +112,7 @@ async function save() {
   if (busy.value || (!backup.value && count.value === 0))
     return
   busy.value = true
-  error.value = ''
+  error.value = undefined
   try {
     if (backup.value) {
       const [first] = await restoreBackup(backup.value)
@@ -142,7 +143,7 @@ async function save() {
     open.value = false
   }
   catch (e) {
-    error.value = e instanceof Error ? e.message : t('保存失败，请重试。')
+    error.value = AppError.from(e, 'error.save-failed')
   }
   finally {
     busy.value = false
@@ -153,7 +154,7 @@ async function save() {
 <template>
   <input ref="fileInput" type="file" accept=".sav,.json,application/json" hidden tabindex="-1" aria-hidden="true" @change="choose">
   <input ref="folderInput" type="file" webkitdirectory multiple hidden tabindex="-1" aria-hidden="true" @change="choose">
-  <span v-if="busy && !open" class="import-reading" role="status">{{ t('正在读取…') }}</span>
+  <span v-if="busy && !open" class="import-reading" role="status">{{ t('common.loading') }}</span>
   <DialogRoot v-model:open="open">
     <DialogPortal>
       <DialogOverlay class="dialog-overlay" />
@@ -173,20 +174,20 @@ async function save() {
             <span class="folder-save-path">{{ selected[group.id] }}</span>
             <small v-if="source === 'folder'">{{ new Date(group.candidates.find(item => item.path === selected[group.id])!.savedAt).toLocaleString(currentLocale, { hour12: false }) }}</small>
             <details v-if="group.candidates.length > 1">
-              <summary>{{ t('选择其他存档') }} · {{ group.candidates.length }}</summary>
-              <AtlasSelect v-model="selected[group.id]" :label="t('存档文件')" :options="group.candidates.map(candidate => ({ value: candidate.path, label: candidate.path }))" :disabled="busy" />
+              <summary>{{ t('import.select-other-save') }} · {{ group.candidates.length }}</summary>
+              <AtlasSelect v-model="selected[group.id]" :label="t('import.file')" :options="group.candidates.map(candidate => ({ value: candidate.path, label: candidate.path }))" :disabled="busy" />
             </details>
-            <AtlasSelect v-if="options(group).length > 1" v-model="targets[group.id]" :label="t('导入目标')" :options="options(group)" :disabled="busy" />
+            <AtlasSelect v-if="options(group).length > 1" v-model="targets[group.id]" :label="t('import.target')" :options="options(group)" :disabled="busy" />
           </div>
           <p v-if="error" role="alert" class="error-message">
-            {{ t(error) }}
+            {{ t(error.key, error.values) }}
           </p>
           <div class="dialog-actions">
             <button type="button" class="button secondary" :disabled="busy" @click="chooseFile(source)">
-              {{ t(source === 'folder' ? '重新选择文件夹' : '重新选择文件') }}
+              {{ t(source === 'folder' ? 'import.reselect-folder' : 'import.reselect-file') }}
             </button>
             <button class="button primary" type="submit" :disabled="busy || (!backup && count === 0)">
-              {{ busy ? t('正在处理…') : backup ? t('恢复备份') : source === 'folder' ? t('导入 {count} 个存档', { count }) : t('导入存档') }}
+              {{ busy ? t('common.processing') : backup ? t('import.restore-backup') : source === 'folder' ? t('import.save-count', { count }) : t('import.save') }}
             </button>
           </div>
         </form>
@@ -194,14 +195,14 @@ async function save() {
           <p v-if="filename">
             {{ filename }}
           </p>
-          <p role="alert" class="error-message">
-            {{ t(error) }}
+          <p v-if="error" role="alert" class="error-message">
+            {{ t(error.key, error.values) }}
           </p>
           <button class="button primary" :disabled="busy" @click="chooseFile(source)">
-            {{ t(source === 'folder' ? '重新选择文件夹' : '重新选择文件') }}
+            {{ t(source === 'folder' ? 'import.reselect-folder' : 'import.reselect-file') }}
           </button>
         </template>
-        <DialogClose class="dialog-close icon-button" :disabled="busy" :aria-label="t('关闭导入窗口')">
+        <DialogClose class="dialog-close icon-button" :disabled="busy" :aria-label="t('import.close')">
           <span class="i-lucide:x" aria-hidden="true" />
         </DialogClose>
       </DialogContent>

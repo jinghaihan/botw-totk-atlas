@@ -1,5 +1,6 @@
-import { readdirSync, readFileSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
+import { AppError } from '@/domain/errors'
 import { i18n, resolveLocale, tr } from '@/modules/i18n'
 import en from '../i18n/en-US.json'
 import ja from '../i18n/ja-JP.json'
@@ -9,34 +10,28 @@ import tw from '../i18n/zh-TW.json'
 
 describe('interface languages', () => {
   it('covers the same messages in Simplified/Traditional Chinese, Japanese, Korean and English', () => {
-    expect(Object.keys(tw)).toEqual(Object.keys(cn))
-    expect(Object.keys(en)).toEqual(Object.keys(cn))
-    expect(Object.keys(ja)).toEqual(Object.keys(cn))
-    expect(Object.keys(ko)).toEqual(Object.keys(cn))
-    for (const pack of [en, tw, ja, ko]) {
-      for (const key of Object.keys(cn)) {
-        const parameters = (value: string) => [...value.matchAll(/\{(\w+)\}/g)].map(match => match[1]).sort()
-        expect(parameters(pack[key as keyof typeof pack]), key).toEqual(parameters(cn[key as keyof typeof cn]))
-      }
-    }
-    const files = ['src/app.vue', ...readdirSync('src/components').filter(p => p.endsWith('.vue')).map(p => `src/components/${p}`)]
-    for (const file of files) {
-      for (const match of readFileSync(file, 'utf8').matchAll(/\bt\('([^']+)'/g)) {
-        expect(Object.hasOwn(en, match[1]!), `${file}: ${match[1]}`).toBe(true)
-      }
-    }
+    const parameters = (value: string) => [...value.matchAll(/\{(\w+)\}/g)].map(match => match[1]).sort()
+    const signatures = (messages: Record<string, Record<string, string>>) => Object.entries(messages)
+      .flatMap(([group, values]) => Object.entries(values).map(([key, value]) => [`${group}.${key}`, parameters(value)]))
+    const expected = signatures(cn)
+    expect(expected.every(([key]) => typeof key === 'string' && /^[a-z]+\.[a-z0-9]+(?:-[a-z0-9]+)*$/.test(key))).toBe(true)
+    for (const pack of [en, tw, ja, ko])
+      expect(signatures(pack)).toEqual(expected)
   })
   it('changes prose and formats parameterized messages', () => {
     i18n.global.locale.value = 'en-US'
-    expect(tr('神庙')).toBe('Shrines')
-    expect(tr('{count} 个地点', { count: 3 })).toBe('3 places')
+    expect(tr('category.shrine')).toBe('Shrines')
+    expect(tr('explore.place-count', { count: 3 })).toBe('3 places')
+    const error = new AppError('error.totk-missing-field', { name: 'IsGameClear' })
+    expect(tr(error.key, error.values)).toBe('This TOTK save is missing IsGameClear.')
+    expect(tr('error.totk-duplicate-fields')).toBe('Duplicate fields in the TOTK save. Check its format.')
     i18n.global.locale.value = 'zh-TW'
-    expect(tr('神庙')).toBe('神廟')
-    expect(tr('导入存档')).toBe('匯入存檔')
+    expect(tr('category.shrine')).toBe('神廟')
+    expect(tr('import.save')).toBe('匯入存檔')
     i18n.global.locale.value = 'ja-JP'
-    expect(tr('神庙')).toBe('祠')
+    expect(tr('category.shrine')).toBe('祠')
     i18n.global.locale.value = 'ko-KR'
-    expect(tr('神庙')).toBe('사당')
+    expect(tr('category.shrine')).toBe('사당')
   })
   it('maps browser locale variants to supported languages', () => {
     expect(resolveLocale('zh-Hant-HK')).toBe('zh-TW')

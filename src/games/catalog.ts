@@ -1,5 +1,8 @@
 import type { CatalogPoint, GameId } from '@/domain/game'
+import type { MessageKey } from '@/modules/i18n'
 import { z } from 'zod'
+import { AppError } from '@/domain/errors'
+import { tr } from '@/modules/i18n'
 import { readJsonResource } from './data-resource'
 
 const point = z.object({
@@ -21,10 +24,10 @@ const cache = new Map<GameId, Promise<CatalogPoint[]>>()
 
 export function loadCatalog(game: GameId) {
   if (!cache.has(game)) {
-    const request = readJsonResource(`catalogs/${game}.json`, '地图数据加载失败，请刷新页面后重试。').then((data) => {
+    const request = readJsonResource(`catalogs/${game}.json`, 'error.catalog-load').then((data) => {
       const parsed = z.array(point).safeParse(data)
       if (!parsed.success)
-        throw new Error('地图数据加载失败，请刷新页面后重试。')
+        throw new AppError('error.catalog-load')
       return parsed.data as CatalogPoint[]
     }).catch((error) => {
       cache.delete(game)
@@ -90,59 +93,60 @@ export const categoryDisplayOrder = [
   'weapon-unlock',
 ]
 
-const categoryLabels: Record<string, string> = {
-  'shrine': '神庙',
-  'korok': '克洛格',
-  'chest': '宝箱',
-  'lightroot': '破魔之根',
-  'cave': '洞窟入口',
-  'well': '井',
-  'chasm': '深穴',
-  'bubbul': '魔犹伊',
-  'hinox': '西诺克斯',
-  'talus': '岩石巨人',
-  'molduga': '莫尔德拉吉克',
-  'flux': '方块魔像',
-  'frox': '巨霸迦马',
-  'gleeok': '古栗欧克',
-  'lynel': '莱尼尔',
-  'rematch': 'Boss 重战',
-  'location': '探索地点',
-  'memory': '回忆',
-  'tear': '龙之泪',
-  'temple': '神兽 / 神殿',
-  'sage-will': '贤者的遗志',
-  'old-map': '残旧的地图',
-  'schema': '设计图石板',
-  'yiga': '依盖队设计图',
-  'addison': '广告牌',
-  'tablet': '古代石碑',
-  'stable': '驿站',
-  'lab': '研究所',
-  'fairy': '大妖精',
-  'bargainer': '魔人像',
-  'dispenser': '左纳乌装置制造机',
-  'shop': '商店',
-  'main-quest': '主剧情挑战',
-  'adventure': '情节挑战',
-  'shrine-quest': '神庙挑战',
-  'quest': '迷你挑战',
-  'dlc-quest': 'DLC 挑战',
-  'compendium': '海拉鲁图鉴',
-  'armor': '服装获取记录',
-  'recipe': '食谱',
-  'fabric': '滑翔帆布料',
-  'weapon-unlock': '无腐朽武器解锁',
-  'minigame': '小游戏',
-  'voice': '语音回忆',
-  'gloom': '瘴气之手',
-  'blossom': '樱花树',
+const categoryLabels: Partial<Record<string, MessageKey>> = {
+  'shrine': 'category.shrine',
+  'korok': 'category.korok',
+  'chest': 'category.chest',
+  'lightroot': 'category.lightroot',
+  'cave': 'category.cave',
+  'well': 'category.well',
+  'chasm': 'category.chasm',
+  'bubbul': 'category.bubbul',
+  'hinox': 'category.hinox',
+  'talus': 'category.talus',
+  'molduga': 'category.molduga',
+  'flux': 'category.flux',
+  'frox': 'category.frox',
+  'gleeok': 'category.gleeok',
+  'lynel': 'category.lynel',
+  'rematch': 'category.rematch',
+  'location': 'category.location',
+  'memory': 'category.memory',
+  'tear': 'category.tear',
+  'temple': 'category.temple',
+  'sage-will': 'category.sage-will',
+  'old-map': 'category.old-map',
+  'schema': 'category.schema',
+  'yiga': 'category.yiga',
+  'addison': 'category.addison',
+  'tablet': 'category.tablet',
+  'stable': 'category.stable',
+  'lab': 'category.lab',
+  'fairy': 'category.fairy',
+  'bargainer': 'category.bargainer',
+  'dispenser': 'category.dispenser',
+  'shop': 'category.shop',
+  'main-quest': 'category.main-quest',
+  'adventure': 'category.adventure',
+  'shrine-quest': 'category.shrine-quest',
+  'quest': 'category.quest',
+  'dlc-quest': 'category.dlc-quest',
+  'compendium': 'category.compendium',
+  'armor': 'category.armor',
+  'recipe': 'category.recipe',
+  'fabric': 'category.fabric',
+  'weapon-unlock': 'category.weapon-unlock',
+  'minigame': 'category.minigame',
+  'voice': 'category.voice',
+  'gloom': 'category.gloom',
+  'blossom': 'category.blossom',
 }
 
 export function categoryLabel(game: GameId, category: string) {
   if (category === 'tower')
-    return game === 'botw' ? '希卡塔' : '鸟望台'
-  return categoryLabels[category] ?? category
+    return tr(game === 'botw' ? 'category.sheikah-tower' : 'category.skyview-tower')
+  const key = Object.hasOwn(categoryLabels, category) ? categoryLabels[category] : undefined
+  return key ? tr(key) : category
 }
 
-export const statusLabels = { complete: '已完成', incomplete: '未完成' }
+export const statusLabels = { complete: 'status.complete', incomplete: 'status.incomplete' } as const

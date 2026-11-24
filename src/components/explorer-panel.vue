@@ -3,6 +3,7 @@ import type { CatalogPoint, GameId, PointAnnotation } from '@/domain/game'
 import type { ProfileView, SaveProfile } from '@/storage/profiles'
 import { CollapsibleContent, CollapsibleRoot, CollapsibleTrigger, PaginationEllipsis, PaginationList, PaginationListItem, PaginationNext, PaginationPrev, PaginationRoot, TabsContent, TabsList, TabsRoot, TabsTrigger, ToggleGroupItem, ToggleGroupRoot } from 'reka-ui'
 import { useGameLabels } from '@/composables/game-labels'
+import { AppError } from '@/domain/errors'
 import { filterRows, resolveRows } from '@/domain/exploration'
 import { categoryDisplayOrder, categoryLabel, loadCatalog } from '@/games/catalog'
 import { categoryIcon } from '@/games/category-icons'
@@ -18,7 +19,7 @@ const gameLabels = useGameLabels(() => props.game)
 const catalog = shallowRef<CatalogPoint[]>([])
 const annotations = shallowRef<PointAnnotation[]>([])
 const loading = ref(true)
-const error = ref('')
+const error = shallowRef<AppError>()
 const page = ref(1)
 const panelOpen = ref(true)
 const compact = useMediaQuery('(max-width: 760px)')
@@ -40,7 +41,7 @@ const explorationRows = computed(() => rows.value.filter(({ point, automatic }) 
   point.at && !point.interior && (point.category !== 'location' || !props.profile?.snapshot || automatic !== undefined),
 ))
 const categories = computed(() => [...new Set(explorationRows.value.map(row => row.point.category))].sort((a, b) => categoryName(a).localeCompare(categoryName(b), currentLocale.value)))
-const regions = computed(() => [{ value: 'all', label: t('所有地区') }, ...[...new Set(explorationRows.value.map(row => row.point.region).filter((r): r is string => !!r))].sort().map(r => ({ value: r, label: gameLabels.text(r) }))])
+const regions = computed(() => [{ value: 'all', label: t('explore.all-regions') }, ...[...new Set(explorationRows.value.map(row => row.point.region).filter((r): r is string => !!r))].sort().map(r => ({ value: r, label: gameLabels.text(r) }))])
 const filtered = computed(() => filterRows(explorationRows.value, view.value, true))
 const categoryProgress = computed(() => {
   const counts = new Map<string, { done: number, total: number }>()
@@ -67,7 +68,7 @@ const children = computed(() => rows.value.filter(r => r.point.parentId === sele
 
 const categoryOrder = computed(() => [...categoryDisplayOrder.filter(id => categories.value.includes(id)), ...categories.value.filter(id => !categoryDisplayOrder.includes(id))])
 function categoryName(category: string) {
-  return t(categoryLabel(props.game, category))
+  return categoryLabel(props.game, category)
 }
 
 let generation = 0
@@ -77,7 +78,7 @@ async function load() {
   loading.value = true
   selected.value = ''
   detailOpen.value = false
-  error.value = ''
+  error.value = undefined
   try {
     const [data, records, savedView] = await Promise.all([loadCatalog(props.game), profileId ? listAnnotations(profileId) : [], profileId ? db.views.get(profileId) : undefined])
     if (revision !== generation)
@@ -94,7 +95,7 @@ async function load() {
   }
   catch (e) {
     if (revision === generation)
-      error.value = e instanceof Error ? e.message : t('无法加载探索记录。')
+      error.value = AppError.from(e, 'error.exploration-load')
   }
   finally {
     if (revision === generation)
@@ -117,7 +118,7 @@ watchDebounced(view, async (value) => {
     await db.views.put(toRaw(value))
   }
   catch {
-    error.value = t('筛选条件未能保存，请检查此浏览器的存储空间。')
+    error.value = new AppError('error.filters-save')
   }
 }, { deep: true, debounce: 250 })
 function select(id: string) {
@@ -138,7 +139,7 @@ async function save(annotation: PointAnnotation) {
   if (props.profile?.id !== profileId || saving.has(pointId))
     return
   saving.add(pointId)
-  error.value = ''
+  error.value = undefined
   try {
     await putAnnotation(annotation)
     if (props.profile?.id !== profileId)
@@ -151,7 +152,7 @@ async function save(annotation: PointAnnotation) {
     }
   }
   catch (e) {
-    error.value = e instanceof Error ? e.message : t('记录保存失败。')
+    error.value = AppError.from(e, 'error.annotation-save')
   }
   finally {
     saving.delete(pointId)
@@ -187,76 +188,76 @@ function locate(point: CatalogPoint) {
     <WorldMap :game="game" :layer="view.layer" :rows="filtered" :focus="focus" @select="select" />
     <CollapsibleRoot v-model:open="panelOpen" class="exploration-panel">
       <header class="exploration-heading">
-        <div><span class="eyebrow">{{ game === 'botw' ? t('旷野之息') : t('王国之泪') }}</span><h1>{{ t('探索海拉鲁') }}</h1></div><CollapsibleTrigger class="icon-button panel-collapse" :aria-label="panelOpen ? t('收起探索面板') : t('展开探索面板')">
+        <div><span class="eyebrow">{{ game === 'botw' ? t('game.botw') : t('game.totk') }}</span><h1>{{ t('explore.heading') }}</h1></div><CollapsibleTrigger class="icon-button panel-collapse" :aria-label="panelOpen ? t('explore.collapse') : t('explore.expand')">
           <span :class="panelOpen ? 'i-lucide:panel-left-close' : 'i-lucide:panel-left-open'" aria-hidden="true" />
         </CollapsibleTrigger>
       </header>
       <CollapsibleContent class="exploration-body">
         <div v-if="error" class="error-message" role="alert">
-          {{ t(error) }}<button @click="load">
-            {{ t('重新加载') }}
+          {{ t(error.key, error.values) }}<button @click="load">
+            {{ t('common.reload') }}
           </button>
         </div>
         <p v-if="loading" class="panel-loading" role="status">
-          {{ t('正在读取探索目录…') }}
+          {{ t('explore.loading-catalog') }}
         </p>
         <template v-else-if="!error || catalog.length">
           <div class="exploration-filters">
-            <label class="atlas-search"><span class="i-lucide:search" aria-hidden="true" /><input v-model="view.search" name="places" autocomplete="off" :aria-label="t('搜索探索记录')" :placeholder="t('搜索地点或物品…')"><button v-if="view.search" class="icon-button" :aria-label="t('清空搜索')" @click="view.search = ''"><span class="i-lucide:x" aria-hidden="true" /></button></label>
+            <label class="atlas-search"><span class="i-lucide:search" aria-hidden="true" /><input v-model="view.search" name="places" autocomplete="off" :aria-label="t('explore.search')" :placeholder="t('explore.search-placeholder')"><button v-if="view.search" class="icon-button" :aria-label="t('explore.clear-search')" @click="view.search = ''"><span class="i-lucide:x" aria-hidden="true" /></button></label>
             <div class="filter-fields">
-              <AtlasSelect :model-value="view.region ?? 'all'" :label="t('地区筛选')" :options="regions" @update:model-value="view.region = $event" />
+              <AtlasSelect :model-value="view.region ?? 'all'" :label="t('explore.region-filter')" :options="regions" @update:model-value="view.region = $event" />
             </div>
-            <ToggleGroupRoot v-if="game === 'totk'" :model-value="view.layer" type="single" class="filter-layers" :aria-label="t('地图层级')" @update:model-value="value => { if (value === 'sky' || value === 'surface' || value === 'depths') view.layer = value }">
+            <ToggleGroupRoot v-if="game === 'totk'" :model-value="view.layer" type="single" class="filter-layers" :aria-label="t('map.layers')" @update:model-value="value => { if (value === 'sky' || value === 'surface' || value === 'depths') view.layer = value }">
               <ToggleGroupItem value="sky">
-                {{ t('天空') }}
+                {{ t('map.sky') }}
               </ToggleGroupItem>
               <ToggleGroupItem value="surface">
-                {{ t('地表') }}
+                {{ t('map.surface') }}
               </ToggleGroupItem>
               <ToggleGroupItem value="depths">
-                {{ t('地底') }}
+                {{ t('map.depths') }}
               </ToggleGroupItem>
             </ToggleGroupRoot>
           </div>
           <TabsRoot default-value="discover" class="exploration-tabs">
-            <TabsList class="panel-tabs" :aria-label="t('探索视图')">
+            <TabsList class="panel-tabs" :aria-label="t('explore.views')">
               <TabsTrigger value="discover">
-                {{ t('探索') }}
+                {{ t('explore.tab') }}
               </TabsTrigger>
               <TabsTrigger value="results">
-                {{ t('清单') }}<span>{{ filtered.length.toLocaleString(currentLocale) }}</span>
+                {{ t('explore.checklist') }}<span>{{ filtered.length.toLocaleString(currentLocale) }}</span>
               </TabsTrigger>
             </TabsList>
             <TabsContent value="discover" class="discover-content">
-              <ToggleGroupRoot type="multiple" class="category-tiles" :aria-label="t('筛选点位分类')" :model-value="view.categories ?? categories" @update:model-value="values => view.categories = Array.isArray(values) ? values.filter((value): value is string => typeof value === 'string') : []">
+              <ToggleGroupRoot type="multiple" class="category-tiles" :aria-label="t('explore.filter-categories')" :model-value="view.categories ?? categories" @update:model-value="values => view.categories = Array.isArray(values) ? values.filter((value): value is string => typeof value === 'string') : []">
                 <ToggleGroupItem v-for="category in categoryOrder" :key="category" :value="category">
                   <span class="category-symbol" :class="categoryIcon(category)" aria-hidden="true" />
                   <strong>{{ categoryName(category) }}</strong>
-                  <small v-if="categoryProgress.has(category)" class="category-progress"><span class="sr-only">{{ t('已完成') }} </span>{{ formatCategoryProgress(category) }}</small>
+                  <small v-if="categoryProgress.has(category)" class="category-progress"><span class="sr-only">{{ t('status.complete') }} </span>{{ formatCategoryProgress(category) }}</small>
                 </ToggleGroupItem>
               </ToggleGroupRoot>
             </TabsContent>
             <TabsContent value="results" class="checklist-content">
-              <section ref="pointList" class="point-list" :aria-label="t('探索点位列表')">
+              <section ref="pointList" class="point-list" :aria-label="t('explore.point-list')">
                 <div v-if="profile && !filtered.length" class="empty-results">
-                  <h3>{{ t('当前筛选没有结果') }}</h3>
+                  <h3>{{ t('explore.no-results') }}</h3>
                 </div>
                 <div v-for="row in paged" :key="row.point.id" class="point-row" :class="{ selected: row.point.id === selected }">
                   <button type="button" class="point-row-details" @click="select(row.point.id)">
                     <span class="point-symbol" :class="categoryIcon(row.point.category)" aria-hidden="true" />
-                    <span class="point-copy"><strong>{{ row.point.name }}</strong><small>{{ row.point.regionLabel ?? row.point.region ?? t(categoryLabel(game, row.point.category)) }}</small></span>
+                    <span class="point-copy"><strong>{{ row.point.name }}</strong><small>{{ row.point.regionLabel ?? row.point.region ?? categoryLabel(game, row.point.category) }}</small></span>
                     <span v-if="!profile || row.annotation?.status" class="point-state">
-                      <span v-if="!profile" class="i-lucide:chevron-right" aria-hidden="true" /><small v-if="row.annotation?.status">{{ t('手动') }}</small>
+                      <span v-if="!profile" class="i-lucide:chevron-right" aria-hidden="true" /><small v-if="row.annotation?.status">{{ t('status.manual') }}</small>
                     </span>
                   </button>
-                  <button v-if="profile" type="button" class="icon-button point-complete" :aria-label="`${t('标为已完成')} · ${row.point.name}`" :title="t('标为已完成')" :disabled="saving.has(row.point.id)" @click="completePoint(row.point.id, $event)">
+                  <button v-if="profile" type="button" class="icon-button point-complete" :aria-label="`${t('point.mark-complete')} · ${row.point.name}`" :title="t('point.mark-complete')" :disabled="saving.has(row.point.id)" @click="completePoint(row.point.id, $event)">
                     <span class="i-lucide:check" aria-hidden="true" />
                   </button>
                 </div>
               </section>
               <PaginationRoot v-if="pageCount > 1" v-model:page="page" :total="filtered.length" :items-per-page="pageSize" :sibling-count="0" show-edges class="pagination">
                 <PaginationList v-slot="{ items }">
-                  <PaginationPrev :aria-label="t('上一页')">
+                  <PaginationPrev :aria-label="t('common.previous-page')">
                     ‹
                   </PaginationPrev><template v-for="(item, index) in items" :key="index">
                     <PaginationListItem v-if="item.type === 'page'" :value="item.value">
@@ -264,7 +265,7 @@ function locate(point: CatalogPoint) {
                     </PaginationListItem><PaginationEllipsis v-else :index="index">
                       …
                     </PaginationEllipsis>
-                  </template><PaginationNext :aria-label="t('下一页')">
+                  </template><PaginationNext :aria-label="t('common.next-page')">
                     ›
                   </PaginationNext>
                 </PaginationList>

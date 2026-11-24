@@ -2,6 +2,7 @@
 import type { GameId } from '@/domain/game'
 import type { SaveProfile } from '@/storage/profiles'
 import { AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogOverlay, AlertDialogPortal, AlertDialogRoot, AlertDialogTitle, DialogClose, DialogContent, DialogOverlay, DialogPortal, DialogRoot, DialogTitle } from 'reka-ui'
+import { AppError } from '@/domain/errors'
 import { tr as t } from '@/modules/i18n'
 import { downloadBackup } from '@/storage/backup'
 import { createProfile, deleteProfile, renameProfile } from '@/storage/profiles'
@@ -10,7 +11,7 @@ import AtlasSelect from './atlas-select.vue'
 const props = defineProps<{ profiles: SaveProfile[], activeId: string, game: GameId }>()
 const emit = defineEmits<{ changed: [], created: [profileId: string], import: [source?: 'folder'], select: [profileId: string] }>()
 const open = defineModel<boolean>('open', { required: true })
-const error = ref('')
+const error = shallowRef<AppError>()
 const busy = ref(false)
 const deletion = shallowRef<SaveProfile>()
 const confirm = ref(false)
@@ -23,18 +24,18 @@ const nameInput = ref<HTMLInputElement[]>([])
 watch(open, () => {
   editing.value = ''
   creating.value = false
-  error.value = ''
+  error.value = undefined
 })
 async function action(fn: () => Promise<void>) {
   if (busy.value)
     return
   busy.value = true
-  error.value = ''
+  error.value = undefined
   try {
     await fn()
   }
   catch (e) {
-    error.value = e instanceof Error ? e.message : t('操作未完成，请重试。')
+    error.value = AppError.from(e, 'error.operation-failed')
   }
   finally {
     busy.value = false
@@ -48,7 +49,7 @@ async function startCreate() {
   selectedGame.value = props.game
   name.value = ''
   editing.value = ''
-  error.value = ''
+  error.value = undefined
   creating.value = true
   await nextTick()
   createNameInput.value?.focus()
@@ -63,7 +64,7 @@ function create() {
 async function editName(profile: SaveProfile) {
   editing.value = profile.id
   name.value = profile.name
-  error.value = ''
+  error.value = undefined
   await nextTick()
   nameInput.value[0]?.focus()
   nameInput.value[0]?.select()
@@ -96,56 +97,56 @@ function backup(profileId?: string) {
       <DialogOverlay class="dialog-overlay" />
       <DialogContent class="dialog-content manager-dialog" :aria-describedby="undefined" @interact-outside="busy && $event.preventDefault()" @escape-key-down="busy && $event.preventDefault()">
         <header class="profile-manager-header">
-          <DialogTitle>{{ t(creating ? '新建档案' : '管理存档') }}</DialogTitle>
+          <DialogTitle>{{ t(creating ? 'profile.create' : 'profile.manage') }}</DialogTitle>
           <div class="profile-manager-controls">
-            <button v-if="!creating && profiles.length" class="toolbar-control" :aria-label="t('新建档案')" :title="t('新建档案')" :disabled="busy" @click="startCreate">
+            <button v-if="!creating && profiles.length" class="toolbar-control" :aria-label="t('profile.create')" :title="t('profile.create')" :disabled="busy" @click="startCreate">
               <span class="i-lucide:file-plus" aria-hidden="true" />
             </button>
-            <button v-if="!creating && profiles.length" class="toolbar-control" :aria-label="t('备份')" :title="t('备份')" :disabled="busy" @click="backup()">
+            <button v-if="!creating && profiles.length" class="toolbar-control" :aria-label="t('profile.backup')" :title="t('profile.backup')" :disabled="busy" @click="backup()">
               <span class="i-lucide:save" aria-hidden="true" />
             </button>
-            <button v-if="!creating" class="toolbar-control" :aria-label="t('导入文件')" :title="t('导入文件')" :disabled="busy" @click="emit('import')">
+            <button v-if="!creating" class="toolbar-control" :aria-label="t('import.single-file')" :title="t('import.single-file')" :disabled="busy" @click="emit('import')">
               <span class="i-lucide:upload" aria-hidden="true" />
             </button>
-            <button v-if="!creating && profiles.length" class="toolbar-control" :aria-label="t('导入存档文件夹')" :title="t('导入存档文件夹')" :disabled="busy" @click="emit('import', 'folder')">
+            <button v-if="!creating && profiles.length" class="toolbar-control" :aria-label="t('import.folder')" :title="t('import.folder')" :disabled="busy" @click="emit('import', 'folder')">
               <span class="i-lucide:folder-open" aria-hidden="true" />
             </button>
-            <DialogClose class="toolbar-control" :aria-label="t('关闭档案管理')" :title="t('关闭档案管理')" :disabled="busy">
+            <DialogClose class="toolbar-control" :aria-label="t('profile.close-manager')" :title="t('profile.close-manager')" :disabled="busy">
               <span class="i-lucide:x" aria-hidden="true" />
             </DialogClose>
           </div>
         </header>
         <form v-if="creating" @submit.prevent="create">
-          <AtlasSelect v-model="selectedGame" :label="t('选择游戏')" :options="[{ value: 'botw', label: t('旷野之息') }, { value: 'totk', label: t('王国之泪') }]" :disabled="busy" />
+          <AtlasSelect v-model="selectedGame" :label="t('game.select')" :options="[{ value: 'botw', label: t('game.botw') }, { value: 'totk', label: t('game.totk') }]" :disabled="busy" />
           <label>
-            {{ t('存档名称') }}
+            {{ t('profile.name') }}
             <input ref="createNameInput" v-model="name" name="profile-name" autocomplete="off" required maxlength="80" :disabled="busy">
           </label>
           <div class="dialog-actions">
-            <button type="button" class="button secondary" :disabled="busy" @click="creating = false; error = ''">
-              {{ t('取消') }}
+            <button type="button" class="button secondary" :disabled="busy" @click="creating = false; error = undefined">
+              {{ t('common.cancel') }}
             </button>
             <button type="submit" class="button primary" :disabled="busy || !name.trim()">
-              {{ t('新建档案') }}
+              {{ t('profile.create') }}
             </button>
           </div>
         </form>
         <ul v-else-if="profiles.length" class="profile-manager-list">
           <li v-for="profile in profiles" :key="profile.id" class="profile-manager-row">
             <form v-if="editing === profile.id" class="profile-manager-edit" @submit.prevent="rename(profile)">
-              <input ref="nameInput" v-model="name" name="profile-name" :aria-label="t('存档名称')" autocomplete="off" required maxlength="80" :disabled="busy">
+              <input ref="nameInput" v-model="name" name="profile-name" :aria-label="t('profile.name')" autocomplete="off" required maxlength="80" :disabled="busy">
               <button type="submit" class="button primary" :disabled="busy">
-                {{ t('保存') }}
+                {{ t('common.save') }}
               </button>
-              <button type="button" class="button secondary" :disabled="busy" @click="editing = ''; error = ''">
-                {{ t('取消') }}
+              <button type="button" class="button secondary" :disabled="busy" @click="editing = ''; error = undefined">
+                {{ t('common.cancel') }}
               </button>
             </form>
             <template v-else>
               <button
                 type="button" class="profile-manager-select"
                 :aria-current="profile.id === activeId ? 'true' : undefined"
-                :aria-label="t('切换到 {name}', { name: profile.name })"
+                :aria-label="t('profile.switch-to', { name: profile.name })"
                 :disabled="busy"
                 @click="selectProfile(profile.id)"
               >
@@ -153,32 +154,32 @@ function backup(profileId?: string) {
                 <span class="profile-manager-name">{{ profile.name }}</span>
               </button>
               <div class="profile-row-actions">
-                <button class="button secondary" :disabled="busy" :aria-label="t('重命名存档')" @click="editName(profile)">
-                  {{ t('重命名') }}
+                <button class="button secondary" :disabled="busy" :aria-label="t('profile.rename-save')" @click="editName(profile)">
+                  {{ t('profile.rename') }}
                 </button>
-                <button class="button secondary" :disabled="busy" :aria-label="t('导出此 Profile')" @click="backup(profile.id)">
-                  {{ t('导出') }}
+                <button class="button secondary" :disabled="busy" :aria-label="t('profile.export-one')" @click="backup(profile.id)">
+                  {{ t('profile.export') }}
                 </button>
-                <button class="button danger" :disabled="busy" :aria-label="t('删除 {name}', { name: profile.name })" @click="deletion = profile; confirm = true">
-                  {{ t('删除') }}
+                <button class="button danger" :disabled="busy" :aria-label="t('profile.delete-name', { name: profile.name })" @click="deletion = profile; confirm = true">
+                  {{ t('common.delete') }}
                 </button>
               </div>
             </template>
           </li>
         </ul>
         <div v-else class="profile-manager-empty">
-          <p>{{ t('暂无档案') }}</p>
+          <p>{{ t('profile.empty') }}</p>
           <div>
             <button type="button" class="button secondary" @click="startCreate">
-              {{ t('新建档案') }}
+              {{ t('profile.create') }}
             </button>
             <button type="button" class="button primary" @click="emit('import', 'folder')">
-              {{ t('导入存档') }}
+              {{ t('import.save') }}
             </button>
           </div>
         </div>
         <p v-if="error && !confirm" role="alert" class="error-message">
-          {{ t(error) }}
+          {{ t(error.key, error.values) }}
         </p>
       </DialogContent>
     </DialogPortal>
@@ -187,17 +188,17 @@ function backup(profileId?: string) {
     <AlertDialogPortal>
       <AlertDialogOverlay class="dialog-overlay" />
       <AlertDialogContent class="dialog-content" :aria-describedby="undefined">
-        <AlertDialogTitle>{{ t('删除「{name}」？', { name: deletion?.name ?? '' }) }}</AlertDialogTitle>
+        <AlertDialogTitle>{{ t('profile.confirm-delete', { name: deletion?.name ?? '' }) }}</AlertDialogTitle>
         <div class="dialog-actions">
           <AlertDialogCancel class="button secondary" :disabled="busy">
-            {{ t('取消') }}
+            {{ t('common.cancel') }}
           </AlertDialogCancel>
           <AlertDialogAction class="button danger" :disabled="busy" @click.prevent="remove">
-            {{ t('删除') }}
+            {{ t('common.delete') }}
           </AlertDialogAction>
         </div>
         <p v-if="error" role="alert" class="error-message">
-          {{ t(error) }}
+          {{ t(error.key, error.values) }}
         </p>
       </AlertDialogContent>
     </AlertDialogPortal>

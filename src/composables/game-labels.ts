@@ -1,32 +1,33 @@
 import type { MaybeRefOrGetter } from 'vue'
 import type { CatalogPoint, GameId } from '@/domain/game'
+import type { MessageKey } from '@/modules/i18n'
 import { z } from 'zod'
 import { readJsonResource } from '@/games/data-resource'
 import { currentLocale, tr } from '@/modules/i18n'
 
 const schema = z.object({ ids: z.record(z.string(), z.string()), english: z.record(z.string(), z.string()) })
 type Labels = z.infer<typeof schema>
-const chineseCatalogTerms = new Map([
-  ['Korok', '克洛格'],
-  ['Lynel', '莱尼尔'],
-  ['Blue-Maned Lynel', '蓝鬃莱尼尔'],
-  ['White-Maned Lynel', '白鬃莱尼尔'],
-  ['Silver Lynel', '白银莱尼尔'],
-  ['Hinox', '西诺克斯'],
-  ['Stone Talus', '岩石巨人'],
-  ['Molduga', '莫尔德拉吉克'],
-  ['Flux Construct', '方块魔像'],
-  ['Frox', '巨霸迦马'],
-  ['Gleeok', '古栗欧克'],
-  ['Old Map', '残旧的地图'],
-  ['Zonai Device Dispenser', '左纳乌装置制造机'],
+const chineseCatalogTerms = new Map<string, MessageKey>([
+  ['Korok', 'category.korok'],
+  ['Lynel', 'category.lynel'],
+  ['Blue-Maned Lynel', 'monster.blue-maned-lynel'],
+  ['White-Maned Lynel', 'monster.white-maned-lynel'],
+  ['Silver Lynel', 'monster.silver-lynel'],
+  ['Hinox', 'category.hinox'],
+  ['Stone Talus', 'category.talus'],
+  ['Molduga', 'category.molduga'],
+  ['Flux Construct', 'category.flux'],
+  ['Frox', 'category.frox'],
+  ['Gleeok', 'category.gleeok'],
+  ['Old Map', 'category.old-map'],
+  ['Zonai Device Dispenser', 'category.dispenser'],
 ])
 const cache = new Map<string, Promise<Labels>>()
 export function loadGameLabels(game: GameId, locale: string) {
   // The current game-text source has no Korean records; use its English names.
   const key = `${game}-${locale === 'ko-KR' ? 'en-US' : locale}`
   if (!cache.has(key)) {
-    const request = readJsonResource(`labels/${key}.json`, 'Game labels unavailable').then(data => schema.parse(data)).catch((error) => {
+    const request = readJsonResource(`labels/${key}.json`, 'error.game-labels-load').then(data => schema.parse(data)).catch((error) => {
       cache.delete(key)
       throw error
     })

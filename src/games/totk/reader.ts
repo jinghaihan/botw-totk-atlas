@@ -1,5 +1,6 @@
 import type { GameSnapshot } from '@/domain/game'
 import murmur from 'murmurhash3js'
+import { AppError } from '@/domain/errors'
 import { progressLabels } from '@/domain/game'
 import groups from './completion-flags.json'
 
@@ -8,7 +9,7 @@ const hash = (name: string) => murmur.x86.hash32(name) >>> 0
 export async function readTotkSave(buffer: ArrayBuffer, filename: string): Promise<GameSnapshot> {
   const view = new DataView(buffer)
   if (buffer.byteLength < 100_000 || buffer.byteLength > 8_000_000 || view.getUint32(0, true) !== 0x01020304)
-    throw new Error('请选择 TOTK 的 progress.sav。')
+    throw new AppError('error.select-totk-save')
 
   const offsets = new Map<number, number>()
   const guids = new Set<string>()
@@ -19,7 +20,7 @@ export async function readTotkSave(buffer: ArrayBuffer, filename: string): Promi
       foundMetadata = true
       const base = view.getUint32(p + 4, true)
       if (base < p + 8 || base + 8 > buffer.byteLength)
-        throw new Error('TOTK 存档的数据边界无效。')
+        throw new AppError('error.totk-invalid-data-boundary')
       let terminated = false
       for (let q = base; q + 8 <= view.byteLength; q += 8) {
         const id = view.getBigUint64(q, true)
@@ -30,22 +31,22 @@ export async function readTotkSave(buffer: ArrayBuffer, filename: string): Promi
         guids.add(id.toString())
       }
       if (!terminated)
-        throw new Error('TOTK 存档的收集记录不完整。')
+        throw new AppError('error.totk-incomplete-guids')
       break
     }
     // Zero hashes delimit value-type sections in the native save table.
     if (key === 0)
       continue
     if (offsets.has(key))
-      throw new Error('TOTK 存档包含重复字段，请确认格式。')
+      throw new AppError('error.totk-duplicate-fields')
     offsets.set(key, p + 4)
   }
   if (!foundMetadata)
-    throw new Error('无法找到 TOTK 存档数据边界。')
+    throw new AppError('error.totk-missing-data-boundary')
   const pos = (name: string) => {
     const p = offsets.get(hash(name))
     if (p === undefined)
-      throw new Error(`当前存档缺少 ${name}。`)
+      throw new AppError('error.totk-missing-field', { name })
     return p
   }
   const u = (name: string) => view.getUint32(pos(name), true)
@@ -76,9 +77,9 @@ export async function readTotkSave(buffer: ArrayBuffer, filename: string): Promi
   const progress = definitions.map(([id, label, expected]) => {
     const keys = (groups as unknown as Record<string, (number | string)[]>)[id!]
     if (!keys)
-      throw new Error(`收集目录缺少 ${id}。`)
+      throw new AppError('error.missing-progress-group', { id: id! })
     if (keys.some(key => typeof key === 'number' && scalar(key) === undefined))
-      throw new Error('当前存档的收集标记不完整，请检查文件版本。')
+      throw new AppError('error.save-incomplete-progress')
     return { id: id!, label: label!, total: keys.length, done: keys.filter(key => typeof key === 'string' ? guids.has(BigInt(key).toString()) : scalar(key) === (expected ? hash(expected) : 1)).length }
   })
   const digest = await crypto.subtle.digest('SHA-256', buffer)

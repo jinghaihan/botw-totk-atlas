@@ -6,6 +6,7 @@ import ImportDialog from '@/components/import-dialog.vue'
 import LanguageToggle from '@/components/language-toggle.vue'
 import ProfileManager from '@/components/profile-manager.vue'
 import SaveContents from '@/components/save-contents.vue'
+import { AppError } from '@/domain/errors'
 import { loadCatalog } from '@/games/catalog'
 import { readSave } from '@/games/read-save'
 import { tr as t } from '@/modules/i18n'
@@ -20,8 +21,8 @@ const activeId = useLocalStorage('wilds-atlas:active-profile', '')
 const current = computed(() => profiles.value.find(p => p.id === activeId.value))
 const snapshot = computed(() => current.value?.snapshot)
 const options = computed(() => profiles.value.map(p => ({ value: p.id, label: p.name })))
-const gameName = computed(() => current.value?.game === 'totk' ? t('王国之泪') : current.value?.game === 'botw' ? t('旷野之息') : t('海拉鲁的冒险'))
-const error = ref('')
+const gameName = computed(() => current.value?.game === 'totk' ? t('game.totk') : current.value?.game === 'botw' ? t('game.botw') : t('game.hyrule-adventure'))
+const error = shallowRef<AppError>()
 const busy = ref(true)
 const importOpen = ref(false)
 const importer = ref<InstanceType<typeof ImportDialog>>()
@@ -32,18 +33,18 @@ async function download() {
   if (exporting.value)
     return
   exporting.value = true
-  error.value = ''
+  error.value = undefined
   try {
     await downloadBackup()
   }
   catch (e) {
-    error.value = e instanceof Error ? e.message : t('操作未完成，请重试。')
+    error.value = AppError.from(e, 'error.operation-failed')
   }
   finally {
     exporting.value = false
   }
 }
-useHead(() => ({ title: t('塞尔达笔记 · Zelda Notes'), htmlAttrs: { 'data-game': game.value } }))
+useHead(() => ({ title: t('app.title'), htmlAttrs: { 'data-game': game.value } }))
 
 const managerOpen = ref(false)
 const urlParams = useUrlSearchParams('history')
@@ -74,7 +75,7 @@ onMounted(async () => {
     if (import.meta.env.DEV && new URLSearchParams(location.search).get('preview') === 'botw-normal') {
       const response = await fetch('/.local/botw-normal.sav', { cache: 'no-store' })
       if (!response.ok)
-        throw new Error(t('本地预览存档未找到。'))
+        throw new AppError('error.preview-save-missing')
       const parsed = await readSave(await response.arrayBuffer(), 'game_data.sav')
       const existing = profiles.value.find(p => p.name === 'BOTW · 普通模式')
       if (existing?.snapshot?.fingerprint === parsed.fingerprint)
@@ -83,7 +84,7 @@ onMounted(async () => {
     }
   }
   catch (e) {
-    error.value = e instanceof Error ? e.message : t('档案加载失败，请检查浏览器存储是否可用。')
+    error.value = AppError.from(e, 'error.profile-load')
   }
   finally {
     busy.value = false
@@ -93,39 +94,39 @@ onMounted(async () => {
 
 <template>
   <div class="atlas-app" :class="{ 'is-map': tab === 'atlas' }" :data-game="game">
-    <a class="skip-link" href="#atlas-main">{{ t('跳至主要内容') }}</a>
+    <a class="skip-link" href="#atlas-main">{{ t('app.skip-to-content') }}</a>
     <TabsRoot v-model="tab" class="app-frame">
       <header class="atlas-header">
         <div class="header-main">
-          <AtlasSelect v-if="profiles.length" v-model="activeId" class="header-profile" :label="t('切换存档 Profile')" :options="options" /><AtlasSelect v-else v-model="browseGame" class="header-profile" :label="t('选择游戏')" :options="[{ value: 'botw', label: t('旷野之息') }, { value: 'totk', label: t('王国之泪') }]" />
-          <TabsList class="atlas-navigation" :aria-label="t('存档内容')">
-            <TabsTrigger value="atlas" :aria-label="t('地图')">
-              <span class="i-lucide:map" aria-hidden="true" /><span>{{ t('地图') }}</span>
+          <AtlasSelect v-if="profiles.length" v-model="activeId" class="header-profile" :label="t('profile.switch')" :options="options" /><AtlasSelect v-else v-model="browseGame" class="header-profile" :label="t('game.select')" :options="[{ value: 'botw', label: t('game.botw') }, { value: 'totk', label: t('game.totk') }]" />
+          <TabsList class="atlas-navigation" :aria-label="t('profile.contents')">
+            <TabsTrigger value="atlas" :aria-label="t('map.title')">
+              <span class="i-lucide:map" aria-hidden="true" /><span>{{ t('map.title') }}</span>
             </TabsTrigger>
-            <TabsTrigger value="progress" :aria-label="t('收集')">
-              <span class="i-lucide:book-open" aria-hidden="true" /><span>{{ t('收集') }}</span>
+            <TabsTrigger value="progress" :aria-label="t('progress.tab')">
+              <span class="i-lucide:book-open" aria-hidden="true" /><span>{{ t('progress.tab') }}</span>
             </TabsTrigger>
           </TabsList>
         </div>
         <div class="header-tools">
           <LanguageToggle class="toolbar-control" />
-          <button class="toolbar-control" :aria-label="t('管理存档')" :title="t('管理存档')" @click="managerOpen = true">
+          <button class="toolbar-control" :aria-label="t('profile.manage')" :title="t('profile.manage')" @click="managerOpen = true">
             <span class="i-lucide:settings-2" aria-hidden="true" />
           </button>
-          <button class="toolbar-control" :aria-label="t('导出')" :title="t('导出')" :disabled="exporting || !profiles.length" @click="download">
+          <button class="toolbar-control" :aria-label="t('profile.export')" :title="t('profile.export')" :disabled="exporting || !profiles.length" @click="download">
             <span class="i-lucide:save" aria-hidden="true" />
           </button>
-          <button class="toolbar-control" :aria-label="t('导入')" :title="t('导入')" @click="importer?.chooseFile()">
+          <button class="toolbar-control" :aria-label="t('import.open-picker')" :title="t('import.open-picker')" @click="importer?.chooseFile()">
             <span class="i-lucide:upload" aria-hidden="true" />
           </button>
-          <button class="toolbar-control" :aria-label="t('导入存档文件夹')" :title="t('导入存档文件夹')" @click="importer?.chooseFile('folder')">
+          <button class="toolbar-control" :aria-label="t('import.folder')" :title="t('import.folder')" @click="importer?.chooseFile('folder')">
             <span class="i-lucide:folder-open" aria-hidden="true" />
           </button>
         </div>
       </header>
       <main id="atlas-main" class="atlas-main" tabindex="-1">
         <p v-if="error" class="error-message app-error" role="alert">
-          {{ t(error) }}
+          {{ t(error.key, error.values) }}
         </p>
         <TabsContent v-if="!busy || current" value="atlas" class="map-page" force-mount :hidden="tab !== 'atlas'">
           <ExplorerPanel :key="current?.id ?? game" :profile="current" :game="game" @import="importer?.chooseFile()" />
@@ -133,25 +134,25 @@ onMounted(async () => {
         <div v-if="tab === 'progress' && !busy" class="journal-page">
           <header class="journal-heading">
             <div>
-              <span class="eyebrow">{{ gameName }}</span><h1>{{ t('收集') }}</h1><p v-if="current">
+              <span class="eyebrow">{{ gameName }}</span><h1>{{ t('progress.tab') }}</h1><p v-if="current">
                 {{ current.name }}<template v-if="snapshot && current.mode !== 'unknown'">
-                  · {{ current.mode === 'master' ? t('大师模式') : t('普通模式') }}
+                  · {{ current.mode === 'master' ? t('game.master-mode') : t('game.normal-mode') }}
                 </template>
               </p>
             </div><button class="button secondary" @click="tab = 'atlas'">
-              <span class="i-lucide:arrow-up-right" aria-hidden="true" />{{ t('返回地图') }}
+              <span class="i-lucide:arrow-up-right" aria-hidden="true" />{{ t('map.back') }}
             </button>
           </header>
           <SaveContents v-if="current" :key="current.id" :profile="current" />
           <TabsContent v-else value="progress" class="profile-manager-empty">
-            <p>{{ t('暂无档案') }}</p>
+            <p>{{ t('profile.empty') }}</p>
             <button class="button primary" @click="managerOpen = true">
-              {{ t('管理存档') }}
+              {{ t('profile.manage') }}
             </button>
           </TabsContent>
         </div>
         <div v-if="busy" class="map-loading" role="status">
-          {{ t('正在读取…') }}
+          {{ t('common.loading') }}
         </div>
       </main>
     </TabsRoot>

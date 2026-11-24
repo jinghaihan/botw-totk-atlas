@@ -39,7 +39,7 @@ describe('profile isolation', () => {
 
   it('rejects a different game before overwriting a profile', async () => {
     const profile = await saveProfile(snapshot(), 'normal')
-    await expect(saveProfile(snapshot({ game: 'totk' }), 'wrong', profile.id)).rejects.toThrow('游戏不同')
+    await expect(saveProfile(snapshot({ game: 'totk' }), 'wrong', profile.id)).rejects.toThrow('error.import-game-mismatch')
     expect((await listProfiles())[0]?.snapshot?.game).toBe('botw')
   })
 })
