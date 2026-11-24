@@ -1,6 +1,6 @@
 # Wilds Atlas
 
-A local-first exploration atlas for **Breath of the Wild** and **Tears of the Kingdom**, built from [jinghaihan/starter-vue](https://github.com/jinghaihan/starter-vue).
+A local-first exploration atlas for **Breath of the Wild** and **Tears of the Kingdom**.
 
 Import a save, keep separate profiles for each playthrough, and find what remains on a map or checklist. Saves are read in the browser and are never modified or uploaded.
 
@@ -19,7 +19,6 @@ Import a save, keep separate profiles for each playthrough, and find what remain
 
 ## Credits
 
-- [jinghaihan/starter-vue](https://github.com/jinghaihan/starter-vue) — project template.
 - [jv-prado/hyrule-tracker](https://github.com/jv-prado/hyrule-tracker) and [LucieTheFool/boomerang-tracker](https://github.com/LucieTheFool/boomerang-tracker) contributors — community map metadata, adapted under the MIT license.
 - [ZeldaMods BOTW Object Map](https://objmap.zeldamods.org/) and [TOTK Object Map](https://objmap-totk.zeldamods.org/) — map imagery and game-data research.
 - [marcrobledo/savegame-editors](https://github.com/marcrobledo/savegame-editors), MrCheeze and McSpazzy — save-format and completion-flag research.
