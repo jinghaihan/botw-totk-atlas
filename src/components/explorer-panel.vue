@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { CatalogPoint, GameId, PointAnnotation } from '@/domain/game'
 import type { ProfileView, SaveProfile } from '@/storage/profiles'
-import { CollapsibleContent, CollapsibleRoot, CollapsibleTrigger, PaginationEllipsis, PaginationList, PaginationListItem, PaginationNext, PaginationPrev, PaginationRoot, ToggleGroupItem, ToggleGroupRoot } from 'reka-ui'
+import { CollapsibleContent, CollapsibleRoot, CollapsibleTrigger, PaginationEllipsis, PaginationList, PaginationListItem, PaginationNext, PaginationPrev, PaginationRoot, TabsContent, TabsList, TabsRoot, TabsTrigger, ToggleGroupItem, ToggleGroupRoot } from 'reka-ui'
 import { useGameLabels } from '@/composables/game-labels'
 import { coordinateLabel } from '@/domain/coordinates'
 import { filterRows, resolveRows } from '@/domain/exploration'
@@ -28,7 +28,6 @@ onMounted(() => {
   if (compact.value)
     panelOpen.value = false
 })
-const categoriesOpen = ref(false)
 const pointList = ref<HTMLElement>()
 const pageSize = 40
 const selected = ref('')
@@ -72,11 +71,6 @@ const categoryOrder = computed(() => [...categoryDisplayOrder.filter(id => categ
 function categoryName(category: string) {
   return t(category === 'camp' ? '营地' : categoryLabels[category] ?? category)
 }
-const categorySummary = computed(() => {
-  if (view.value.categories === null)
-    return t('全部')
-  return categoryOrder.value.filter(id => view.value.categories?.includes(id)).map(categoryName).join(' · ')
-})
 function resetFilters() {
   view.value = defaultView(view.value.profileId)
 }
@@ -242,22 +236,6 @@ async function remove(id: string) {
                 {{ t('地底') }}
               </ToggleGroupItem>
             </ToggleGroupRoot>
-            <CollapsibleRoot v-model:open="categoriesOpen">
-              <CollapsibleTrigger class="category-trigger">
-                <span>{{ t('分类') }}</span>
-                <span class="category-summary">{{ categorySummary || '—' }}</span>
-                <span class="i-lucide:chevron-down" aria-hidden="true" />
-              </CollapsibleTrigger>
-              <CollapsibleContent class="category-options">
-                <ToggleGroupRoot type="multiple" class="category-tiles" :aria-label="t('筛选点位分类')" :model-value="view.categories ?? categories" @update:model-value="values => view.categories = Array.isArray(values) ? values.filter((value): value is string => typeof value === 'string') : []">
-                  <ToggleGroupItem v-for="category in categoryOrder" :key="category" :value="category">
-                    <span class="category-symbol" :class="categoryIcon(category)" aria-hidden="true" />
-                    <strong>{{ categoryName(category) }}</strong>
-                    <small v-if="categoryProgress.has(category)" class="category-progress"><span class="sr-only">{{ t('已完成') }} </span>{{ formatCategoryProgress(category) }}</small>
-                  </ToggleGroupItem>
-                </ToggleGroupRoot>
-              </CollapsibleContent>
-            </CollapsibleRoot>
             <div class="filter-actions">
               <label v-if="profile" class="check-label"><input v-model="view.hideIgnored" type="checkbox">{{ t('隐藏已忽略') }}</label>
               <button class="text-button" @click="resetFilters">
@@ -265,35 +243,52 @@ async function remove(id: string) {
               </button>
             </div>
           </div>
-          <header class="checklist-heading">
-            <h2>{{ t('清单') }}</h2>
-            <span>{{ t('{count} 个地点', { count: filtered.length.toLocaleString(currentLocale) }) }}</span>
-          </header>
-          <section ref="pointList" class="point-list" :aria-label="t('探索点位列表')">
-            <div v-if="profile && !filtered.length" class="empty-results">
-              <h3>{{ t('当前筛选没有结果') }}</h3>
-            </div><button v-for="row in paged" :key="row.point.id" class="point-row" :class="[row.status, { selected: row.point.id === selected, ignored: row.annotation?.ignored }]" @click="select(row.point.id)">
-              <span class="point-symbol" :class="categoryIcon(row.point.category)" aria-hidden="true" /><span class="point-copy"><strong>{{ row.point.name }}</strong><small>{{ row.point.regionLabel ?? row.point.region ?? t(categoryLabels[row.point.category] ?? row.point.category) }}</small><small v-if="row.annotation?.note" class="note-excerpt">{{ row.annotation.note }}</small></span><span class="point-state"><span class="i-lucide:chevron-right" aria-hidden="true" /><small v-if="row.annotation?.status">{{ t('手动') }}</small></span>
-            </button>
-          </section>
-          <PaginationRoot v-if="pageCount > 1" v-model:page="page" :total="filtered.length" :items-per-page="pageSize" :sibling-count="0" show-edges class="pagination">
-            <p class="page-summary">
-              {{ t('第 {page} 页，共 {total} 页', { page: page.toLocaleString(currentLocale), total: pageCount.toLocaleString(currentLocale) }) }}
-            </p>
-            <PaginationList v-slot="{ items }">
-              <PaginationPrev :aria-label="t('上一页')">
-                ‹
-              </PaginationPrev><template v-for="(item, index) in items" :key="index">
-                <PaginationListItem v-if="item.type === 'page'" :value="item.value">
-                  {{ item.value }}
-                </PaginationListItem><PaginationEllipsis v-else :index="index">
-                  …
-                </PaginationEllipsis>
-              </template><PaginationNext :aria-label="t('下一页')">
-                ›
-              </PaginationNext>
-            </PaginationList>
-          </PaginationRoot>
+          <TabsRoot default-value="discover" class="exploration-tabs">
+            <TabsList class="panel-tabs" :aria-label="t('探索视图')">
+              <TabsTrigger value="discover">
+                {{ t('探索') }}
+              </TabsTrigger>
+              <TabsTrigger value="results">
+                {{ t('清单') }}<span>{{ filtered.length.toLocaleString(currentLocale) }}</span>
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="discover" class="discover-content">
+              <ToggleGroupRoot type="multiple" class="category-tiles" :aria-label="t('筛选点位分类')" :model-value="view.categories ?? categories" @update:model-value="values => view.categories = Array.isArray(values) ? values.filter((value): value is string => typeof value === 'string') : []">
+                <ToggleGroupItem v-for="category in categoryOrder" :key="category" :value="category">
+                  <span class="category-symbol" :class="categoryIcon(category)" aria-hidden="true" />
+                  <strong>{{ categoryName(category) }}</strong>
+                  <small v-if="categoryProgress.has(category)" class="category-progress"><span class="sr-only">{{ t('已完成') }} </span>{{ formatCategoryProgress(category) }}</small>
+                </ToggleGroupItem>
+              </ToggleGroupRoot>
+            </TabsContent>
+            <TabsContent value="results" class="checklist-content">
+              <section ref="pointList" class="point-list" :aria-label="t('探索点位列表')">
+                <div v-if="profile && !filtered.length" class="empty-results">
+                  <h3>{{ t('当前筛选没有结果') }}</h3>
+                </div><button v-for="row in paged" :key="row.point.id" class="point-row" :class="[row.status, { selected: row.point.id === selected, ignored: row.annotation?.ignored }]" @click="select(row.point.id)">
+                  <span class="point-symbol" :class="categoryIcon(row.point.category)" aria-hidden="true" /><span class="point-copy"><strong>{{ row.point.name }}</strong><small>{{ row.point.regionLabel ?? row.point.region ?? t(categoryLabels[row.point.category] ?? row.point.category) }}</small><small v-if="row.annotation?.note" class="note-excerpt">{{ row.annotation.note }}</small></span><span class="point-state"><span class="i-lucide:chevron-right" aria-hidden="true" /><small v-if="row.annotation?.status">{{ t('手动') }}</small></span>
+                </button>
+              </section>
+              <PaginationRoot v-if="pageCount > 1" v-model:page="page" :total="filtered.length" :items-per-page="pageSize" :sibling-count="0" show-edges class="pagination">
+                <p class="page-summary">
+                  {{ t('第 {page} 页，共 {total} 页', { page: page.toLocaleString(currentLocale), total: pageCount.toLocaleString(currentLocale) }) }}
+                </p>
+                <PaginationList v-slot="{ items }">
+                  <PaginationPrev :aria-label="t('上一页')">
+                    ‹
+                  </PaginationPrev><template v-for="(item, index) in items" :key="index">
+                    <PaginationListItem v-if="item.type === 'page'" :value="item.value">
+                      {{ item.value }}
+                    </PaginationListItem><PaginationEllipsis v-else :index="index">
+                      …
+                    </PaginationEllipsis>
+                  </template><PaginationNext :aria-label="t('下一页')">
+                    ›
+                  </PaginationNext>
+                </PaginationList>
+              </PaginationRoot>
+            </TabsContent>
+          </TabsRoot>
         </template>
         <footer class="panel-footnote">
           <span class="i-lucide:hard-drive" aria-hidden="true" /><span>{{ profile ? t('你的记录仅保存在此设备') : t('导入存档后显示收集进度') }}</span>

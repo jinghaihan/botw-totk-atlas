@@ -395,17 +395,12 @@ button:hover:not(:disabled) {
   font-size: 11px;
   padding: 8px 9px;
 }
-.filter-fields .filter-trigger > span:first-child,
-.category-summary {
+.filter-fields .filter-trigger > span:first-child {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.filter-fields .filter-trigger > span:first-child {
   white-space: normal;
 }
-.category-trigger,
 .filter-layers button {
   border: 1px solid var(--line);
   border-radius: 5px;
@@ -413,46 +408,13 @@ button:hover:not(:disabled) {
   background: transparent;
   font-size: 11px;
   min-height: 32px;
-}
-.category-trigger {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  padding: 0 9px;
-}
-.category-trigger > span:first-child {
-  white-space: nowrap;
-}
-.category-summary {
-  margin-left: auto;
-  color: var(--muted);
-}
-.category-trigger[data-state='open'] > span:last-child {
-  transform: rotate(180deg);
-}
-.filter-layers button {
   flex: 1;
 }
-.category-trigger:hover,
 .filter-layers button:hover,
 .filter-layers button[data-state='on'] {
   background: #d1bb861a;
 }
-.category-options {
-  max-height: min(210px, 25dvh);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  scrollbar-width: thin;
-  margin-top: 6px;
-}
-.category-options .category-tiles button {
-  min-height: 55px;
-  padding: 7px 4px;
-  justify-content: center;
-}
-.filter-actions,
-.checklist-heading {
+.filter-actions {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -462,17 +424,6 @@ button:hover:not(:disabled) {
 }
 .filter-actions button {
   margin-left: auto;
-}
-.checklist-heading {
-  flex: none;
-  padding: 9px 16px;
-  border-block: 1px solid var(--line);
-}
-.checklist-heading h2 {
-  color: var(--ink);
-  font-size: 12px;
-  font-weight: 600;
-  margin: 0;
 }
 .atlas-search {
   display: flex;
@@ -508,8 +459,15 @@ button:hover:not(:disabled) {
   height: 30px;
   padding: 3px;
 }
+.exploration-tabs,
+.checklist-content[data-state='active'] {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
 .panel-tabs {
   display: flex;
+  flex: none;
   gap: 26px;
   padding: 0 20px;
   border-bottom: 1px solid var(--line);
@@ -535,6 +493,9 @@ button:hover:not(:disabled) {
 }
 .discover-content {
   padding: 19px 18px 9px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
 }
 .panel-section-heading {
   display: flex;
