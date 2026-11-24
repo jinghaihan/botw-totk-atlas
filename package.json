@@ -41,6 +41,7 @@
     "crc-32": "catalog:frontend",
     "dexie": "catalog:frontend",
     "leaflet": "catalog:frontend",
+    "leaflet.markercluster": "catalog:frontend",
     "murmurhash3js": "catalog:frontend",
     "reka-ui": "catalog:frontend",
     "vue": "catalog:frontend",
@@ -68,6 +69,7 @@
     "fake-indexeddb": "catalog:test",
     "vitest": "catalog:test",
     "@types/leaflet": "catalog:types",
+    "@types/leaflet.markercluster": "catalog:types",
     "@types/murmurhash3js": "catalog:types",
     "@types/node": "catalog:types"
   },
