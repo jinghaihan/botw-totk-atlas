@@ -1,5 +1,6 @@
 import type { UserModule } from '@/types'
 import { createHead } from '@unhead/vue/client'
+import { dataUrl } from '@/games/data-resource'
 import { description, name } from '../../package.json'
 
 export const install: UserModule = ({ app }) => {
@@ -7,7 +8,6 @@ export const install: UserModule = ({ app }) => {
     init: [
       {
         title: name,
-        titleTemplate: title => `${title} - ${name}`,
         meta: [
           {
             name: 'description',
@@ -18,7 +18,7 @@ export const install: UserModule = ({ app }) => {
           {
             rel: 'icon',
             type: 'image/svg+xml',
-            href: () => preferredDark.value ? '/favicon-dark.svg' : '/favicon.svg',
+            href: () => dataUrl('favicon.svg?v=atlas'),
           },
         ],
       },
