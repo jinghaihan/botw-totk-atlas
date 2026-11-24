@@ -1,6 +1,7 @@
 import type { MaybeRefOrGetter } from 'vue'
 import type { CatalogPoint, GameId } from '@/domain/game'
 import { z } from 'zod'
+import { readJsonResource } from '@/games/data-resource'
 import { currentLocale } from '@/modules/i18n'
 
 const schema = z.object({ ids: z.record(z.string(), z.string()), english: z.record(z.string(), z.string()) })
@@ -9,11 +10,7 @@ const cache = new Map<string, Promise<Labels>>()
 export function loadGameLabels(game: GameId, locale: string) {
   const key = `${game}-${locale}`
   if (!cache.has(key)) {
-    const request = fetch(`${import.meta.env.BASE_URL}labels/${key}.json`).then(async (response) => {
-      if (!response.ok)
-        throw new Error('Game labels unavailable')
-      return schema.parse(await response.json())
-    }).catch((error) => {
+    const request = readJsonResource(`labels/${key}.json`, 'Game labels unavailable').then(data => schema.parse(data)).catch((error) => {
       cache.delete(key)
       throw error
     })

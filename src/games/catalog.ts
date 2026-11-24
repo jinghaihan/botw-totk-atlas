@@ -1,5 +1,6 @@
 import type { CatalogPoint, GameId } from '@/domain/game'
 import { z } from 'zod'
+import { readJsonResource } from './data-resource'
 
 const point = z.object({
   id: z.string(),
@@ -21,10 +22,11 @@ const cache = new Map<GameId, Promise<CatalogPoint[]>>()
 
 export function loadCatalog(game: GameId) {
   if (!cache.has(game)) {
-    const request = fetch(`${import.meta.env.BASE_URL}catalogs/${game}.json`).then(async (r) => {
-      if (!r.ok)
-        throw new Error('地图点位目录加载失败，请检查网络后重试。')
-      return z.array(point).parse(await r.json()) as CatalogPoint[]
+    const request = readJsonResource(`catalogs/${game}.json`, '地图数据加载失败，请刷新页面后重试。').then((data) => {
+      const parsed = z.array(point).safeParse(data)
+      if (!parsed.success)
+        throw new Error('地图数据加载失败，请刷新页面后重试。')
+      return parsed.data as CatalogPoint[]
     }).catch((error) => {
       cache.delete(game)
       throw error
