@@ -15,8 +15,10 @@
   --accent: #aeb4bd;
   --accent-strong: #d2bd8a;
 }
-.atlas-header,
-html[data-game='botw'] .atlas-header {
+.header-main,
+.header-tools,
+html[data-game='botw'] .header-main,
+html[data-game='botw'] .header-tools {
   background: #1e2125eb;
   border-color: #c0b48338;
 }
