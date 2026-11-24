@@ -865,14 +865,20 @@ button:hover:not(:disabled) {
 }
 .detail-main-actions {
   display: flex;
-  justify-content: flex-end;
-  margin-top: 14px;
-  padding-top: 12px;
+  margin-top: 12px;
+  padding-top: 10px;
   border-top: 1px solid var(--line);
 }
 .detail-main-actions .button {
-  min-height: 34px;
-  padding: 7px 12px;
+  gap: 8px;
+  min-height: 36px;
+  padding: 8px 12px;
+  line-height: 16px;
+}
+.detail-action-icon {
+  flex: none;
+  width: 16px;
+  height: 16px;
 }
 .detail-coordinates {
   display: inline-flex;

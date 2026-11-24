@@ -50,7 +50,8 @@ function toggleComplete() {
         </div>
         <div v-if="showCompletion || !profileId" class="detail-main-actions">
           <button v-if="profileId" class="button primary" @click="toggleComplete">
-            <span :class="row.status === 'complete' ? 'i-lucide:rotate-ccw' : 'i-lucide:check'" aria-hidden="true" />{{ row.status === 'complete' ? t('point.mark-incomplete') : t('point.mark-complete') }}
+            <span class="detail-action-icon" :class="row.status === 'complete' ? 'i-lucide:rotate-ccw' : 'i-lucide:check'" aria-hidden="true" />
+            <span class="detail-action-label">{{ row.status === 'complete' ? t('point.mark-incomplete') : t('point.mark-complete') }}</span>
           </button><button v-else class="button primary" @click="emit('import')">
             {{ t('import.save') }}
           </button>
