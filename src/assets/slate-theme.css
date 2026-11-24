@@ -158,9 +158,6 @@ html[data-game='botw'] .category-symbol {
 .point-copy small {
   color: #828b98;
 }
-.point-copy .note-excerpt {
-  color: #b7b18b;
-}
 .point-state {
   color: #8a93a0;
 }
@@ -273,27 +270,10 @@ html[data-game='botw'] .category-symbol {
   background: #734d3f23;
   border-color: #bd92773b;
 }
-.point-detail label {
-  color: #9fa7b1;
-}
-.point-detail textarea,
 .dialog-content input {
   background: #171a1dd9;
   color: #d0d3d8;
   border-color: #7983923f;
-}
-.point-detail textarea::placeholder {
-  color: #6f7987;
-}
-.tracking-options {
-  color: #8f98a4;
-  border-color: var(--line);
-}
-.automatic-evidence {
-  color: #747f8e;
-}
-.conflict {
-  color: #c6ae7a;
 }
 .detail-coordinates {
   color: #6d7786;

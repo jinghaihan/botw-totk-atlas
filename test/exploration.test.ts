@@ -17,9 +17,9 @@ describe('exploration filters', () => {
     const save = snapshot()
     const point: CatalogPoint = { id: 'p', name: '点位', category: 'camp', key: 'flag' }
     save.scalars[String(createProgressReader(save).hash('flag'))] = 1
-    const rows = resolveRows(save, [point], [{ profileId: 'a', pointId: 'p', status: 'incomplete', note: '路线 A', updatedAt: new Date().toISOString() }])
+    const rows = resolveRows(save, [point], [{ profileId: 'a', pointId: 'p', status: 'incomplete', updatedAt: new Date().toISOString() }])
     expect(rows[0]).toMatchObject({ automatic: 'complete', status: 'incomplete' })
-    expect(filterRows(rows, { ...view, search: '路线 A', status: 'incomplete' })).toHaveLength(1)
+    expect(filterRows(rows, { ...view, status: 'incomplete' })).toHaveLength(1)
   })
   it('shows unmarked Lynels in the default unfinished view until marked complete', () => {
     const lynel: CatalogPoint = { id: 'lynel:1', name: 'Lynel', category: 'lynel', at: [0, 0], rule: 'manual' }
@@ -28,7 +28,7 @@ describe('exploration filters', () => {
     const save = snapshot()
     const rows = resolveRows(save, [lynel, camp], [])
     expect(filterRows(rows, unfinished, true)).toMatchObject([{ point: lynel, automatic: 'unknown', status: 'incomplete' }])
-    const marked = resolveRows(save, [lynel, camp], [{ profileId: 'a', pointId: lynel.id, status: 'complete', note: '', updatedAt: new Date().toISOString() }])
+    const marked = resolveRows(save, [lynel, camp], [{ profileId: 'a', pointId: lynel.id, status: 'complete', updatedAt: new Date().toISOString() }])
     expect(filterRows(marked, unfinished, true)).toEqual([])
   })
   it('finds cleared shrines with unclaimed chests without treating unknown as missing', () => {

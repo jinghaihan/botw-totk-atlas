@@ -23,13 +23,13 @@ describe('portable backups', () => {
   })
   it('restores independent profiles without removed point options', async () => {
     const original = await saveProfile(snapshot(), '我的周目')
-    await putAnnotation({ profileId: original.id, pointId: 'chest:1', note: '稍后再打', status: 'incomplete', updatedAt: new Date().toISOString() })
+    await putAnnotation({ profileId: original.id, pointId: 'chest:1', status: 'incomplete', updatedAt: new Date().toISOString() })
     const backup = await exportBackup()
     const legacy = {
       ...backup,
       pins: [{ id: 'custom:old', profileId: original.id }],
       annotations: [
-        { ...backup.annotations[0], ignored: true },
+        { ...backup.annotations[0], ignored: true, note: '旧备注' },
         { ...backup.annotations[0], pointId: 'chest:2', status: 'unknown' },
         { ...backup.annotations[0], pointId: 'custom:old' },
       ],
@@ -38,23 +38,24 @@ describe('portable backups', () => {
     expect(ids[0]).not.toBe(original.id)
     expect(await db.profiles.count()).toBe(2)
     expect(await db.annotations.get([ids[0]!, 'custom:old'])).toBeUndefined()
-    const note = await db.annotations.get([ids[0]!, 'chest:1'])
-    expect(note).toMatchObject({ note: '稍后再打', status: 'incomplete' })
-    expect(note).not.toHaveProperty('ignored')
-    expect((await db.annotations.get([ids[0]!, 'chest:2']))?.status).toBeUndefined()
+    const annotation = await db.annotations.get([ids[0]!, 'chest:1'])
+    expect(annotation).toMatchObject({ status: 'incomplete' })
+    expect(annotation).not.toHaveProperty('note')
+    expect(annotation).not.toHaveProperty('ignored')
+    expect(await db.annotations.get([ids[0]!, 'chest:2'])).toBeUndefined()
     expect(await db.imports.where('profileId').equals(ids[0]!).count()).toBe(1)
     expect(await db.profiles.get(original.id)).toEqual(original)
   })
   it('rejects invalid references before changing the database', async () => {
     await saveProfile(snapshot(), '保留这个')
     const backup = await exportBackup()
-    backup.annotations.push({ profileId: 'missing', pointId: 'p', note: '', updatedAt: new Date().toISOString() })
+    backup.annotations.push({ profileId: 'missing', pointId: 'p', status: 'complete', updatedAt: new Date().toISOString() })
     await expect(restoreBackup(backup)).rejects.toThrow()
     expect(await db.profiles.count()).toBe(1)
   })
   it('rolls back a restore transaction when duplicate annotation keys collide', async () => {
     const original = await saveProfile(snapshot(), '原始')
-    await putAnnotation({ profileId: original.id, pointId: 'p', note: '', updatedAt: new Date().toISOString() })
+    await putAnnotation({ profileId: original.id, pointId: 'p', status: 'complete', updatedAt: new Date().toISOString() })
     const backup = await exportBackup()
     backup.annotations.push(backup.annotations[0]!)
     await expect(restoreBackup(backup)).rejects.toThrow()

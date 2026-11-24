@@ -18,7 +18,7 @@ export function resolveRows(snapshot: GameSnapshot | undefined, points: CatalogP
   if (!snapshot)
     return points.map(point => ({ point, automatic: 'unknown', status: untrackedStatus(point), found: false }))
   const reader = createProgressReader(snapshot)
-  const notes = new Map(annotations.map(a => [a.pointId, a]))
+  const annotationsByPoint = new Map(annotations.map(a => [a.pointId, a]))
   // Index children once; avoid scanning thousands of chests per shrine and filter update.
   const children = new Map<string, CatalogPoint[]>()
   for (const p of points) {
@@ -27,7 +27,7 @@ export function resolveRows(snapshot: GameSnapshot | undefined, points: CatalogP
   }
   return points.map((point) => {
     const automatic = reader.status(point)
-    const annotation = notes.get(point.id)
+    const annotation = annotationsByPoint.get(point.id)
     const status = annotation?.status ?? (automatic === 'unknown' ? untrackedStatus(point) : automatic)
     return { point, automatic, status, annotation, found: reader.found(point), ...(point.category === 'shrine' ? { chests: reader.shrineChests(point, children.get(point.id) ?? []) } : {}) }
   })
@@ -43,7 +43,7 @@ export function filterRows(rows: ProgressRow[], view: Omit<ProfileView, 'profile
       return false
     if (spatial && (!p.at || p.interior || (p.layer ?? 'surface') !== view.layer))
       return false
-    if (query && !`${p.name} ${(p.aliases ?? []).join(' ')} ${p.id} ${p.detail ?? ''} ${p.region ?? ''} ${row.annotation?.note ?? ''}`.toLocaleLowerCase().includes(query))
+    if (query && !`${p.name} ${(p.aliases ?? []).join(' ')} ${p.id} ${p.detail ?? ''} ${p.region ?? ''}`.toLocaleLowerCase().includes(query))
       return false
     if (['complete', 'incomplete', 'unknown'].includes(view.status) && row.status !== view.status)
       return false

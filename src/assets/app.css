@@ -411,17 +411,6 @@ button:hover:not(:disabled) {
 .filter-layers button[data-state='on'] {
   background: #d1bb861a;
 }
-.filter-actions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-  font-size: 11px;
-  color: var(--muted);
-}
-.filter-actions button {
-  margin-left: auto;
-}
 .atlas-search {
   display: flex;
   align-items: center;
@@ -649,12 +638,6 @@ button:hover:not(:disabled) {
   color: #8b927d;
   margin-top: 4px;
   line-height: 1.5;
-}
-.point-copy .note-excerpt {
-  color: #8c865f;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 .point-state {
   font-size: 12px;
@@ -900,57 +883,6 @@ button:hover:not(:disabled) {
 }
 .detail-main-actions .button {
   flex: 1;
-}
-.point-detail form {
-  display: grid;
-  gap: 12px;
-}
-.point-detail label {
-  display: grid;
-  gap: 9px;
-  font-size: 11px;
-  color: #707d62;
-}
-.point-detail textarea {
-  width: 100%;
-  resize: vertical;
-  padding: 12px;
-  border: 1px solid #dce0ce;
-  border-radius: 5px;
-  background: #f3f3e8;
-  color: #46573c;
-  font-size: 12px;
-  line-height: 1.7;
-}
-.tracking-options {
-  padding: 12px 0;
-  border-bottom: 1px solid var(--line);
-  font-size: 11px;
-  color: #8d967e;
-}
-.tracking-options summary {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: pointer;
-  list-style: none;
-}
-.tracking-options > .filter-trigger {
-  width: 100%;
-  margin-top: 14px;
-}
-.automatic-evidence,
-.conflict {
-  font-size: 10px;
-  line-height: 1.8;
-  color: #8c957d;
-}
-.conflict {
-  color: #a38d56;
-}
-.save-note {
-  width: 100%;
-  font-size: 11px;
 }
 .detail-coordinates {
   display: flex;
@@ -1692,9 +1624,6 @@ button:hover:not(:disabled) {
   }
   .point-detail h2 {
     font-size: 24px;
-  }
-  .point-detail form textarea {
-    min-height: 70px;
   }
   .detail-main-actions {
     margin: 17px 0;

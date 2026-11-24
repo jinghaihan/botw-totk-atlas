@@ -32,13 +32,13 @@ Short names are indexed from [BotwText](https://github.com/sh0wer1ee/BotwText) (
 
 The CNzh, TWzh and USen indexes contain 2,937 BOTW and 3,331 TOTK records each; JPja contains 2,936 BOTW and 3,331 TOTK names. The current source has no Korean game-text records, so the Korean interface uses English game names. The name index is broader than the set of catalog entries with a reliable identifier match. Some community place names, generic puzzles, new-version fabrics and reward labels have no matching localized name and retain their existing label or identifier.
 
-The interface uses Vue I18n for Simplified Chinese, Traditional Chinese, Japanese, Korean and English, including browser-language detection, persisted language choice and locale-aware numbers/dates. Each UI pack is maintained independently. CJK font fallbacks cover Chinese, Japanese and Korean text in user names and notes.
+The interface uses Vue I18n for Simplified Chinese, Traditional Chinese, Japanese, Korean and English, including browser-language detection, persisted language choice and locale-aware numbers/dates. Each UI pack is maintained independently. CJK font fallbacks cover Chinese, Japanese and Korean text in profile names.
 
 ## Map imagery and offline behavior
 
 [ZeldaMods BOTW Object Map](https://objmap.zeldamods.org/) and [TOTK Object Map](https://objmap-totk.zeldamods.org/) provide external image tiles. World X/Z coordinates are transformed into Leaflet's simple CRS. TOTK has separate Sky, Surface and Depths tiles. Interior chest locations resolve through their shrine parent where known.
 
-Tile services require network access. Tile failure shows an inline notice and leaves the checklist usable. Parsed saves, notes and view preferences use Dexie/IndexedDB on this browser; this version does not install a service worker or promise a cold-start offline application.
+Tile services require network access. Tile failure shows an inline notice and leaves the checklist usable. Parsed saves, manual completion and view preferences use Dexie/IndexedDB on this browser; this version does not install a service worker or promise a cold-start offline application.
 
 ## Verification boundary
 

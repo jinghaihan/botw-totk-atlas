@@ -15,7 +15,7 @@ describe('profile isolation', () => {
   it('keeps same-game playthroughs and annotations independent', async () => {
     const normal = await saveProfile(snapshot(), 'normal')
     const master = await saveProfile(snapshot(), 'master', undefined, 'master')
-    await putAnnotation({ profileId: normal.id, pointId: 'chest:1', note: 'normal only', updatedAt: new Date().toISOString() })
+    await putAnnotation({ profileId: normal.id, pointId: 'chest:1', status: 'complete', updatedAt: new Date().toISOString() })
     await renameProfile(master.id, 'renamed master')
     expect(await listAnnotations(master.id)).toEqual([])
     expect((await listProfiles()).find(p => p.id === normal.id)?.name).toBe('normal')

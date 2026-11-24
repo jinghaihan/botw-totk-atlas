@@ -6,25 +6,14 @@ import { coordinateLabel } from '@/domain/coordinates'
 import { categoryLabels, statusLabels } from '@/games/catalog'
 import { categoryIcon } from '@/games/category-icons'
 import { tr as t } from '@/modules/i18n'
-import AtlasSelect from './atlas-select.vue'
 
 const props = defineProps<{ row?: ProgressRow, profileId?: string, children: ProgressRow[] }>()
 const emit = defineEmits<{ save: [annotation: PointAnnotation], locate: [point: CatalogPoint], select: [id: string], import: [] }>()
 const open = defineModel<boolean>('open', { required: true })
-const status = ref<NonNullable<PointAnnotation['status']> | 'auto'>('auto')
-const note = ref('')
-watch(() => [props.row?.point.id, open.value], () => {
-  status.value = props.row?.annotation?.status ?? 'auto'
-  note.value = props.row?.annotation?.note ?? ''
-}, { immediate: true })
 function toggleComplete() {
-  status.value = props.row?.status === 'complete' ? 'incomplete' : 'complete'
-  save()
-}
-function save() {
   if (!props.row || !props.profileId)
     return
-  emit('save', { profileId: props.profileId, pointId: props.row.point.id, status: status.value === 'auto' ? undefined : status.value, note: note.value.trim(), updatedAt: new Date().toISOString() })
+  emit('save', { profileId: props.profileId, pointId: props.row.point.id, status: props.row.status === 'complete' ? 'incomplete' : 'complete', updatedAt: new Date().toISOString() })
 }
 </script>
 
@@ -59,19 +48,6 @@ function save() {
             <span class="i-lucide:locate-fixed" aria-hidden="true" />
           </button>
         </div>
-        <form v-if="profileId" @submit.prevent="save">
-          <label>{{ t('冒险笔记') }}<textarea v-model="note" name="point-note" autocomplete="off" maxlength="4000" rows="3" :placeholder="t('记下路线、想法或稍后要做的事…')" /></label>
-          <details class="tracking-options">
-            <summary>{{ t('记录选项') }}<span class="i-lucide:chevron-down" aria-hidden="true" /></summary><AtlasSelect v-model="status" :label="t('完成状态')" :options="[{ value: 'auto', label: t(row.point.category === 'lynel' ? '默认未完成' : '跟随存档记录') }, { value: 'complete', label: t('手动：已完成') }, { value: 'incomplete', label: t('手动：未完成') }]" /><p v-if="row.point.category !== 'lynel'" class="automatic-evidence">
-              {{ t('存档记录：') }}{{ t(statusLabels[row.automatic]) }}
-            </p><p v-if="row.annotation?.status && row.annotation.status !== row.automatic && row.automatic !== 'unknown'" class="conflict">
-              {{ t('手动记录与当前存档不同，已保留你的选择。') }}
-            </p>
-          </details>
-          <button class="button secondary save-note" type="submit">
-            {{ t('保存笔记与记录') }}
-          </button>
-        </form>
         <div v-if="row.point.at" class="detail-coordinates">
           <span class="i-lucide:crosshair" aria-hidden="true" /><span translate="no">{{ coordinateLabel(row.point.at) }}</span>
         </div>

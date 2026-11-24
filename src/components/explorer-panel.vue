@@ -68,9 +68,6 @@ const categoryOrder = computed(() => [...categoryDisplayOrder.filter(id => categ
 function categoryName(category: string) {
   return t(category === 'camp' ? '营地' : categoryLabels[category] ?? category)
 }
-function resetFilters() {
-  view.value = defaultView(view.value.profileId)
-}
 
 let generation = 0
 async function load() {
@@ -81,11 +78,11 @@ async function load() {
   detailOpen.value = false
   error.value = ''
   try {
-    const [data, notes, savedView] = await Promise.all([loadCatalog(props.game), profileId ? listAnnotations(profileId) : [], profileId ? db.views.get(profileId) : undefined])
+    const [data, records, savedView] = await Promise.all([loadCatalog(props.game), profileId ? listAnnotations(profileId) : [], profileId ? db.views.get(profileId) : undefined])
     if (revision !== generation)
       return
     catalog.value = data
-    annotations.value = notes
+    annotations.value = records
     view.value = savedView ? { ...savedView, status: 'incomplete' } : defaultView(profileId ?? `browse:${props.game}`)
     if (view.value.categories?.length) {
       const available = new Set(data.filter(point => point.at && !point.interior).map(point => point.category))
@@ -183,7 +180,7 @@ function locate(point: CatalogPoint) {
         </p>
         <template v-else-if="!error || catalog.length">
           <div class="exploration-filters">
-            <label class="atlas-search"><span class="i-lucide:search" aria-hidden="true" /><input v-model="view.search" name="places" autocomplete="off" :aria-label="t('搜索探索记录')" :placeholder="t('搜索地点、物品或笔记…')"><button v-if="view.search" class="icon-button" :aria-label="t('清空搜索')" @click="view.search = ''"><span class="i-lucide:x" aria-hidden="true" /></button></label>
+            <label class="atlas-search"><span class="i-lucide:search" aria-hidden="true" /><input v-model="view.search" name="places" autocomplete="off" :aria-label="t('搜索探索记录')" :placeholder="t('搜索地点或物品…')"><button v-if="view.search" class="icon-button" :aria-label="t('清空搜索')" @click="view.search = ''"><span class="i-lucide:x" aria-hidden="true" /></button></label>
             <div class="filter-fields">
               <AtlasSelect :model-value="view.region ?? 'all'" :label="t('地区筛选')" :options="regions" @update:model-value="view.region = $event" />
             </div>
@@ -198,11 +195,6 @@ function locate(point: CatalogPoint) {
                 {{ t('地底') }}
               </ToggleGroupItem>
             </ToggleGroupRoot>
-            <div class="filter-actions">
-              <button class="text-button" @click="resetFilters">
-                {{ t('重置筛选') }}
-              </button>
-            </div>
           </div>
           <TabsRoot default-value="discover" class="exploration-tabs">
             <TabsList class="panel-tabs" :aria-label="t('探索视图')">
@@ -227,7 +219,7 @@ function locate(point: CatalogPoint) {
                 <div v-if="profile && !filtered.length" class="empty-results">
                   <h3>{{ t('当前筛选没有结果') }}</h3>
                 </div><button v-for="row in paged" :key="row.point.id" class="point-row" :class="[row.status, { selected: row.point.id === selected }]" @click="select(row.point.id)">
-                  <span class="point-symbol" :class="categoryIcon(row.point.category)" aria-hidden="true" /><span class="point-copy"><strong>{{ row.point.name }}</strong><small>{{ row.point.regionLabel ?? row.point.region ?? t(categoryLabels[row.point.category] ?? row.point.category) }}</small><small v-if="row.annotation?.note" class="note-excerpt">{{ row.annotation.note }}</small></span><span class="point-state"><span class="i-lucide:chevron-right" aria-hidden="true" /><small v-if="row.annotation?.status">{{ t('手动') }}</small></span>
+                  <span class="point-symbol" :class="categoryIcon(row.point.category)" aria-hidden="true" /><span class="point-copy"><strong>{{ row.point.name }}</strong><small>{{ row.point.regionLabel ?? row.point.region ?? t(categoryLabels[row.point.category] ?? row.point.category) }}</small></span><span class="point-state"><span class="i-lucide:chevron-right" aria-hidden="true" /><small v-if="row.annotation?.status">{{ t('手动') }}</small></span>
                 </button>
               </section>
               <PaginationRoot v-if="pageCount > 1" v-model:page="page" :total="filtered.length" :items-per-page="pageSize" :sibling-count="0" show-edges class="pagination">

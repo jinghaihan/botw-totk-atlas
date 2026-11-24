@@ -38,7 +38,6 @@ export interface PointAnnotation {
   profileId: string
   pointId: string
   status?: Exclude<PointStatus, 'unknown'>
-  note: string
   updatedAt: string
 }
 
