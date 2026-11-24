@@ -270,9 +270,6 @@ async function remove(id: string) {
                 </button>
               </section>
               <PaginationRoot v-if="pageCount > 1" v-model:page="page" :total="filtered.length" :items-per-page="pageSize" :sibling-count="0" show-edges class="pagination">
-                <p class="page-summary">
-                  {{ t('第 {page} 页，共 {total} 页', { page: page.toLocaleString(currentLocale), total: pageCount.toLocaleString(currentLocale) }) }}
-                </p>
                 <PaginationList v-slot="{ items }">
                   <PaginationPrev :aria-label="t('上一页')">
                     ‹
@@ -290,9 +287,6 @@ async function remove(id: string) {
             </TabsContent>
           </TabsRoot>
         </template>
-        <footer class="panel-footnote">
-          <span class="i-lucide:hard-drive" aria-hidden="true" /><span>{{ profile ? t('你的记录仅保存在此设备') : t('导入存档后显示收集进度') }}</span>
-        </footer>
       </CollapsibleContent>
     </CollapsibleRoot>
     <div class="map-actions">

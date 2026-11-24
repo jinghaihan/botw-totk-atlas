@@ -139,10 +139,6 @@ html[data-game='botw'] .category-symbol {
 .journey-links button > span:last-child {
   color: #838b97;
 }
-.panel-footnote {
-  color: #717b8a;
-  border-color: var(--line);
-}
 .panel-loading {
   color: #9ba3ae;
 }
@@ -472,9 +468,7 @@ html[data-game='botw'] .category-symbol {
   text-align: center;
   line-height: 1;
 }
-.category-tiles small,
-.panel-footnote,
-.panel-footnote .icon-button {
+.category-tiles small {
   color: #9098a4;
 }
 .map-page[hidden] {
