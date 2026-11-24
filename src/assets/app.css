@@ -526,13 +526,6 @@ button:hover:not(:disabled) {
   border-color: #bccbae;
   color: #2f5541;
 }
-.horse-icon {
-  display: inline-block;
-  width: 1.2em;
-  height: 1.2em;
-  background-color: currentColor;
-  mask: url('./icons/horse.svg') center / contain no-repeat;
-}
 .category-symbol {
   font-size: 20px;
   color: #78916b;

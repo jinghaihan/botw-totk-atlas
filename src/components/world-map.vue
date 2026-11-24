@@ -2,10 +2,8 @@
 import type { ProgressRow } from '@/domain/exploration'
 import type { GameId, MapLayer, PointStatus } from '@/domain/game'
 import * as L from 'leaflet'
-import horseIcon from '@/assets/icons/horse.svg?raw'
-import skullIcon from '@/assets/icons/skull.svg?raw'
 import { coordinateLabel, mapToWorld, tileUrl, worldToMap } from '@/domain/coordinates'
-import { isMonsterCategory } from '@/games/category-icons'
+import { categoryIconName, explorationIcons } from '@/games/category-icons'
 import { tr as t } from '@/modules/i18n'
 import 'leaflet/dist/leaflet.css'
 import 'leaflet.markercluster/dist/MarkerCluster.css'
@@ -24,23 +22,11 @@ let observer: ResizeObserver | undefined
 let mounted = false
 let alive = true
 let focusMarker: L.CircleMarker | undefined
-const skullGlyph = skullIcon.replace(/<!--[\s\S]*?-->/g, '').trim()
-const glyphs: Record<string, string> = {
-  shrine: 'M12 4 21 20H3Z M12 10v4 M12 17v1',
-  korok: 'M19 4C7 3 3 9 6 16c7 5 14-1 13-12ZM5 20l10-11',
-  chest: 'M12 2 3 7v10l9 5 9-5V7ZM3 7l9 5 9-5M12 12v10M7.5 4.5l9 5',
-  tower: 'M10 4h4l2 16H8ZM6 5 3 8l3 3M18 5l3 3-3 3',
-  lightroot: 'M12 20V9M12 13C4 14 3 7 4 5c6 0 9 3 8 8ZM12 10c0-6 5-8 8-7 1 5-3 8-8 7',
-  cave: 'M2 20 8 6l4 7 3-9 7 16ZM9 20v-4a3 3 0 0 1 6 0v4',
-  well: 'M4 9h16v11H4ZM2 9l10-7 10 7M8 12v5M16 12v5',
-  shop: 'M4 10v11h16V10M3 7l2-4h14l2 4v3c0 2-3 2-3 0 0 2-4 2-4 0 0 2-4 2-4 0 0 2-4 2-4 0 0 2-3 2-3 0ZM10 21v-6h4v6',
-  default: 'M12 3a7 7 0 0 1 7 7c0 5-7 11-7 11S5 15 5 10a7 7 0 0 1 7-7ZM10 10h4',
-}
-function markerSvg(category: string, status: PointStatus) {
+function markerSvg(game: GameId, category: string, status: PointStatus) {
   const color = status === 'complete' ? '#a89e84' : '#d8bd7f'
-  const glyph = isMonsterCategory(category) ? skullGlyph : category === 'stable' ? horseIcon : `<path d="${glyphs[category] ?? glyphs.default}"/>`
+  const { body } = explorationIcons.icons[categoryIconName(game, category)]
   const badge = '<g class="atlas-marker-check" color="#d8bd7f" stroke="currentColor"><circle cx="24" cy="26" r="5.5" fill="#292b2c"/><path d="m21.5 26 1.5 1.5 3.5-3.5" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g>'
-  return `<svg width="24" height="28" viewBox="0 0 30 34" aria-hidden="true" style="color:${color}"><g class="atlas-marker-body"><path d="M15 1 28 8v16l-13 8L2 24V8Z" fill="${status === 'complete' ? '#3e3b32' : '#292b2c'}" stroke="currentColor" stroke-width="1.5"/><g transform="translate(3 3)" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">${glyph}</g></g>${status === 'complete' ? badge : ''}</svg>`
+  return `<svg width="24" height="28" viewBox="0 0 30 34" aria-hidden="true" style="color:${color}"><g class="atlas-marker-body"><path d="M15 1 28 8v16l-13 8L2 24V8Z" fill="${status === 'complete' ? '#3e3b32' : '#292b2c'}" stroke="currentColor" stroke-width="1.5"/><g transform="translate(4.44 5.44) scale(.88)">${body}</g></g>${status === 'complete' ? badge : ''}</svg>`
 }
 function base() {
   if (!map)
@@ -67,7 +53,7 @@ function markers() {
   for (const row of props.rows) {
     if (!row.point.at)
       continue
-    const marker = L.marker(worldToMap(row.point.at), { title: row.point.name, icon: L.divIcon({ className: `atlas-marker ${row.status}`, html: markerSvg(row.point.category, row.status), iconSize: [24, 28], iconAnchor: [12, 14], tooltipAnchor: [0, -15] }) })
+    const marker = L.marker(worldToMap(row.point.at), { title: row.point.name, icon: L.divIcon({ className: `atlas-marker ${row.status}`, html: markerSvg(props.game, row.point.category, row.status), iconSize: [24, 28], iconAnchor: [12, 14], tooltipAnchor: [0, -15] }) })
     const label = document.createElement('span')
     label.textContent = row.point.name
     marker.bindTooltip(label, { direction: 'top' }).on('click', (event) => {

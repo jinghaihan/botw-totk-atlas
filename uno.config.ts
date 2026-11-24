@@ -9,7 +9,7 @@ import {
   transformerDirectives,
   transformerVariantGroup,
 } from 'unocss'
-import { categoryIconClasses } from './src/games/category-icons'
+import { categoryIconClasses, explorationIcons } from './src/games/category-icons'
 
 export default defineConfig({
   safelist: categoryIconClasses,
@@ -22,6 +22,7 @@ export default defineConfig({
     presetAttributify(),
     presetIcons({
       scale: 1.2,
+      collections: { hyrule: () => explorationIcons },
     }),
     presetTypography(),
     presetWebFonts({

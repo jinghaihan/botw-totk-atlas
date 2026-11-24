@@ -24,7 +24,7 @@ function toggleComplete() {
     <DialogPortal>
       <DialogContent v-if="row" class="point-detail" @interact-outside="$event.preventDefault()">
         <div class="detail-category">
-          <span class="detail-type"><span :class="categoryIcon(row.point.category)" aria-hidden="true" />{{ category }}</span>
+          <span class="detail-type"><span :class="categoryIcon(game, row.point.category)" aria-hidden="true" />{{ category }}</span>
           <span class="detail-status" :data-status="row.status">{{ profileId ? t(statusLabels[row.status]) : t('status.no-save') }}</span>
           <DialogClose class="dialog-close icon-button" :aria-label="t('point.close')">
             <span class="i-lucide:x" aria-hidden="true" />
@@ -41,7 +41,7 @@ function toggleComplete() {
           {{ row.point.detail }}
         </p>
         <div v-if="row.chests?.complete !== undefined" class="shrine-chest-summary">
-          <span :class="categoryIcon('chest')" aria-hidden="true" /><div><strong>{{ t('point.shrine-chests') }}</strong><span>{{ row.chests.complete ? t('status.chests-all-opened') : t('status.chests-not-all-opened') }}</span></div><b v-if="row.chests.total !== null">{{ row.chests.opened }} / {{ row.chests.total }}</b>
+          <span :class="categoryIcon(game, 'chest')" aria-hidden="true" /><div><strong>{{ t('point.shrine-chests') }}</strong><span>{{ row.chests.complete ? t('status.chests-all-opened') : t('status.chests-not-all-opened') }}</span></div><b v-if="row.chests.total !== null">{{ row.chests.opened }} / {{ row.chests.total }}</b>
         </div>
         <div v-if="children.length" class="child-list">
           <button v-for="child in children" :key="child.point.id" @click="emit('select', child.point.id)">

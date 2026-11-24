@@ -1,0 +1,115 @@
+{
+  "prefix": "hyrule",
+  "width": 24,
+  "height": 24,
+  "icons": {
+    "sheikah-shrine": {
+      "body": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4 21h16M6 18h12M7 18V10a5 5 0 0 1 10 0v8\"/><path d=\"M12 7v6m-3-3h6\"/></g>"
+    },
+    "zonai-shrine": {
+      "body": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M10 3h5l4 5-2 13H7L5 9l5-6Z\"/><path d=\"m12 8 3 4-3 4-3-4 3-4Z\"/></g>"
+    },
+    "sheikah-tower": {
+      "body": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 2v3M8 5h8l-1 6H9L8 5ZM9 11 6 22m9-11 3 11m-9-5 6 4m0-4-6 4\"/></g>"
+    },
+    "skyview-tower": {
+      "body": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 8h18M6 8l3-4h6l3 4M6 8v4h12V8m-9 4-3 10m9-10 3 10M10 17h4m-2 0v5\"/></g>"
+    },
+    "lightroot": {
+      "body": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 18v-6m0 5-5 4m5-4 5 4m-5-9C8 12 5 9 5 6c4 0 7 1.8 7 6Zm0 0c0-4.2 3-6 7-6 0 3-3 6-7 6Z\"/><path d=\"M12 2v2\"/></g>"
+    },
+    "cave": {
+      "body": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 20v-4l3-6 3-2 3-5 4 3 2 5 3 5v4H3Z\"/><path d=\"M8 20v-3l2-3 3-1 3 3v4\"/></g>"
+    },
+    "well": {
+      "body": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4 10h16L12 4 4 10Zm3 0v5m10-5v5m-5-5v4\"/><ellipse cx=\"12\" cy=\"16\" rx=\"7\" ry=\"2.5\"/><path d=\"M5 16v3c0 1.5 3.1 2.5 7 2.5s7-1 7-2.5v-3\"/></g>"
+    },
+    "chasm": {
+      "body": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m3 9 5-3 4 2 4-2 5 3-3 4H6L3 9Zm9 7v5m-3-3 3 3 3-3\"/></g>"
+    },
+    "location": {
+      "body": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 22c4-5 7-8.4 7-12a7 7 0 0 0-14 0c0 3.6 3 7 7 12Z\"/><circle cx=\"12\" cy=\"10\" r=\"2.25\"/></g>"
+    },
+    "temple": {
+      "body": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 21h18M5 18h14v3M7 14h10v4M9 10h6v4M8 10l4-6 4 6m-4 4v4\"/></g>"
+    },
+    "stable": {
+      "body": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 21c.7-3.1 2.5-5.3 5-7l-3.8 1.2L3 13l4.2-6 3.3-1.5V3l3.2 2.4c4.1.4 6.3 3.6 6.3 7.7V21H5Z\"/><path d=\"M14 7c2.1 1.6 3 3.8 3 7v7\"/><circle cx=\"9.7\" cy=\"9.4\" r=\".75\" fill=\"currentColor\" stroke=\"none\"/></g>"
+    },
+    "lab": {
+      "body": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M9 3h6m-5 0v7L5 19a1.2 1.2 0 0 0 1.1 2h11.8a1.2 1.2 0 0 0 1.1-2l-5-9V3M7.5 16h9\"/><circle cx=\"12\" cy=\"18.5\" r=\".65\" fill=\"currentColor\" stroke=\"none\"/></g>"
+    },
+    "shop": {
+      "body": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m4 5-2 5a2.5 2.5 0 0 0 5 0 2.5 2.5 0 0 0 5 0 2.5 2.5 0 0 0 5 0 2.5 2.5 0 0 0 5 0l-2-5H4Zm1 8v8h14v-8m-9 8v-5h4v5\"/></g>"
+    },
+    "fairy": {
+      "body": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M11 12C6 12 3 8 3 4c5 0 8 3 8 8Zm2 0c5 0 8-4 8-8-5 0-8 3-8 8ZM11 13c-4-1-7 0-7 4 3 1 5 0 7-4Zm2 0c4-1 7 0 7 4-3 1-5 0-7-4Zm-1 2v5\"/></g>"
+    },
+    "bargainer": {
+      "body": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m6 18 1-5 2-2V5l3-2 3 2v6l2 2 1 5m-13 0h14l1 3H4l1-3Zm5-3h4\"/><path d=\"M11 7h.01M13 7h.01M12 9v1\"/></g>"
+    },
+    "dispenser": {
+      "body": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"9\" r=\"6\"/><path d=\"m8 14-2 6h12l-2-6m-6 3h4\"/><circle cx=\"10\" cy=\"9\" r=\"1.1\"/><circle cx=\"14\" cy=\"7\" r=\"1.1\"/></g>"
+    },
+    "blossom": {
+      "body": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 10c-2.4-1.3-2.8-3.8-.9-5.6l.9 1 .9-1c1.9 1.8 1.5 4.3-.9 5.6Zm3 1c.5-2.7 2.8-3.8 5-2.5l-.6 1.1 1.2.6c-.9 2.4-3.5 2.9-5.6.8Zm-1 3c2.6-.5 4.4 1.1 3.9 3.7l-1.3-.2-.2 1.3c-2.5-.2-3.7-2.5-2.4-4.8Zm-4 0c1.3 2.3.1 4.6-2.4 4.8l-.2-1.3-1.3.2C5.6 15.1 7.4 13.5 10 14Zm-1-3c-2.1 2.1-4.7 1.6-5.6-.8l1.2-.6L4 8.5c2.2-1.3 4.5-.2 5 2.5Z\"/><circle cx=\"12\" cy=\"12.5\" r=\".7\" fill=\"currentColor\" stroke=\"none\"/></g>"
+    },
+    "monster": {
+      "body": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M6 15c-1.6-1.5-2.5-3.2-2.5-5.2A8.5 8.5 0 0 1 12 2a8.5 8.5 0 0 1 8.5 7.8c0 2-.9 3.7-2.5 5.2L17 19l-2 2H9l-2-2-1-4Z\"/><path d=\"M10 18v3m4-3v3\"/><circle cx=\"8.5\" cy=\"11\" r=\"1.5\" fill=\"currentColor\" stroke=\"none\"/><circle cx=\"15.5\" cy=\"11\" r=\"1.5\" fill=\"currentColor\" stroke=\"none\"/></g>"
+    },
+    "korok": {
+      "body": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4 17c-2.5-6 3-12 16-14 0 11-4.3 18-11 17-2.2-.3-4.3-1.1-5-3Zm4 3-3 2\"/><circle cx=\"10\" cy=\"11\" r=\"1.1\" fill=\"currentColor\" stroke=\"none\"/><circle cx=\"15\" cy=\"10\" r=\"1.1\" fill=\"currentColor\" stroke=\"none\"/><path d=\"M10 15c1.4 1.4 3.1 1.3 4.4-.3\"/></g>"
+    },
+    "chest": {
+      "body": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 11v-1a5 5 0 0 1 5-5h8a5 5 0 0 1 5 5v1m-18 0v8h18v-8H3Zm6 0v3h6v-3M7 7.5V11m10-3.5V11\"/></g>"
+    },
+    "memory": {
+      "body": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"5\" width=\"18\" height=\"14\" rx=\"2\"/><path d=\"m4 16 4-4 3 3 3-3 6 6\"/><circle cx=\"15.8\" cy=\"9\" r=\"1\"/></g>"
+    },
+    "tear": {
+      "body": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 3c2.5 4.4 6 8 6 12a6 6 0 1 1-12 0c0-4 3.5-7.6 6-12Z\"/><path d=\"M9 15.5c0 1.7 1.3 3 3 3\"/></g>"
+    },
+    "sage-will": {
+      "body": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m12 3 7 5v8l-7 5-7-5V8l7-5Z\"/><path d=\"m12 7 1.1 3.9 3.9 1.1-3.9 1.1-1.1 3.9-1.1-3.9L7 12l3.9-1.1L12 7Z\"/></g>"
+    },
+    "old-map": {
+      "body": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m3 6 6-2 6 2 6-2v14l-6 2-6-2-6 2V6Zm6-2v14m6-12v14\"/><path d=\"m5.3 10 2 2m0-2-2 2\"/></g>"
+    },
+    "schema-stone": {
+      "body": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m6 4 12 1 2 3-1 11-3 2-11-1-1-4V7l2-3Z\"/><path d=\"M8 9h3v3H8V9Zm5 6h3v3h-3v-3Zm-2-4h3v4\"/></g>"
+    },
+    "yiga-schematic": {
+      "body": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4 5h11l5 5v9H4V5Zm11 0v5h5\"/><path d=\"m8 12 2 3 2-3m-4 4h2m4-2h2m-2 2h2\"/></g>"
+    },
+    "stone-tablet": {
+      "body": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M6 3h10l3 3v15H5V4l1-1Z\"/><path d=\"M8 8h8m-8 4h6m-6 4h8\"/></g>"
+    },
+    "sign": {
+      "body": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M10 4v2m0 6v9m-5 0h13M4 6h13l3 3-3 3H4V6Z\"/><path d=\"m11 19 5-7\"/></g>"
+    },
+    "voice-memory": {
+      "body": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-8l-4 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z\"/><path d=\"M8 10v3m4-5v7m4-5v3\"/></g>"
+    },
+    "main-quest": {
+      "body": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M6 21V4m.5 1H18l-2.5 4L18 13H6.5\"/><path d=\"M4 21h5\"/></g>"
+    },
+    "adventure": {
+      "body": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"m16 8-2.5 5.5L8 16l2.5-5.5L16 8Z\"/></g>"
+    },
+    "side-quest": {
+      "body": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 3h12a3 3 0 0 1 3 3v1h-4v10a4 4 0 0 1-8 0V6a3 3 0 0 0-3-3Zm3 14h8\"/><path d=\"M11 7h2m-2 4h2\"/></g>"
+    },
+    "shrine-quest": {
+      "body": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 20V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v15l-7-3-7 3Z\"/><path d=\"m12 6 3 4-3 4-3-4 3-4Z\"/></g>"
+    },
+    "dlc-quest": {
+      "body": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 3h14v18l-7-3-7 3V3Z\"/><path d=\"M12 6v7m-3.5-3.5h7\"/></g>"
+    },
+    "minigame": {
+      "body": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"4\" y=\"4\" width=\"16\" height=\"16\" rx=\"3\"/><path d=\"M8 8h.01M16 8h.01M12 12h.01M8 16h.01M16 16h.01\" stroke-width=\"2.75\"/></g>"
+    },
+    "armor": {
+      "body": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m9 4-5 2-2 5 4 2 2-3v10h8V10l2 3 4-2-2-5-5-2a3 3 0 0 1-6 0Z\"/><path d=\"M8 15h8\"/></g>"
+    }
+  }
+}

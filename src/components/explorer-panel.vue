@@ -256,7 +256,7 @@ async function toggleChecklistCompletion(row: ProgressRow) {
             <TabsContent value="discover" class="discover-content">
               <ToggleGroupRoot type="multiple" class="category-tiles" :aria-label="t('explore.filter-categories')" :model-value="view.categories ?? categories" @update:model-value="values => view.categories = Array.isArray(values) ? values.filter((value): value is string => typeof value === 'string') : []">
                 <ToggleGroupItem v-for="category in categoryOrder" :key="category" :value="category">
-                  <span class="category-symbol" :class="categoryIcon(category)" aria-hidden="true" />
+                  <span class="category-symbol" :class="categoryIcon(game, category)" aria-hidden="true" />
                   <strong>{{ categoryName(category) }}</strong>
                   <small v-if="categoryProgress.has(category)" class="category-progress"><span class="sr-only">{{ t('status.complete') }} </span>{{ formatCategoryProgress(category) }}</small>
                 </ToggleGroupItem>
@@ -270,7 +270,7 @@ async function toggleChecklistCompletion(row: ProgressRow) {
                 </div>
                 <div v-for="row in paged" :key="row.point.id" class="point-row" :class="{ selected: row.point.id === selected, complete: row.status === 'complete' }">
                   <button type="button" class="point-row-details" @click="select(row.point.id, true)">
-                    <span class="point-symbol" :class="categoryIcon(row.point.category)" aria-hidden="true" />
+                    <span class="point-symbol" :class="categoryIcon(game, row.point.category)" aria-hidden="true" />
                     <span class="point-copy"><strong>{{ row.point.name }}</strong><small>{{ row.point.regionLabel ?? row.point.region ?? categoryLabel(game, row.point.category) }}</small></span>
                     <span v-if="row.status === 'complete'" class="sr-only">{{ t('status.complete') }}</span>
                     <span v-if="!profile || row.annotation?.status" class="point-state">
