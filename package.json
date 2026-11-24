@@ -38,6 +38,9 @@
     "@unhead/vue": "catalog:frontend",
     "@unocss/reset": "catalog:frontend",
     "@vueuse/core": "catalog:frontend",
+    "crc-32": "catalog:frontend",
+    "dexie": "catalog:frontend",
+    "reka-ui": "catalog:frontend",
     "vue": "catalog:frontend",
     "vue-i18n": "catalog:frontend"
   },
