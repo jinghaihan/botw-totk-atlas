@@ -381,6 +381,41 @@ button:hover:not(:disabled) {
 .filter-layers button[data-state='on'] {
   background: #d1bb861a;
 }
+.filter-completed {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 28px;
+  color: var(--ink);
+  font-size: 11px;
+  cursor: pointer;
+}
+.filter-completed-switch {
+  display: flex;
+  flex: none;
+  align-items: center;
+  width: 34px;
+  height: 20px;
+  padding: 2px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel);
+}
+.filter-completed-switch[data-state='checked'] {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.filter-completed-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+.filter-completed-switch[data-state='checked'] .filter-completed-thumb {
+  transform: translateX(14px);
+  background: #292b2c;
+}
 .atlas-search {
   display: flex;
   align-items: center;
@@ -614,6 +649,9 @@ button:hover:not(:disabled) {
   color: #b39a5d;
   flex-shrink: 0;
 }
+.point-row.complete .point-row-details {
+  color: var(--muted);
+}
 .point-row.complete .point-symbol {
   color: #6e8f6b;
 }
@@ -741,6 +779,9 @@ button:hover:not(:disabled) {
 .atlas-marker {
   background: transparent;
   border: 0;
+}
+.atlas-marker.complete .atlas-marker-body {
+  opacity: 0.55;
 }
 .atlas-marker svg {
   overflow: visible;

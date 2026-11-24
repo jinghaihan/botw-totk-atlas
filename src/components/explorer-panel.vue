@@ -2,7 +2,7 @@
 import type { ProgressRow } from '@/domain/exploration'
 import type { CatalogPoint, GameId, PointAnnotation, PointStatus } from '@/domain/game'
 import type { ProfileView, SaveProfile } from '@/storage/profiles'
-import { CollapsibleContent, CollapsibleRoot, CollapsibleTrigger, PaginationEllipsis, PaginationList, PaginationListItem, PaginationNext, PaginationPrev, PaginationRoot, TabsContent, TabsList, TabsRoot, TabsTrigger, ToggleGroupItem, ToggleGroupRoot } from 'reka-ui'
+import { CollapsibleContent, CollapsibleRoot, CollapsibleTrigger, PaginationEllipsis, PaginationList, PaginationListItem, PaginationNext, PaginationPrev, PaginationRoot, SwitchRoot, SwitchThumb, TabsContent, TabsList, TabsRoot, TabsTrigger, ToggleGroupItem, ToggleGroupRoot } from 'reka-ui'
 import { useGameLabels } from '@/composables/game-labels'
 import { AppError } from '@/domain/errors'
 import { filterRows, resolveRows } from '@/domain/exploration'
@@ -65,7 +65,7 @@ function formatCategoryProgress(category: string) {
   const count = categoryProgress.value.get(category)
   return count ? `${count.done.toLocaleString(currentLocale.value)} / ${count.total.toLocaleString(currentLocale.value)}` : ''
 }
-const checklistRows = computed(() => completionUndo.value.size
+const checklistRows = computed(() => view.value.status === 'incomplete' && completionUndo.value.size
   ? filterRows(explorationRows.value, { ...view.value, status: 'all' }, true)
       .filter(row => row.status === 'incomplete' || completionUndo.value.has(row.point.id))
   : filtered.value)
@@ -93,7 +93,7 @@ async function load() {
       return
     catalog.value = data
     annotations.value = records
-    view.value = savedView ? { ...savedView, status: 'incomplete' } : defaultView(profileId ?? `browse:${props.game}`)
+    view.value = savedView ? { ...savedView, status: savedView.status === 'all' ? 'all' : 'incomplete' } : defaultView(profileId ?? `browse:${props.game}`)
     if (view.value.categories?.length) {
       const available = new Set(data.filter(point => point.at && !point.interior).map(point => point.category))
       const selected = view.value.categories.filter(category => available.has(category))
@@ -111,9 +111,16 @@ async function load() {
   }
 }
 watch(() => [props.profile?.id, props.game], load, { immediate: true })
-watch(() => [view.value.search, view.value.categories?.join(), view.value.region, view.value.layer], () => {
+watch(() => [view.value.search, view.value.categories?.join(), view.value.region, view.value.layer, view.value.status], () => {
   completionUndo.value = new Map()
   page.value = 1
+})
+watch(() => view.value.status, (status) => {
+  if (status === 'incomplete' && current.value?.status === 'complete') {
+    selected.value = ''
+    focus.value = undefined
+    detailOpen.value = false
+  }
 })
 watch(panelTab, () => {
   completionUndo.value = new Map()
@@ -161,7 +168,7 @@ async function save(annotation: PointAnnotation, fromChecklist = false) {
       const next = new Map(completionUndo.value)
       if (next.has(pointId))
         next.delete(pointId)
-      else if (panelTab.value === 'results')
+      else if (annotation.status === 'complete' && panelTab.value === 'results')
         next.set(pointId, annotations.value.find(record => record.pointId === pointId)?.status)
       completionUndo.value = next
     }
@@ -185,8 +192,11 @@ async function toggleChecklistCompletion(row: ProgressRow) {
   const pointId = row.point.id
   if (!profileId)
     return
-  const undo = completionUndo.value.has(pointId)
-  const status = undo ? completionUndo.value.get(pointId) : 'complete'
+  let status: PointStatus | undefined = 'complete'
+  if (completionUndo.value.has(pointId))
+    status = completionUndo.value.get(pointId)
+  else if (row.status === 'complete')
+    status = row.automatic === 'complete' ? 'incomplete' : undefined
   await save({ profileId, pointId, status, updatedAt: new Date().toISOString() }, true)
 }
 </script>
@@ -226,6 +236,12 @@ async function toggleChecklistCompletion(row: ProgressRow) {
                 {{ t('map.depths') }}
               </ToggleGroupItem>
             </ToggleGroupRoot>
+            <label v-if="profile" class="filter-completed">
+              <span>{{ t('explore.show-completed') }}</span>
+              <SwitchRoot class="filter-completed-switch" :model-value="view.status === 'all'" @update:model-value="view.status = $event ? 'all' : 'incomplete'">
+                <SwitchThumb class="filter-completed-thumb" />
+              </SwitchRoot>
+            </label>
           </div>
           <TabsRoot v-model="panelTab" class="exploration-tabs">
             <TabsList class="panel-tabs" :aria-label="t('explore.views')">
@@ -233,7 +249,7 @@ async function toggleChecklistCompletion(row: ProgressRow) {
                 {{ t('explore.tab') }}
               </TabsTrigger>
               <TabsTrigger value="results">
-                {{ t('explore.checklist') }}<span>{{ filtered.length.toLocaleString(currentLocale) }}</span>
+                {{ t('explore.checklist') }}<span>{{ checklistRows.length.toLocaleString(currentLocale) }}</span>
               </TabsTrigger>
             </TabsList>
             <TabsContent value="discover" class="discover-content">
@@ -247,13 +263,14 @@ async function toggleChecklistCompletion(row: ProgressRow) {
             </TabsContent>
             <TabsContent value="results" class="checklist-content">
               <section ref="pointList" class="point-list" :aria-label="t('explore.point-list')">
-                <div v-if="profile && !filtered.length" class="empty-results">
+                <div v-if="profile && !checklistRows.length" class="empty-results">
                   <h3>{{ t('explore.no-results') }}</h3>
                 </div>
                 <div v-for="row in paged" :key="row.point.id" class="point-row" :class="{ selected: row.point.id === selected, complete: row.status === 'complete' }">
                   <button type="button" class="point-row-details" @click="select(row.point.id, true)">
                     <span class="point-symbol" :class="categoryIcon(row.point.category)" aria-hidden="true" />
                     <span class="point-copy"><strong>{{ row.point.name }}</strong><small>{{ row.point.regionLabel ?? row.point.region ?? categoryLabel(game, row.point.category) }}</small></span>
+                    <span v-if="row.status === 'complete'" class="sr-only">{{ t('status.complete') }}</span>
                     <span v-if="!profile || row.annotation?.status" class="point-state">
                       <span v-if="!profile" class="i-lucide:chevron-right" aria-hidden="true" /><small v-if="row.annotation?.status">{{ t('status.manual') }}</small>
                     </span>
