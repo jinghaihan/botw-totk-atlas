@@ -37,6 +37,7 @@ export interface CatalogPoint {
   id: string
   category: string
   name: string
+  aliases?: string[]
   layer?: MapLayer
   at?: [number, number]
   key?: string | number
@@ -44,7 +45,9 @@ export interface CatalogPoint {
   found?: string
   detail?: string
   region?: string
+  regionLabel?: string
   interior?: boolean
+  relatedChestId?: string
   parentId?: string
   rule?: 'positive' | 'boolean' | 'guid' | 'enum' | 'manual'
 }

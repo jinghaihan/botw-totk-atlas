@@ -29,3 +29,9 @@ Map imagery is loaded from the ZeldaMods Object Map tile services and is not
 included in this repository. Nintendo retains rights in game imagery.
 Completion hash metadata references research by MrCheeze, McSpazzy and the
 ZeldaMods community, as indexed by marcrobledo/savegame-editors.
+
+Short localized name indexes reference the CNzh, TWzh and USen text records
+published by sh0wer1ee/BotwText (BOTW 1.6.0) and sh0wer1ee/TotkText (TOTK 1.2.1).
+Only names are indexed; dialogue and item descriptions are not bundled.
+Original game text remains copyright Nintendo, independently of the MIT code.
+See public/labels/sources.json for input paths and SHA-256 digests.

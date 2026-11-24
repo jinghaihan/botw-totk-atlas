@@ -14,6 +14,7 @@ const point = z.object({
   detail: z.string().optional(),
   interior: z.boolean().optional(),
   parentId: z.string().optional(),
+  relatedChestId: z.string().optional(),
   region: z.string().optional(),
 })
 const cache = new Map<GameId, Promise<CatalogPoint[]>>()

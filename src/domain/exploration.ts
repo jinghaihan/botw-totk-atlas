@@ -38,7 +38,7 @@ export function filterRows(rows: ProgressRow[], view: Omit<ProfileView, 'profile
       return false
     if (spatial && (!p.at || p.interior || (p.layer ?? 'surface') !== view.layer))
       return false
-    if (query && !`${p.name} ${p.id} ${p.detail ?? ''} ${p.region ?? ''} ${row.annotation?.note ?? ''}`.toLocaleLowerCase().includes(query))
+    if (query && !`${p.name} ${(p.aliases ?? []).join(' ')} ${p.id} ${p.detail ?? ''} ${p.region ?? ''} ${row.annotation?.note ?? ''}`.toLocaleLowerCase().includes(query))
       return false
     if (['complete', 'incomplete', 'unknown'].includes(view.status) && row.status !== view.status)
       return false
