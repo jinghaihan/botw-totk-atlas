@@ -5,6 +5,7 @@ import AtlasSelect from '@/components/atlas-select.vue'
 import ImportDialog from '@/components/import-dialog.vue'
 import LanguageToggle from '@/components/language-toggle.vue'
 import ProfileManager from '@/components/profile-manager.vue'
+import ProfileNameDialog from '@/components/profile-name-dialog.vue'
 import SaveContents from '@/components/save-contents.vue'
 import { loadCatalog } from '@/games/catalog'
 import { readSave } from '@/games/read-save'
@@ -32,6 +33,7 @@ function chooseSave() {
 useHead(() => ({ title: t('塞尔达笔记 · Zelda Notes'), htmlAttrs: { 'data-game': game.value } }))
 
 const managerOpen = ref(false)
+const renameOpen = ref(false)
 const urlParams = useUrlSearchParams('history')
 const validTabs = ['atlas', 'progress']
 const tab = ref(validTabs.includes(String(urlParams.view)) ? String(urlParams.view) : 'atlas')
@@ -91,6 +93,9 @@ onMounted(async () => {
           </button>
           <span class="identity-divider" />
           <AtlasSelect v-if="profiles.length" v-model="activeId" class="header-profile" :label="t('切换存档 Profile')" :options="options" /><AtlasSelect v-else v-model="browseGame" class="header-profile" :label="t('选择游戏')" :options="[{ value: 'botw', label: t('旷野之息') }, { value: 'totk', label: t('王国之泪') }]" />
+          <button v-if="current" class="icon-button profile-rename" :aria-label="t('重命名存档')" @click="renameOpen = true">
+            <span class="i-lucide:pencil" aria-hidden="true" />
+          </button>
         </div>
         <TabsList v-if="current" class="atlas-navigation" :aria-label="t('存档内容')">
           <TabsTrigger value="atlas">
@@ -140,5 +145,6 @@ onMounted(async () => {
     </TabsRoot>
     <ImportDialog ref="importer" v-model:open="importOpen" :profiles="profiles" @imported="imported" />
     <ProfileManager v-model:open="managerOpen" :profiles="profiles" @changed="reload" @restored="activeId = $event" />
+    <ProfileNameDialog v-model:open="renameOpen" :profile="current" @changed="reload" />
   </div>
 </template>

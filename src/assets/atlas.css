@@ -1482,6 +1482,27 @@ button:hover:not(:disabled) {
   gap: 10px;
   margin-top: 22px;
 }
+.profile-name-dialog {
+  width: min(400px, calc(100vw - 32px));
+}
+.profile-name-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.profile-name-heading h2 {
+  margin: 0;
+}
+.profile-name-heading .dialog-close {
+  position: static;
+}
+.profile-rename {
+  min-width: 30px;
+  width: 30px;
+  padding: 4px;
+}
 @media (min-width: 1600px) {
   .exploration-panel {
     left: 28px;
