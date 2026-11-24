@@ -248,10 +248,6 @@ button:hover:not(:disabled) {
   line-height: 1;
   white-space: nowrap;
 }
-.toolbar-control.filter-trigger {
-  justify-content: space-between;
-  min-width: 105px;
-}
 .toolbar-control:not(:disabled):hover,
 .toolbar-control[data-state='open'] {
   background: #ffffff12;
@@ -1417,13 +1413,6 @@ button:hover:not(:disabled) {
   .atlas-navigation button > span:first-child {
     display: none;
   }
-  .header-tools .toolbar-control.filter-trigger {
-    min-width: 77px;
-    font-size: 11px;
-  }
-  .header-tools .filter-trigger > span:last-child {
-    display: none;
-  }
   .exploration-panel {
     width: 290px;
     top: 90px;
@@ -1493,10 +1482,6 @@ button:hover:not(:disabled) {
     height: 34px;
     min-width: 34px;
     padding: 0 8px;
-  }
-  .header-tools .toolbar-control.filter-trigger {
-    min-width: 63px;
-    font-size: 10px;
   }
   .atlas-navigation {
     height: 34px;

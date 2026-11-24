@@ -9,7 +9,9 @@ const model = defineModel<string>({ required: true })
 <template>
   <SelectRoot v-model="model" :disabled="disabled">
     <SelectTrigger v-bind="$attrs" class="filter-trigger" :aria-label="label">
-      <SelectValue :placeholder="label" /><span class="i-lucide:chevrons-up-down" />
+      <slot name="trigger">
+        <SelectValue :placeholder="label" /><span class="i-lucide:chevrons-up-down" />
+      </slot>
     </SelectTrigger>
     <SelectPortal>
       <SelectContent class="select-menu" position="popper" :side-offset="6">
