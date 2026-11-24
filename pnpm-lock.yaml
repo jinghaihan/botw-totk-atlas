@@ -50,12 +50,6 @@ catalogs:
     dexie:
       specifier: ^4.4.7
       version: 4.4.7
-    leaflet:
-      specifier: 1.9.4
-      version: 1.9.4
-    leaflet.markercluster:
-      specifier: ^1.5.3
-      version: 1.5.3
     murmurhash3js:
       specifier: ^3.0.1
       version: 3.0.1
@@ -97,6 +91,13 @@ catalogs:
     vue-tsc:
       specifier: ^3.3.5
       version: 3.3.5
+  map:
+    leaflet:
+      specifier: 1.9.4
+      version: 1.9.4
+    leaflet.markercluster:
+      specifier: ^1.5.3
+      version: 1.5.3
   test:
     fake-indexeddb:
       specifier: ^6.2.8
@@ -138,10 +139,10 @@ importers:
         specifier: catalog:frontend
         version: 4.4.7
       leaflet:
-        specifier: catalog:frontend
+        specifier: catalog:map
         version: 1.9.4
       leaflet.markercluster:
-        specifier: catalog:frontend
+        specifier: catalog:map
         version: 1.5.3(leaflet@1.9.4)
       murmurhash3js:
         specifier: catalog:frontend

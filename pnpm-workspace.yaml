@@ -22,8 +22,6 @@ catalogs:
     '@vueuse/core': ^14.3.0
     crc-32: ^1.2.2
     dexie: ^4.4.7
-    leaflet: 1.9.4
-    leaflet.markercluster: ^1.5.3
     murmurhash3js: ^3.0.1
     reka-ui: ^2.11.0
     unocss: ^66.7.3
@@ -39,6 +37,9 @@ catalogs:
     eslint-plugin-format: ^2.0.1
     lint-staged: ^17.0.8
     vue-tsc: ^3.3.5
+  map:
+    leaflet: 1.9.4
+    leaflet.markercluster: ^1.5.3
   test:
     fake-indexeddb: ^6.2.8
     vitest: ^4.1.9
