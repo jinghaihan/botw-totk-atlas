@@ -24,6 +24,8 @@ Import a save, keep separate profiles for each playthrough, and find what remain
 - [marcrobledo/savegame-editors](https://github.com/marcrobledo/savegame-editors), MrCheeze and McSpazzy — save-format and completion-flag research.
 - [sh0wer1ee/BotwText](https://github.com/sh0wer1ee/BotwText) and [sh0wer1ee/TotkText](https://github.com/sh0wer1ee/TotkText) — localized game-name indexes.
 
+- Favicon vector from [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Triforce.svg).
+
 Game imagery and text belong to Nintendo. Third-party notices are preserved in [NOTICE](public/catalogs/NOTICE.txt); source manifests are included with the [catalogs](public/catalogs/sources.json) and [localized names](public/labels/sources.json).
 
 ## License
