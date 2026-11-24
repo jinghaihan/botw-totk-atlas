@@ -1229,10 +1229,11 @@ button:hover:not(:disabled) {
 .milestones > div {
   flex: 1;
   background: #f7f5eb;
-  padding: 23px;
-  display: grid;
-  grid-template-columns: 20px 1fr;
-  gap: 8px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
   color: #a2ad8b;
   font-size: 11px;
 }
@@ -1240,8 +1241,12 @@ button:hover:not(:disabled) {
   font-weight: 500;
   color: #7d906c;
 }
-.milestones > div > span:last-child {
-  grid-column: 2;
+.milestone-state {
+  white-space: nowrap;
+  color: var(--muted);
+}
+.milestone-state[data-complete='true'] {
+  color: var(--accent);
 }
 .coverage-note {
   display: flex;

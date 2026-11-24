@@ -15,7 +15,6 @@ declare module 'vue' {
     DarkToggle: typeof import('./../components/dark-toggle.vue')['default']
     ExplorerPanel: typeof import('./../components/explorer-panel.vue')['default']
     ImportDialog: typeof import('./../components/import-dialog.vue')['default']
-    ImportHistory: typeof import('./../components/import-history.vue')['default']
     LanguageToggle: typeof import('./../components/language-toggle.vue')['default']
     PointDetail: typeof import('./../components/point-detail.vue')['default']
     ProfileManager: typeof import('./../components/profile-manager.vue')['default']

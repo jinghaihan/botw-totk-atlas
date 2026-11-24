@@ -413,7 +413,7 @@ html[data-game='botw'] .category-symbol {
   color: #88919e;
 }
 .section-heading h2 {
-  color: #c7d0b2;
+  color: var(--ink);
 }
 .section-heading > span {
   color: #737e8d;
@@ -428,10 +428,10 @@ html[data-game='botw'] .category-symbol {
   background: #24272c;
 }
 .card-heading {
-  color: #b0c19f;
+  color: var(--ink);
 }
 .complete-mark {
-  color: #8ea37a;
+  color: var(--accent);
 }
 .progress-number {
   color: #dfddbe;
@@ -440,16 +440,16 @@ html[data-game='botw'] .category-symbol {
   color: #6d7785;
 }
 .progress-track {
-  background: #8d9f7e15;
+  background: #d1bb8615;
 }
 .progress-track > span {
-  background: #8faa78;
+  background: var(--accent);
 }
 .progress-card p {
   color: #6d7786;
 }
 .milestones strong {
-  color: #a8bc96;
+  color: var(--ink);
 }
 .coverage-note {
   color: #747e8d;

@@ -3,13 +3,12 @@ import type { SaveProfile } from '@/storage/profiles'
 import { TabsContent, TabsList, TabsRoot, TabsTrigger } from 'reka-ui'
 import AtlasSelect from '@/components/atlas-select.vue'
 import ImportDialog from '@/components/import-dialog.vue'
-import ImportHistory from '@/components/import-history.vue'
 import LanguageToggle from '@/components/language-toggle.vue'
 import ProfileManager from '@/components/profile-manager.vue'
 import SaveContents from '@/components/save-contents.vue'
 import { loadCatalog } from '@/games/catalog'
 import { readSave } from '@/games/read-save'
-import { currentLocale, tr as t } from '@/modules/i18n'
+import { tr as t } from '@/modules/i18n'
 import { listProfiles, saveProfile } from '@/storage/profiles'
 import './assets/atlas.css'
 import './assets/slate-theme.css'
@@ -44,7 +43,6 @@ watch(tab, (value) => {
 watch(() => urlParams.view, (value) => {
   tab.value = validTabs.includes(String(value)) ? String(value) : 'atlas'
 })
-const time = (s: string) => new Date(s).toLocaleString(currentLocale.value, { hour12: false })
 async function reload() {
   profiles.value = await listProfiles()
   if (!current.value)
@@ -133,11 +131,6 @@ onMounted(async () => {
               </button>
             </header>
             <SaveContents :snapshot="snapshot" />
-            <TabsContent value="progress">
-              <details class="save-provenance">
-                <summary>{{ t('存档与导入记录') }}</summary><p>{{ snapshot.filename }} · {{ time(snapshot.importedAt) }}</p><ImportHistory :profile="current" />
-              </details>
-            </TabsContent>
           </div>
         </template>
         <div v-if="busy" class="map-loading" role="status">
