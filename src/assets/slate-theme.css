@@ -340,15 +340,6 @@ html[data-game='botw'] .category-symbol {
 .error-message button {
   color: #dbc58e;
 }
-.profile-manager-list form {
-  border-color: var(--line);
-}
-.backup-controls p {
-  color: #848d9a;
-}
-.success-message {
-  color: #a6c48e;
-}
 .journal-page {
   background: #1c1e22;
 }

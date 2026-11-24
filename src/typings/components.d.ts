@@ -18,7 +18,6 @@ declare module 'vue' {
     LanguageToggle: typeof import('./../components/language-toggle.vue')['default']
     PointDetail: typeof import('./../components/point-detail.vue')['default']
     ProfileManager: typeof import('./../components/profile-manager.vue')['default']
-    ProfileNameDialog: typeof import('./../components/profile-name-dialog.vue')['default']
     SaveContents: typeof import('./../components/save-contents.vue')['default']
     WorldMap: typeof import('./../components/world-map.vue')['default']
   }

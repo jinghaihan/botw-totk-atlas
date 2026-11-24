@@ -7,13 +7,13 @@ Import a save, keep separate profiles for each playthrough, and find what remain
 ## Features
 
 - BOTW Normal / Master Mode and TOTK profiles, with separate manual progress and filters.
-- Direct folder selection, automatic game/mode detection from companion metadata, read-only import preview, profile updates, and history showing newly completed entries and regressions.
+- Import a save file or a folder. Folder imports detect game mode from companion metadata.
 - Browse either game map before importing a save; unknown completion stays unknown.
 - Leaflet maps for BOTW and TOTK's Sky, Surface and Depths; category, region, status and text filters.
 - Separate shrine completion and chest tracking, including a **cleared shrines with unopened chests** filter.
 - Collection checklists for shrines, treasure chests, quests and supported completion records.
 - Manual progress survives subsequent save imports.
-- Single-profile and workspace JSON backup; validated restore creates independent copies in a transaction.
+- Export one profile or all profiles as JSON. Import a backup to restore independent copies.
 - Simplified Chinese, Traditional Chinese, Japanese, Korean and English interfaces, with official localized game names where available.
 - Full-screen maps with charcoal and gold controls, built with Reka UI.
 

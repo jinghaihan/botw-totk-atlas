@@ -5,11 +5,11 @@ import AtlasSelect from '@/components/atlas-select.vue'
 import ImportDialog from '@/components/import-dialog.vue'
 import LanguageToggle from '@/components/language-toggle.vue'
 import ProfileManager from '@/components/profile-manager.vue'
-import ProfileNameDialog from '@/components/profile-name-dialog.vue'
 import SaveContents from '@/components/save-contents.vue'
 import { loadCatalog } from '@/games/catalog'
 import { readSave } from '@/games/read-save'
 import { tr as t } from '@/modules/i18n'
+import { downloadBackup } from '@/storage/backup'
 import { listProfiles, saveProfile } from '@/storage/profiles'
 import './assets/app.css'
 import './assets/slate-theme.css'
@@ -27,13 +27,25 @@ const importOpen = ref(false)
 const importer = ref<InstanceType<typeof ImportDialog>>()
 const browseGame = useLocalStorage('wilds-atlas:browse-game', 'botw')
 const game = computed(() => current.value?.game ?? (browseGame.value === 'totk' ? 'totk' : 'botw'))
-function chooseSave() {
-  importer.value?.chooseFile()
+const exporting = ref(false)
+async function download() {
+  if (exporting.value)
+    return
+  exporting.value = true
+  error.value = ''
+  try {
+    await downloadBackup()
+  }
+  catch (e) {
+    error.value = e instanceof Error ? e.message : t('操作未完成，请重试。')
+  }
+  finally {
+    exporting.value = false
+  }
 }
 useHead(() => ({ title: t('塞尔达笔记 · Zelda Notes'), htmlAttrs: { 'data-game': game.value } }))
 
 const managerOpen = ref(false)
-const renameOpen = ref(false)
 const urlParams = useUrlSearchParams('history')
 const validTabs = ['atlas', 'progress']
 const tab = ref(validTabs.includes(String(urlParams.view)) ? String(urlParams.view) : 'atlas')
@@ -52,9 +64,9 @@ async function reload() {
   if (!current.value)
     tab.value = 'atlas'
 }
-async function imported(p: SaveProfile) {
+async function imported(profileId: string) {
   await reload()
-  activeId.value = p.id
+  activeId.value = profileId
   tab.value = 'atlas'
 }
 onMounted(async () => {
@@ -69,7 +81,7 @@ onMounted(async () => {
       const existing = profiles.value.find(p => p.name === 'BOTW · 普通模式')
       if (existing?.snapshot.fingerprint === parsed.fingerprint)
         activeId.value = existing.id
-      else await imported(await saveProfile(parsed, 'BOTW · 普通模式', existing?.id, 'normal', await loadCatalog('botw')))
+      else await imported((await saveProfile(parsed, 'BOTW · 普通模式', existing?.id, 'normal', await loadCatalog('botw'))).id)
     }
   }
   catch (e) {
@@ -93,9 +105,6 @@ onMounted(async () => {
           </button>
           <span class="identity-divider" />
           <AtlasSelect v-if="profiles.length" v-model="activeId" class="header-profile" :label="t('切换存档 Profile')" :options="options" /><AtlasSelect v-else v-model="browseGame" class="header-profile" :label="t('选择游戏')" :options="[{ value: 'botw', label: t('旷野之息') }, { value: 'totk', label: t('王国之泪') }]" />
-          <button v-if="current" class="icon-button profile-rename" :aria-label="t('重命名存档')" @click="renameOpen = true">
-            <span class="i-lucide:pencil" aria-hidden="true" />
-          </button>
         </div>
         <TabsList v-if="current" class="atlas-navigation" :aria-label="t('存档内容')">
           <TabsTrigger value="atlas">
@@ -107,12 +116,20 @@ onMounted(async () => {
         </TabsList>
         <div class="header-tools">
           <LanguageToggle />
-          <button class="icon-button" :aria-label="t('管理与备份')" @click="managerOpen = true">
+          <button class="icon-button" :aria-label="t('管理存档')" :title="t('管理存档')" @click="managerOpen = true">
             <span class="i-lucide:settings-2" aria-hidden="true" />
           </button>
-          <button class="button primary import-action" @click="chooseSave">
-            <span class="i-lucide:upload" aria-hidden="true" /><span>{{ t('导入存档') }}</span>
+          <button class="button secondary header-export" :aria-label="t('导出')" :title="t('导出')" :disabled="exporting || !profiles.length" @click="download">
+            <span class="i-lucide:download" aria-hidden="true" /><span>{{ t('导出') }}</span>
           </button>
+          <div class="header-import">
+            <button class="button primary import-action" :aria-label="t('导入')" :title="t('导入')" @click="importer?.chooseFile()">
+              <span class="i-lucide:upload" aria-hidden="true" /><span>{{ t('导入') }}</span>
+            </button>
+            <button class="button primary import-folder-action" :aria-label="t('导入存档文件夹')" :title="t('导入存档文件夹')" @click="importer?.chooseFile('folder')">
+              <span class="i-lucide:folder-open" aria-hidden="true" />
+            </button>
+          </div>
         </div>
       </header>
       <main id="atlas-main" class="atlas-main" tabindex="-1">
@@ -120,7 +137,7 @@ onMounted(async () => {
           {{ t(error) }}
         </p>
         <TabsContent v-if="!busy || current" value="atlas" class="map-page" force-mount :hidden="tab !== 'atlas'">
-          <ExplorerPanel :key="current?.id ?? game" :profile="current" :game="game" @import="chooseSave" />
+          <ExplorerPanel :key="current?.id ?? game" :profile="current" :game="game" @import="importer?.chooseFile()" />
         </TabsContent>
         <template v-if="snapshot && current">
           <div v-if="tab !== 'atlas'" class="journal-page">
@@ -143,8 +160,7 @@ onMounted(async () => {
         </div>
       </main>
     </TabsRoot>
-    <ImportDialog ref="importer" v-model:open="importOpen" :profiles="profiles" @imported="imported" />
-    <ProfileManager v-model:open="managerOpen" :profiles="profiles" @changed="reload" @restored="activeId = $event" />
-    <ProfileNameDialog v-model:open="renameOpen" :profile="current" @changed="reload" />
+    <ImportDialog ref="importer" v-model:open="importOpen" :profiles="profiles" @selected="managerOpen = false" @imported="imported" />
+    <ProfileManager v-model:open="managerOpen" :profiles="profiles" @changed="reload" @restore="importer?.chooseFile('backup')" />
   </div>
 </template>

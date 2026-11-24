@@ -1,30 +1,29 @@
 <script setup lang="ts">
 import type { SaveProfile } from '@/storage/profiles'
-import { AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogOverlay, AlertDialogPortal, AlertDialogRoot, AlertDialogTitle, DialogClose, DialogContent, DialogDescription, DialogOverlay, DialogPortal, DialogRoot, DialogTitle } from 'reka-ui'
+import { AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogOverlay, AlertDialogPortal, AlertDialogRoot, AlertDialogTitle, DialogClose, DialogContent, DialogOverlay, DialogPortal, DialogRoot, DialogTitle } from 'reka-ui'
 import { tr as t } from '@/modules/i18n'
-import { backupSchema, exportBackup, restoreBackup } from '@/storage/backup'
+import { downloadBackup } from '@/storage/backup'
 import { deleteProfile, renameProfile } from '@/storage/profiles'
 
-const props = defineProps<{ profiles: SaveProfile[] }>()
-const emit = defineEmits<{ changed: [], restored: [id: string] }>()
+defineProps<{ profiles: SaveProfile[] }>()
+const emit = defineEmits<{ changed: [], restore: [] }>()
 const open = defineModel<boolean>('open', { required: true })
 const error = ref('')
-const success = ref('')
 const busy = ref(false)
 const deletion = shallowRef<SaveProfile>()
 const confirm = ref(false)
-const names = ref<Record<string, string>>({})
-const backup = shallowRef<unknown>()
-const backupNames = ref<string[]>([])
-watch(() => [props.profiles, open.value], () => {
-  names.value = Object.fromEntries(props.profiles.map(p => [p.id, p.name]))
+const editing = ref('')
+const name = ref('')
+const nameInput = ref<HTMLInputElement[]>([])
+watch(open, () => {
+  editing.value = ''
   error.value = ''
-  success.value = ''
-}, { immediate: true })
+})
 async function action(fn: () => Promise<void>) {
+  if (busy.value)
+    return
   busy.value = true
   error.value = ''
-  success.value = ''
   try {
     await fn()
   }
@@ -35,111 +34,100 @@ async function action(fn: () => Promise<void>) {
     busy.value = false
   }
 }
-function rename(p: SaveProfile) {
+async function editName(profile: SaveProfile) {
+  editing.value = profile.id
+  name.value = profile.name
+  error.value = ''
+  await nextTick()
+  nameInput.value[0]?.focus()
+  nameInput.value[0]?.select()
+}
+function rename(profile: SaveProfile) {
   return action(async () => {
-    await renameProfile(p.id, names.value[p.id] ?? p.name)
+    await renameProfile(profile.id, name.value)
+    editing.value = ''
     emit('changed')
-    success.value = t('名称已保存。')
   })
 }
 function remove() {
-  const p = deletion.value
-  if (!p)
+  const profile = deletion.value
+  if (!profile)
     return
   return action(async () => {
-    await deleteProfile(p.id)
-    emit('changed')
+    await deleteProfile(profile.id)
     confirm.value = false
-    success.value = t('Profile 已删除。')
-  })
-}
-function download(profileId?: string) {
-  return action(async () => {
-    const content = await exportBackup(profileId)
-    const url = URL.createObjectURL(new Blob([JSON.stringify(content)], { type: 'application/json' }))
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `zelda-notes-${new Date().toISOString().slice(0, 10)}.json`
-    a.click()
-    setTimeout(() => URL.revokeObjectURL(url), 1000)
-    success.value = profileId ? t('Profile 备份已导出。') : t('备份已导出，包含所有 Profile、笔记和导入历史。')
-  })
-}
-async function chooseBackup(event: Event) {
-  const file = (event.target as HTMLInputElement).files?.[0]
-  backup.value = undefined
-  backupNames.value = []
-  if (!file)
-    return
-  await action(async () => {
-    if (file.size > 30_000_000)
-      throw new Error(t('备份超过 30 MB，请检查文件。'))
-    const data = backupSchema.safeParse(JSON.parse(await file.text()))
-    if (!data.success)
-      throw new Error(t('备份格式不正确或版本不受支持，现有数据未改变。'))
-    backup.value = data.data
-    backupNames.value = data.data.profiles.map(p => p.name)
-  })
-}
-function restore() {
-  return action(async () => {
-    const ids = await restoreBackup(backup.value)
     emit('changed')
-    if (ids[0])
-      emit('restored', ids[0])
-    backup.value = undefined
-    success.value = t('已恢复 {count} 个独立 Profile，现有档案保持不变。', { count: ids.length })
   })
+}
+function backup(profileId?: string) {
+  return action(() => downloadBackup(profileId))
 }
 </script>
 
 <template>
   <DialogRoot v-model:open="open">
     <DialogPortal>
-      <DialogOverlay class="dialog-overlay" /><DialogContent class="dialog-content manager-dialog" @interact-outside="busy && $event.preventDefault()" @escape-key-down="busy && $event.preventDefault()">
-        <DialogTitle>{{ t('管理冒险档案') }}</DialogTitle><DialogDescription>{{ t('每个 Profile 独立保存进度、笔记和筛选条件。建议定期导出备份。') }}</DialogDescription>
-        <div class="profile-manager-list">
-          <form v-for="p in profiles" :key="p.id" @submit.prevent="rename(p)">
-            <label :for="`name-${p.id}`">{{ p.game.toUpperCase() }}<template v-if="p.mode !== 'unknown'"> · {{ p.mode === 'master' ? t('大师模式') : t('普通模式') }}</template></label><div class="inline-fields">
-              <input :id="`name-${p.id}`" v-model="names[p.id]" required maxlength="80" :disabled="busy"><button type="button" class="button secondary" :disabled="busy" :aria-label="t('导出此 Profile')" @click="download(p.id)">
-                {{ t('导出') }}
-              </button><button type="submit" class="button secondary" :disabled="busy">
+      <DialogOverlay class="dialog-overlay" />
+      <DialogContent class="dialog-content manager-dialog" :aria-describedby="undefined" @interact-outside="busy && $event.preventDefault()" @escape-key-down="busy && $event.preventDefault()">
+        <DialogTitle>{{ t('管理存档') }}</DialogTitle>
+        <ul v-if="profiles.length" class="profile-manager-list">
+          <li v-for="profile in profiles" :key="profile.id" class="profile-manager-row">
+            <form v-if="editing === profile.id" class="profile-manager-edit" @submit.prevent="rename(profile)">
+              <input ref="nameInput" v-model="name" name="profile-name" :aria-label="t('存档名称')" autocomplete="off" required maxlength="80" :disabled="busy">
+              <button type="submit" class="button primary" :disabled="busy">
                 {{ t('保存') }}
-              </button><button type="button" class="button danger" :disabled="busy" :aria-label="t('删除 {name}', { name: p.name })" @click="deletion = p; confirm = true">
-                {{ t('删除') }}
               </button>
-            </div>
-          </form>
+              <button type="button" class="button secondary" :disabled="busy" @click="editing = ''; error = ''">
+                {{ t('取消') }}
+              </button>
+            </form>
+            <template v-else>
+              <strong class="profile-manager-name">{{ profile.name }}</strong>
+              <div class="profile-row-actions">
+                <button class="button secondary" :disabled="busy" :aria-label="t('重命名存档')" @click="editName(profile)">
+                  {{ t('重命名') }}
+                </button>
+                <button class="button secondary" :disabled="busy" :aria-label="t('导出此 Profile')" @click="backup(profile.id)">
+                  {{ t('导出') }}
+                </button>
+                <button class="button danger" :disabled="busy" :aria-label="t('删除 {name}', { name: profile.name })" @click="deletion = profile; confirm = true">
+                  {{ t('删除') }}
+                </button>
+              </div>
+            </template>
+          </li>
+        </ul>
+        <div class="manager-backup-actions">
+          <button class="button secondary" :disabled="busy || !profiles.length" @click="backup()">
+            <span class="i-lucide:download" aria-hidden="true" />{{ t('备份') }}
+          </button>
+          <button class="button secondary" :disabled="busy" @click="emit('restore')">
+            <span class="i-lucide:upload" aria-hidden="true" />{{ t('恢复备份') }}
+          </button>
         </div>
-        <div class="backup-controls">
-          <h3>{{ t('备份与恢复') }}</h3><p>{{ t('数据保存在当前浏览器，清理网站数据会移除这些档案。') }}</p><button class="button secondary" :disabled="busy || !profiles.length" @click="download()">
-            {{ t('导出全部档案') }}
-          </button><label class="backup-input">{{ t('选择 Zelda Notes 备份') }}<input type="file" accept=".json,application/json" :disabled="busy" @change="chooseBackup"></label><div v-if="backup">
-            <p>{{ t('将新增 {count} 个 Profile：{names}', { count: backupNames.length, names: backupNames.join(' / ') }) }}</p><button class="button primary" :disabled="busy" @click="restore">
-              {{ t('恢复为独立副本') }}
-            </button>
-          </div>
-        </div>
-        <p v-if="error" role="alert" class="error-message">
+        <p v-if="error && !confirm" role="alert" class="error-message">
           {{ t(error) }}
-        </p><p v-if="success" role="status" class="success-message">
-          {{ success }}
-        </p><DialogClose class="dialog-close" :disabled="busy" :aria-label="t('关闭档案管理')">
-          ×
+        </p>
+        <DialogClose class="dialog-close icon-button" :disabled="busy" :aria-label="t('关闭档案管理')">
+          <span class="i-lucide:x" aria-hidden="true" />
         </DialogClose>
       </DialogContent>
     </DialogPortal>
   </DialogRoot>
   <AlertDialogRoot v-model:open="confirm">
     <AlertDialogPortal>
-      <AlertDialogOverlay class="dialog-overlay" /><AlertDialogContent class="dialog-content">
-        <AlertDialogTitle>{{ t('删除「{name}」？', { name: deletion?.name ?? '' }) }}</AlertDialogTitle><AlertDialogDescription>{{ t('这会删除此 Profile 的笔记和导入历史。可先导出备份。') }}</AlertDialogDescription><div class="dialog-actions">
+      <AlertDialogOverlay class="dialog-overlay" />
+      <AlertDialogContent class="dialog-content" :aria-describedby="undefined">
+        <AlertDialogTitle>{{ t('删除「{name}」？', { name: deletion?.name ?? '' }) }}</AlertDialogTitle>
+        <div class="dialog-actions">
           <AlertDialogCancel class="button secondary" :disabled="busy">
             {{ t('取消') }}
-          </AlertDialogCancel><AlertDialogAction class="button danger" :disabled="busy" @click.prevent="remove">
-            {{ t('删除 Profile') }}
+          </AlertDialogCancel>
+          <AlertDialogAction class="button danger" :disabled="busy" @click.prevent="remove">
+            {{ t('删除') }}
           </AlertDialogAction>
-        </div><p v-if="error" role="alert">
+        </div>
+        <p v-if="error" role="alert" class="error-message">
           {{ t(error) }}
         </p>
       </AlertDialogContent>

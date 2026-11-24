@@ -226,6 +226,19 @@ button:hover:not(:disabled) {
   padding: 5px;
   flex-shrink: 0;
 }
+.header-import {
+  display: flex;
+  align-items: stretch;
+}
+.header-import .import-action {
+  border-radius: 6px 0 0 6px;
+}
+.header-import .import-folder-action {
+  border-radius: 0 6px 6px 0;
+  border-left-color: #31281950;
+  min-width: 36px;
+  padding-inline: 10px;
+}
 .header-tools .filter-trigger {
   color: #c7cdbb;
   background: transparent;
@@ -1272,70 +1285,63 @@ button:hover:not(:disabled) {
 .manager-dialog {
   width: min(650px, calc(100vw - 32px));
 }
-.profile-manager-list form {
-  padding-bottom: 20px;
-  border-bottom: 1px solid #e1e5d4;
+.profile-manager-list,
+.backup-profiles {
+  list-style: none;
+  margin: 18px 0 0;
+  padding: 0;
 }
-.inline-fields {
+.profile-manager-row {
   display: flex;
-  gap: 7px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
 }
-.inline-fields .button {
-  min-height: 36px;
-  padding: 9px 12px;
-  font-size: 11px;
-  flex-shrink: 0;
-}
-.backup-controls {
-  padding-top: 12px;
-  margin-top: 25px;
-}
-.backup-controls h3 {
-  font-size: 15px;
+.profile-manager-name {
+  min-width: 0;
+  font-size: 14px;
   font-weight: 500;
+  overflow-wrap: anywhere;
 }
-.backup-controls p {
-  font-size: 12px;
-  color: #97a282;
-  line-height: 1.8;
+.profile-row-actions,
+.profile-manager-edit,
+.manager-backup-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
 }
-.backup-input {
-  margin-top: 25px;
+.dialog-content .profile-manager-edit {
+  display: flex;
+  gap: 8px;
+  width: 100%;
 }
-.success-message {
-  font-size: 12px;
-  line-height: 1.8;
-  color: #7c965f;
+.profile-manager-edit input {
+  flex: 1 1 160px;
+  min-width: 0;
+}
+.profile-row-actions .button,
+.profile-manager-edit .button {
+  min-height: 36px;
+  padding: 8px 11px;
+}
+.manager-backup-actions {
+  justify-content: flex-end;
+  margin-top: 21px;
+}
+.backup-profiles li {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  overflow-wrap: anywhere;
 }
 .dialog-actions {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
   margin-top: 22px;
-}
-.profile-name-dialog {
-  width: min(400px, calc(100vw - 32px));
-}
-.profile-name-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 20px;
-}
-.profile-name-heading h2 {
-  margin: 0;
-}
-.profile-name-heading .dialog-close {
-  position: static;
-}
-.profile-rename {
-  min-width: 30px;
-  width: 30px;
-  padding: 4px;
-}
-.profile-rename > span {
-  font-size: 13px;
 }
 @media (min-width: 1600px) {
   .exploration-panel {
@@ -1416,9 +1422,11 @@ button:hover:not(:disabled) {
     min-width: 77px;
     width: 77px;
   }
-  .header-tools .button.primary > span:last-child {
+  .header-tools .header-export > span:last-child,
+  .header-tools .import-action > span:last-child {
     display: none;
   }
+  .header-tools .header-export,
   .header-tools .button.primary {
     min-width: 36px;
     padding: 10px;
@@ -1506,6 +1514,7 @@ button:hover:not(:disabled) {
     width: 29px;
     height: 34px;
   }
+  .header-tools .header-export,
   .header-tools .button.primary {
     height: 34px;
     min-height: 34px;
@@ -1685,12 +1694,6 @@ button:hover:not(:disabled) {
   }
   .dialog-content {
     padding: 28px 23px;
-  }
-  .inline-fields {
-    flex-wrap: wrap;
-  }
-  .inline-fields input {
-    flex: 1 1 100%;
   }
   .app-error {
     top: 120px;
