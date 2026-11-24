@@ -115,21 +115,19 @@ onMounted(async () => {
           </TabsTrigger>
         </TabsList>
         <div class="header-tools">
-          <LanguageToggle />
-          <button class="icon-button" :aria-label="t('管理存档')" :title="t('管理存档')" @click="managerOpen = true">
+          <LanguageToggle class="toolbar-control" />
+          <button class="toolbar-control" :aria-label="t('管理存档')" :title="t('管理存档')" @click="managerOpen = true">
             <span class="i-lucide:settings-2" aria-hidden="true" />
           </button>
-          <button class="button secondary header-export" :aria-label="t('导出')" :title="t('导出')" :disabled="exporting || !profiles.length" @click="download">
-            <span class="i-lucide:download" aria-hidden="true" /><span>{{ t('导出') }}</span>
+          <button class="toolbar-control" :aria-label="t('导出')" :title="t('导出')" :disabled="exporting || !profiles.length" @click="download">
+            <span class="i-lucide:download" aria-hidden="true" /><span class="toolbar-label">{{ t('导出') }}</span>
           </button>
-          <div class="header-import">
-            <button class="button primary import-action" :aria-label="t('导入')" :title="t('导入')" @click="importer?.chooseFile()">
-              <span class="i-lucide:upload" aria-hidden="true" /><span>{{ t('导入') }}</span>
-            </button>
-            <button class="button primary import-folder-action" :aria-label="t('导入存档文件夹')" :title="t('导入存档文件夹')" @click="importer?.chooseFile('folder')">
-              <span class="i-lucide:folder-open" aria-hidden="true" />
-            </button>
-          </div>
+          <button class="toolbar-control" :aria-label="t('导入')" :title="t('导入')" @click="importer?.chooseFile()">
+            <span class="i-lucide:upload" aria-hidden="true" /><span class="toolbar-label">{{ t('导入') }}</span>
+          </button>
+          <button class="toolbar-control" :aria-label="t('导入存档文件夹')" :title="t('导入存档文件夹')" @click="importer?.chooseFile('folder')">
+            <span class="i-lucide:folder-open" aria-hidden="true" />
+          </button>
         </div>
       </header>
       <main id="atlas-main" class="atlas-main" tabindex="-1">

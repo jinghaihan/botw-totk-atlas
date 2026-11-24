@@ -226,30 +226,38 @@ button:hover:not(:disabled) {
   padding: 5px;
   flex-shrink: 0;
 }
-.header-import {
-  display: flex;
-  align-items: stretch;
-}
-.header-import .import-action {
-  border-radius: 6px 0 0 6px;
-}
-.header-import .import-folder-action {
-  border-radius: 0 6px 6px 0;
-  border-left-color: #31281950;
-  min-width: 36px;
-  padding-inline: 10px;
-}
-.header-tools .filter-trigger {
-  color: #c7cdbb;
-  background: transparent;
+.toolbar-control,
+.toolbar-control.filter-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  flex-shrink: 0;
+  height: 40px;
+  min-height: 0;
+  min-width: 40px;
+  padding: 0 10px;
   border: 0;
-  min-width: 105px;
-  padding: 9px;
-  font-size: 11px;
-  gap: 10px;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
 }
-.header-tools .icon-button {
-  color: #c9ccb9;
+.toolbar-control.filter-trigger {
+  justify-content: space-between;
+  min-width: 105px;
+}
+.toolbar-control:not(:disabled):hover,
+.toolbar-control[data-state='open'] {
+  background: #ffffff12;
+}
+.toolbar-control > [class*='i-lucide:'] {
+  flex: none;
+  width: 16px;
+  height: 16px;
 }
 .button {
   display: inline-flex;
@@ -284,13 +292,6 @@ button:hover:not(:disabled) {
   background: #fff1e9;
   color: #9f4f3e;
   border-color: #e5c8b8;
-}
-.header-tools .button.primary {
-  background: #d2bb86;
-  color: #25352a;
-  border: 0;
-  font-size: 12px;
-  min-height: 40px;
 }
 .icon-button {
   display: inline-flex;
@@ -1285,6 +1286,23 @@ button:hover:not(:disabled) {
 .manager-dialog {
   width: min(650px, calc(100vw - 32px));
 }
+.profile-manager-header,
+.profile-manager-controls {
+  display: flex;
+  align-items: center;
+}
+.profile-manager-header {
+  justify-content: space-between;
+  gap: 10px;
+}
+.profile-manager-header h2 {
+  margin: 0;
+  line-height: 1.2;
+}
+.profile-manager-controls {
+  flex-shrink: 0;
+  gap: 3px;
+}
 .profile-manager-list,
 .backup-profiles {
   list-style: none;
@@ -1307,8 +1325,7 @@ button:hover:not(:disabled) {
   overflow-wrap: anywhere;
 }
 .profile-row-actions,
-.profile-manager-edit,
-.manager-backup-actions {
+.profile-manager-edit {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -1328,10 +1345,6 @@ button:hover:not(:disabled) {
   min-height: 36px;
   padding: 8px 11px;
 }
-.manager-backup-actions {
-  justify-content: flex-end;
-  margin-top: 21px;
-}
 .backup-profiles li {
   padding: 10px 0;
   border-bottom: 1px solid var(--line);
@@ -1342,6 +1355,14 @@ button:hover:not(:disabled) {
   justify-content: flex-end;
   gap: 10px;
   margin-top: 22px;
+}
+@media (max-width: 480px) {
+  .profile-manager-header .toolbar-label {
+    display: none;
+  }
+  .profile-manager-header h2 {
+    font-size: 21px;
+  }
 }
 @media (min-width: 1600px) {
   .exploration-panel {
@@ -1381,14 +1402,6 @@ button:hover:not(:disabled) {
     padding: 0 12px;
     gap: 5px;
   }
-  .header-tools .filter-trigger {
-    min-width: 88px;
-    font-size: 10px;
-  }
-  .header-tools .button.primary {
-    padding: 11px;
-    font-size: 11px;
-  }
   .atlas-header {
     gap: 10px;
   }
@@ -1418,24 +1431,11 @@ button:hover:not(:disabled) {
   .atlas-navigation button > span:first-child {
     display: none;
   }
-  .header-tools .filter-trigger {
+  .header-tools .toolbar-control.filter-trigger {
     min-width: 77px;
-    width: 77px;
+    font-size: 11px;
   }
-  .header-tools .header-export > span:last-child,
-  .header-tools .import-action > span:last-child {
-    display: none;
-  }
-  .header-tools .header-export,
-  .header-tools .button.primary {
-    min-width: 36px;
-    padding: 10px;
-  }
-  .header-tools .icon-button {
-    min-width: 30px;
-    width: 30px;
-    padding: 6px;
-  }
+  .header-tools .toolbar-label,
   .header-tools .filter-trigger > span:last-child {
     display: none;
   }
@@ -1503,23 +1503,15 @@ button:hover:not(:disabled) {
     padding: 4px;
     gap: 0;
   }
-  .header-tools .filter-trigger {
+  .toolbar-control,
+  .toolbar-control.filter-trigger {
+    height: 34px;
+    min-width: 34px;
+    padding: 0 8px;
+  }
+  .header-tools .toolbar-control.filter-trigger {
     min-width: 63px;
-    width: 63px;
-    font-size: 9px;
-    padding: 7px;
-  }
-  .header-tools .icon-button {
-    min-width: 29px;
-    width: 29px;
-    height: 34px;
-  }
-  .header-tools .header-export,
-  .header-tools .button.primary {
-    height: 34px;
-    min-height: 34px;
-    min-width: 32px;
-    padding: 8px;
+    font-size: 10px;
   }
   .atlas-navigation {
     order: 3;

@@ -69,7 +69,20 @@ function backup(profileId?: string) {
     <DialogPortal>
       <DialogOverlay class="dialog-overlay" />
       <DialogContent class="dialog-content manager-dialog" :aria-describedby="undefined" @interact-outside="busy && $event.preventDefault()" @escape-key-down="busy && $event.preventDefault()">
-        <DialogTitle>{{ t('管理存档') }}</DialogTitle>
+        <header class="profile-manager-header">
+          <DialogTitle>{{ t('管理存档') }}</DialogTitle>
+          <div class="profile-manager-controls">
+            <button class="toolbar-control" :aria-label="t('备份')" :title="t('备份')" :disabled="busy || !profiles.length" @click="backup()">
+              <span class="i-lucide:download" aria-hidden="true" /><span class="toolbar-label">{{ t('备份') }}</span>
+            </button>
+            <button class="toolbar-control" :aria-label="t('恢复备份')" :title="t('恢复备份')" :disabled="busy" @click="emit('restore')">
+              <span class="i-lucide:upload" aria-hidden="true" /><span class="toolbar-label">{{ t('恢复备份') }}</span>
+            </button>
+            <DialogClose class="toolbar-control" :aria-label="t('关闭档案管理')" :title="t('关闭档案管理')" :disabled="busy">
+              <span class="i-lucide:x" aria-hidden="true" />
+            </DialogClose>
+          </div>
+        </header>
         <ul v-if="profiles.length" class="profile-manager-list">
           <li v-for="profile in profiles" :key="profile.id" class="profile-manager-row">
             <form v-if="editing === profile.id" class="profile-manager-edit" @submit.prevent="rename(profile)">
@@ -97,20 +110,9 @@ function backup(profileId?: string) {
             </template>
           </li>
         </ul>
-        <div class="manager-backup-actions">
-          <button class="button secondary" :disabled="busy || !profiles.length" @click="backup()">
-            <span class="i-lucide:download" aria-hidden="true" />{{ t('备份') }}
-          </button>
-          <button class="button secondary" :disabled="busy" @click="emit('restore')">
-            <span class="i-lucide:upload" aria-hidden="true" />{{ t('恢复备份') }}
-          </button>
-        </div>
         <p v-if="error && !confirm" role="alert" class="error-message">
           {{ t(error) }}
         </p>
-        <DialogClose class="dialog-close icon-button" :disabled="busy" :aria-label="t('关闭档案管理')">
-          <span class="i-lucide:x" aria-hidden="true" />
-        </DialogClose>
       </DialogContent>
     </DialogPortal>
   </DialogRoot>
