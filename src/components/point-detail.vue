@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ProgressRow } from '@/domain/exploration'
-import type { CatalogPoint, PointAnnotation, PointStatus } from '@/domain/game'
+import type { CatalogPoint, PointAnnotation } from '@/domain/game'
 import { DialogClose, DialogContent, DialogDescription, DialogPortal, DialogRoot, DialogTitle } from 'reka-ui'
 import { coordinateLabel } from '@/domain/coordinates'
 import { categoryLabels, statusLabels } from '@/games/catalog'
@@ -11,12 +11,10 @@ import AtlasSelect from './atlas-select.vue'
 const props = defineProps<{ row?: ProgressRow, profileId?: string, children: ProgressRow[] }>()
 const emit = defineEmits<{ save: [annotation: PointAnnotation], locate: [point: CatalogPoint], select: [id: string], import: [] }>()
 const open = defineModel<boolean>('open', { required: true })
-const status = ref('auto')
-const ignored = ref(false)
+const status = ref<NonNullable<PointAnnotation['status']> | 'auto'>('auto')
 const note = ref('')
 watch(() => [props.row?.point.id, open.value], () => {
   status.value = props.row?.annotation?.status ?? 'auto'
-  ignored.value = props.row?.annotation?.ignored ?? false
   note.value = props.row?.annotation?.note ?? ''
 }, { immediate: true })
 function toggleComplete() {
@@ -26,7 +24,7 @@ function toggleComplete() {
 function save() {
   if (!props.row || !props.profileId)
     return
-  emit('save', { profileId: props.profileId, pointId: props.row.point.id, status: status.value === 'auto' ? undefined : status.value as PointStatus, ignored: ignored.value, note: note.value.trim(), updatedAt: new Date().toISOString() })
+  emit('save', { profileId: props.profileId, pointId: props.row.point.id, status: status.value === 'auto' ? undefined : status.value, note: note.value.trim(), updatedAt: new Date().toISOString() })
 }
 </script>
 
@@ -64,7 +62,7 @@ function save() {
         <form v-if="profileId" @submit.prevent="save">
           <label>{{ t('冒险笔记') }}<textarea v-model="note" name="point-note" autocomplete="off" maxlength="4000" rows="3" :placeholder="t('记下路线、想法或稍后要做的事…')" /></label>
           <details class="tracking-options">
-            <summary>{{ t('记录选项') }}<span class="i-lucide:chevron-down" aria-hidden="true" /></summary><AtlasSelect v-model="status" :label="t('完成状态')" :options="[{ value: 'auto', label: t(row.point.category === 'lynel' ? '默认未完成' : '跟随存档记录') }, { value: 'complete', label: t('手动：已完成') }, { value: 'incomplete', label: t('手动：未完成') }, { value: 'unknown', label: t('手动：待确认') }]" /><label class="check-label"><input v-model="ignored" type="checkbox">{{ t('忽略此项目（可从筛选中恢复显示）') }}</label><p v-if="row.point.category !== 'lynel'" class="automatic-evidence">
+            <summary>{{ t('记录选项') }}<span class="i-lucide:chevron-down" aria-hidden="true" /></summary><AtlasSelect v-model="status" :label="t('完成状态')" :options="[{ value: 'auto', label: t(row.point.category === 'lynel' ? '默认未完成' : '跟随存档记录') }, { value: 'complete', label: t('手动：已完成') }, { value: 'incomplete', label: t('手动：未完成') }]" /><p v-if="row.point.category !== 'lynel'" class="automatic-evidence">
               {{ t('存档记录：') }}{{ t(statusLabels[row.automatic]) }}
             </p><p v-if="row.annotation?.status && row.annotation.status !== row.automatic && row.automatic !== 'unknown'" class="conflict">
               {{ t('手动记录与当前存档不同，已保留你的选择。') }}

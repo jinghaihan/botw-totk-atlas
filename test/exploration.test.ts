@@ -5,7 +5,7 @@ import { mapToWorld, worldToMap } from '@/domain/coordinates'
 import { filterRows, resolveRows } from '@/domain/exploration'
 import { snapshot } from './helpers/snapshot'
 
-const view = { categories: null, status: 'all' as const, layer: 'surface' as const, hideIgnored: true, search: '' }
+const view = { categories: null, status: 'all' as const, layer: 'surface' as const, search: '' }
 describe('exploration filters', () => {
   it('distinguishes all categories, a subset and no categories', () => {
     const rows = resolveRows(undefined, [{ id: 'a', name: 'a', category: 'shrine' }, { id: 'b', name: 'b', category: 'chest' }], [])
@@ -17,7 +17,7 @@ describe('exploration filters', () => {
     const save = snapshot()
     const point: CatalogPoint = { id: 'p', name: '点位', category: 'camp', key: 'flag' }
     save.scalars[String(createProgressReader(save).hash('flag'))] = 1
-    const rows = resolveRows(save, [point], [{ profileId: 'a', pointId: 'p', status: 'incomplete', ignored: false, note: '路线 A', updatedAt: new Date().toISOString() }])
+    const rows = resolveRows(save, [point], [{ profileId: 'a', pointId: 'p', status: 'incomplete', note: '路线 A', updatedAt: new Date().toISOString() }])
     expect(rows[0]).toMatchObject({ automatic: 'complete', status: 'incomplete' })
     expect(filterRows(rows, { ...view, search: '路线 A', status: 'incomplete' })).toHaveLength(1)
   })
@@ -28,7 +28,7 @@ describe('exploration filters', () => {
     const save = snapshot()
     const rows = resolveRows(save, [lynel, camp], [])
     expect(filterRows(rows, unfinished, true)).toMatchObject([{ point: lynel, automatic: 'unknown', status: 'incomplete' }])
-    const marked = resolveRows(save, [lynel, camp], [{ profileId: 'a', pointId: lynel.id, status: 'complete', ignored: false, note: '', updatedAt: new Date().toISOString() }])
+    const marked = resolveRows(save, [lynel, camp], [{ profileId: 'a', pointId: lynel.id, status: 'complete', note: '', updatedAt: new Date().toISOString() }])
     expect(filterRows(marked, unfinished, true)).toEqual([])
   })
   it('finds cleared shrines with unclaimed chests without treating unknown as missing', () => {

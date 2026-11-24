@@ -621,9 +621,6 @@ button:hover:not(:disabled) {
 .point-row.selected {
   background: #e9eedf;
 }
-.point-row.ignored {
-  opacity: 0.55;
-}
 .point-symbol {
   font-size: 19px;
   color: #b39a5d;
@@ -942,9 +939,6 @@ button:hover:not(:disabled) {
   width: 100%;
   margin-top: 14px;
 }
-.tracking-options > .check-label {
-  margin-top: 15px;
-}
 .automatic-evidence,
 .conflict {
   font-size: 10px;
@@ -1031,21 +1025,6 @@ button:hover:not(:disabled) {
 .checkbox[data-state='checked'] {
   background: #75925d;
   border-color: #75925d;
-}
-.check-label,
-.point-detail .check-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 11px;
-  line-height: 1.7;
-  color: #80926d;
-}
-.check-label input {
-  width: 15px !important;
-  height: 15px;
-  accent-color: #6c8957;
-  flex-shrink: 0;
 }
 .journal-page {
   height: 100%;
@@ -1306,9 +1285,6 @@ button:hover:not(:disabled) {
   color: #60784c;
   min-width: 0;
   font-size: 12px;
-}
-.dialog-content .check-label {
-  display: flex;
 }
 .dialog-close {
   position: absolute;

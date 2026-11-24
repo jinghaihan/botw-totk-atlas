@@ -106,12 +106,11 @@ src/
 ## 阶段六 手动追踪与补充清单
 
 - `feat: add manual point annotations and notes`
-- `feat: add ignored collection preferences`
 - `feat: add collection summaries and checklist views`
 
 补充内容包括任务、图鉴、服装，以及 TOTK 食谱、布料和无腐朽武器刷新资格。服装追踪获取记录。地图类别扩展至回忆／龙之泪、设施、古旧地图、贤者的遗志、依盖队设计图、蓝图石板、广告牌和古代石碑。
 
-验收：用户可以记录营地、备注点位、隐藏不打算做的项目；重新导入后记录保留，统计中仍能区分存档状态与用户偏好。
+验收：用户可以备注点位和手动记录完成状态，重新导入后保留记录。
 
 ## 阶段七 备份与完整验收
 

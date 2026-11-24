@@ -27,7 +27,6 @@ export interface ProfileView {
   categories: string[] | null
   status: 'all' | 'incomplete' | 'complete' | 'unknown' | 'found-unfinished' | 'shrine-chests'
   layer: 'surface' | 'sky' | 'depths'
-  hideIgnored: boolean
   search: string
   region?: string
 }
@@ -57,6 +56,17 @@ db.version(5).stores({}).upgrade((transaction) => {
   return transaction.table('views').toCollection().modify((view) => {
     if (view.categories?.length === 0)
       view.categories = null
+  })
+})
+
+db.version(6).stores({}).upgrade(async (transaction) => {
+  await transaction.table('annotations').toCollection().modify((annotation) => {
+    delete annotation.ignored
+    if (annotation.status === 'unknown')
+      delete annotation.status
+  })
+  await transaction.table('views').toCollection().modify((view) => {
+    delete view.hideIgnored
   })
 })
 

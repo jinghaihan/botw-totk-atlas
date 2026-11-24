@@ -31,7 +31,7 @@ const pageSize = 40
 const selected = ref('')
 const detailOpen = ref(false)
 const focus = ref<[number, number]>()
-const defaultView = (profileId: string): ProfileView => ({ profileId, categories: props.profile ? ['shrine', 'korok', 'chest'] : ['shrine'], status: 'incomplete', layer: 'surface', hideIgnored: true, search: '', region: 'all' })
+const defaultView = (profileId: string): ProfileView => ({ profileId, categories: props.profile ? ['shrine', 'korok', 'chest'] : ['shrine'], status: 'incomplete', layer: 'surface', search: '', region: 'all' })
 const view = ref(defaultView(props.profile?.id ?? `browse:${props.game}`))
 const points = computed(() => catalog.value.map(gameLabels.localize))
 const rows = computed(() => resolveRows(props.profile?.snapshot, points.value, annotations.value))
@@ -104,7 +104,7 @@ async function load() {
   }
 }
 watch(() => [props.profile?.id, props.game], load, { immediate: true })
-watch(() => [view.value.search, view.value.categories?.join(), view.value.region, view.value.layer, view.value.hideIgnored], () => {
+watch(() => [view.value.search, view.value.categories?.join(), view.value.region, view.value.layer], () => {
   page.value = 1
 })
 watch(pageCount, count => page.value = Math.min(page.value, Math.max(1, count)))
@@ -199,7 +199,6 @@ function locate(point: CatalogPoint) {
               </ToggleGroupItem>
             </ToggleGroupRoot>
             <div class="filter-actions">
-              <label v-if="profile" class="check-label"><input v-model="view.hideIgnored" type="checkbox">{{ t('隐藏已忽略') }}</label>
               <button class="text-button" @click="resetFilters">
                 {{ t('重置筛选') }}
               </button>
@@ -227,7 +226,7 @@ function locate(point: CatalogPoint) {
               <section ref="pointList" class="point-list" :aria-label="t('探索点位列表')">
                 <div v-if="profile && !filtered.length" class="empty-results">
                   <h3>{{ t('当前筛选没有结果') }}</h3>
-                </div><button v-for="row in paged" :key="row.point.id" class="point-row" :class="[row.status, { selected: row.point.id === selected, ignored: row.annotation?.ignored }]" @click="select(row.point.id)">
+                </div><button v-for="row in paged" :key="row.point.id" class="point-row" :class="[row.status, { selected: row.point.id === selected }]" @click="select(row.point.id)">
                   <span class="point-symbol" :class="categoryIcon(row.point.category)" aria-hidden="true" /><span class="point-copy"><strong>{{ row.point.name }}</strong><small>{{ row.point.regionLabel ?? row.point.region ?? t(categoryLabels[row.point.category] ?? row.point.category) }}</small><small v-if="row.annotation?.note" class="note-excerpt">{{ row.annotation.note }}</small></span><span class="point-state"><span class="i-lucide:chevron-right" aria-hidden="true" /><small v-if="row.annotation?.status">{{ t('手动') }}</small></span>
                 </button>
               </section>

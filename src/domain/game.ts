@@ -37,8 +37,7 @@ export interface CatalogPoint {
 export interface PointAnnotation {
   profileId: string
   pointId: string
-  status?: PointStatus
-  ignored: boolean
+  status?: Exclude<PointStatus, 'unknown'>
   note: string
   updatedAt: string
 }

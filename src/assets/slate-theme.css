@@ -320,10 +320,6 @@ html[data-game='botw'] .category-symbol {
   background: #606975;
   border-color: #798391;
 }
-.check-label,
-.point-detail .check-label {
-  color: #9ba3ae;
-}
 .text-button {
   color: #a9bc97;
 }
