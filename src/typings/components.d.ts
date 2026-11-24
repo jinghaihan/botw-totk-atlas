@@ -11,7 +11,15 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AtlasSelect: typeof import('./../components/AtlasSelect.vue')['default']
     DarkToggle: typeof import('./../components/dark-toggle.vue')['default']
+    ExplorerPanel: typeof import('./../components/ExplorerPanel.vue')['default']
+    ImportDialog: typeof import('./../components/ImportDialog.vue')['default']
+    ImportHistory: typeof import('./../components/ImportHistory.vue')['default']
     LanguageToggle: typeof import('./../components/language-toggle.vue')['default']
+    PointDetail: typeof import('./../components/PointDetail.vue')['default']
+    ProfileManager: typeof import('./../components/ProfileManager.vue')['default']
+    SaveContents: typeof import('./../components/SaveContents.vue')['default']
+    WorldMap: typeof import('./../components/WorldMap.vue')['default']
   }
 }
