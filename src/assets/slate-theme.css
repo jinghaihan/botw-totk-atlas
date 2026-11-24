@@ -74,9 +74,6 @@ html[data-game='botw'] .header-tools {
   border-color: var(--accent);
   box-shadow: 0 0 0 2px #9aa2ad12;
 }
-.panel-tabs {
-  border-color: var(--line);
-}
 .panel-tabs button {
   color: #848e9b;
 }

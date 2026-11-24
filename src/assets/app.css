@@ -384,12 +384,17 @@ button:hover:not(:disabled) {
 .filter-completed {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  min-height: 28px;
+  gap: 6px;
+  min-width: 0;
+  margin-inline-start: auto;
   color: var(--ink);
   font-size: 11px;
+  line-height: 1.2;
+  text-align: end;
   cursor: pointer;
+}
+.filter-completed > span {
+  overflow-wrap: anywhere;
 }
 .filter-completed-switch {
   display: flex;
@@ -456,15 +461,24 @@ button:hover:not(:disabled) {
   flex-direction: column;
   min-height: 0;
 }
+.exploration-tab-bar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  padding-inline: 16px;
+  border-bottom: 1px solid var(--line);
+}
 .panel-tabs {
   display: flex;
   flex: none;
-  gap: 26px;
-  padding: 0 20px;
-  border-bottom: 1px solid var(--line);
+  align-self: stretch;
+  gap: clamp(10px, 1.5vw, 20px);
 }
 .panel-tabs button {
-  padding: 0 0 12px;
+  padding: 2px 0 0;
+  white-space: nowrap;
   font-size: 12px;
   border-bottom: 2px solid transparent;
   color: #8a907d;
@@ -1719,6 +1733,13 @@ button:hover:not(:disabled) {
   }
   .exploration-panel {
     width: 260px;
+  }
+  .panel-tabs {
+    gap: 8px;
+  }
+  .panel-tabs button {
+    gap: 4px;
+    font-size: 11px;
   }
   .exploration-heading h1 {
     font-size: 21px;

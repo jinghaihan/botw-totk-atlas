@@ -236,22 +236,24 @@ async function toggleChecklistCompletion(row: ProgressRow) {
                 {{ t('map.depths') }}
               </ToggleGroupItem>
             </ToggleGroupRoot>
-            <label v-if="profile" class="filter-completed">
-              <span>{{ t('explore.show-completed') }}</span>
-              <SwitchRoot class="filter-completed-switch" :model-value="view.status === 'all'" @update:model-value="view.status = $event ? 'all' : 'incomplete'">
-                <SwitchThumb class="filter-completed-thumb" />
-              </SwitchRoot>
-            </label>
           </div>
           <TabsRoot v-model="panelTab" class="exploration-tabs">
-            <TabsList class="panel-tabs" :aria-label="t('explore.views')">
-              <TabsTrigger value="discover">
-                {{ t('explore.tab') }}
-              </TabsTrigger>
-              <TabsTrigger value="results">
-                {{ t('explore.checklist') }}<span>{{ checklistRows.length.toLocaleString(currentLocale) }}</span>
-              </TabsTrigger>
-            </TabsList>
+            <div class="exploration-tab-bar">
+              <TabsList class="panel-tabs" :aria-label="t('explore.views')">
+                <TabsTrigger value="discover">
+                  {{ t('explore.tab') }}
+                </TabsTrigger>
+                <TabsTrigger value="results">
+                  {{ t('explore.checklist') }}<span>{{ checklistRows.length.toLocaleString(currentLocale) }}</span>
+                </TabsTrigger>
+              </TabsList>
+              <label v-if="profile" class="filter-completed">
+                <span>{{ t('explore.show-completed') }}</span>
+                <SwitchRoot class="filter-completed-switch" :model-value="view.status === 'all'" @update:model-value="view.status = $event ? 'all' : 'incomplete'">
+                  <SwitchThumb class="filter-completed-thumb" />
+                </SwitchRoot>
+              </label>
+            </div>
             <TabsContent value="discover" class="discover-content">
               <ToggleGroupRoot type="multiple" class="category-tiles" :aria-label="t('explore.filter-categories')" :model-value="view.categories ?? categories" @update:model-value="values => view.categories = Array.isArray(values) ? values.filter((value): value is string => typeof value === 'string') : []">
                 <ToggleGroupItem v-for="category in categoryOrder" :key="category" :value="category">
