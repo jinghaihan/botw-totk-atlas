@@ -15,21 +15,21 @@ describe('exploration filters', () => {
   })
   it('keeps a manual override distinct from automatic evidence', () => {
     const save = snapshot()
-    const point: CatalogPoint = { id: 'p', name: '点位', category: 'camp', key: 'flag' }
+    const point: CatalogPoint = { id: 'p', name: '点位', category: 'chest', key: 'flag' }
     save.scalars[String(createProgressReader(save).hash('flag'))] = 1
     const rows = resolveRows(save, [point], [{ profileId: 'a', pointId: 'p', status: 'incomplete', updatedAt: new Date().toISOString() }])
     expect(rows[0]).toMatchObject({ automatic: 'complete', status: 'incomplete' })
     expect(filterRows(rows, { ...view, status: 'incomplete' })).toHaveLength(1)
   })
-  it('shows unmarked Lynels and camps until each is marked complete', () => {
+  it('shows manually tracked points until marked complete', () => {
     const lynel: CatalogPoint = { id: 'lynel:1', name: 'Lynel', category: 'lynel', at: [0, 0], rule: 'manual' }
-    const camp: CatalogPoint = { id: 'camp:1', name: 'Camp', category: 'camp', at: [0, 0], rule: 'manual' }
+    const shop: CatalogPoint = { id: 'shop:1', name: 'Shop', category: 'shop', at: [0, 0], rule: 'manual' }
     const unfinished = { ...view, status: 'incomplete' as const }
     const save = snapshot()
-    const rows = resolveRows(save, [lynel, camp], [])
-    expect(filterRows(rows, unfinished, true)).toMatchObject([{ point: lynel, status: 'incomplete' }, { point: camp, status: 'incomplete' }])
-    const marked = resolveRows(save, [lynel, camp], [{ profileId: 'a', pointId: lynel.id, status: 'complete', updatedAt: new Date().toISOString() }])
-    expect(filterRows(marked, unfinished, true)).toMatchObject([{ point: camp, status: 'incomplete' }])
+    const rows = resolveRows(save, [lynel, shop], [])
+    expect(filterRows(rows, unfinished, true)).toMatchObject([{ point: lynel, status: 'incomplete' }, { point: shop, status: 'incomplete' }])
+    const marked = resolveRows(save, [lynel, shop], [{ profileId: 'a', pointId: lynel.id, status: 'complete', updatedAt: new Date().toISOString() }])
+    expect(filterRows(marked, unfinished, true)).toMatchObject([{ point: shop, status: 'incomplete' }])
   })
   it('finds cleared shrines with unclaimed chests without treating unknown as missing', () => {
     const save = snapshot()

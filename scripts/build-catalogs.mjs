@@ -90,9 +90,6 @@ for (const game of ['botw', 'totk']) {
       }
     }
     rows.push(p)
-    if (game === 'botw' && p.category === 'chest' && String(p.key).includes('TBox_Field_Enemy_')) {
-      rows.push({ id: `camp:${p.id}`, name: '怪物营地 · 宝箱点位', category: 'camp', layer: p.layer, at: p.at, region: p.region, rule: 'manual', detail: `关联宝箱：${p.name}`, relatedChestId: p.id })
-    }
   }
   if (game === 'totk')
     rows.push(...JSON.parse(await readFile(new URL('./totk-supplements.json', import.meta.url), 'utf8')))

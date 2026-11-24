@@ -29,7 +29,6 @@ export interface CatalogPoint {
   region?: string
   regionLabel?: string
   interior?: boolean
-  relatedChestId?: string
   parentId?: string
   rule?: 'positive' | 'boolean' | 'guid' | 'enum' | 'manual'
 }

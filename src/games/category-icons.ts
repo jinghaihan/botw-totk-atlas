@@ -1,4 +1,4 @@
-const monsters = new Set(['bubbul', 'hinox', 'talus', 'molduga', 'flux', 'frox', 'gleeok', 'lynel', 'rematch', 'gloom', 'camp'])
+const monsters = new Set(['bubbul', 'hinox', 'talus', 'molduga', 'flux', 'frox', 'gleeok', 'lynel', 'rematch', 'gloom'])
 
 const icons: Record<string, string> = {
   shrine: 'i-lucide:landmark',

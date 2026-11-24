@@ -61,11 +61,11 @@ function formatCategoryProgress(category: string) {
 const pageCount = computed(() => Math.ceil(filtered.value.length / pageSize))
 const paged = computed(() => filtered.value.slice((page.value - 1) * pageSize, page.value * pageSize))
 const current = computed(() => rows.value.find(r => r.point.id === selected.value))
-const children = computed(() => rows.value.filter(r => r.point.parentId === selected.value || r.point.id === current.value?.point.relatedChestId))
+const children = computed(() => rows.value.filter(r => r.point.parentId === selected.value))
 
 const categoryOrder = computed(() => [...categoryDisplayOrder.filter(id => categories.value.includes(id)), ...categories.value.filter(id => !categoryDisplayOrder.includes(id))])
 function categoryName(category: string) {
-  return t(category === 'camp' ? '营地' : categoryLabel(props.game, category))
+  return t(categoryLabel(props.game, category))
 }
 
 let generation = 0

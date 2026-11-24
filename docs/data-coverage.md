@@ -24,8 +24,6 @@ A raw field existing in the save does not prove it is a valid completion criteri
 
 Some BOTW quests lack a reliable name/flag match and remain unknown. Collection denominators come from their own definitions; they must not be conflated with map percentages. Cave entrance counts differ from unique cave counts.
 
-Camp markers cover only some enemy-chest locations. The catalog does not contain every monster camp. Blood-moon enemy state cannot establish a permanent clear history.
-
 ## Localized names
 
 Short names are indexed from [BotwText](https://github.com/sh0wer1ee/BotwText) (1.6.0) and [TotkText](https://github.com/sh0wer1ee/TotkText) (1.2.1). Game text is originally © Nintendo. Only short name records are bundled, without dialogue or descriptions. Files and SHA-256 digests are listed in `public/labels/sources.json`.

@@ -15,7 +15,6 @@ const point = z.object({
   detail: z.string().optional(),
   interior: z.boolean().optional(),
   parentId: z.string().optional(),
-  relatedChestId: z.string().optional(),
   region: z.string().optional(),
 })
 const cache = new Map<GameId, Promise<CatalogPoint[]>>()
@@ -64,7 +63,6 @@ export const categoryDisplayOrder = [
   'gloom',
   'bubbul',
   'rematch',
-  'camp',
   // Collectibles.
   'korok',
   'chest',
@@ -109,7 +107,6 @@ const categoryLabels: Record<string, string> = {
   'gleeok': '古栗欧克',
   'lynel': '莱尼尔',
   'rematch': 'Boss 重战',
-  'camp': '怪物营地 · 宝箱点位',
   'location': '探索地点',
   'memory': '回忆',
   'tear': '龙之泪',
