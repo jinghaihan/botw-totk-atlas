@@ -5,7 +5,7 @@ import { CollapsibleContent, CollapsibleRoot, CollapsibleTrigger, PaginationElli
 import { useGameLabels } from '@/composables/game-labels'
 import { coordinateLabel } from '@/domain/coordinates'
 import { filterRows, resolveRows } from '@/domain/exploration'
-import { categoryDisplayOrder, categoryLabels, loadCatalog, statusLabels } from '@/games/catalog'
+import { categoryDisplayOrder, categoryLabels, loadCatalog } from '@/games/catalog'
 import { categoryIcon } from '@/games/category-icons'
 import { currentLocale, tr as t } from '@/modules/i18n'
 import { db, listAnnotations, putAnnotation } from '@/storage/profiles'
@@ -35,7 +35,7 @@ const selected = ref('')
 const detailOpen = ref(false)
 const placing = ref(false)
 const focus = ref<[number, number]>()
-const defaultView = (profileId: string): ProfileView => ({ profileId, categories: props.profile ? ['shrine', 'korok', 'chest'] : ['shrine'], status: props.profile ? 'incomplete' : 'all', layer: 'surface', hideIgnored: true, search: '', region: 'all' })
+const defaultView = (profileId: string): ProfileView => ({ profileId, categories: props.profile ? ['shrine', 'korok', 'chest'] : ['shrine'], status: 'incomplete', layer: 'surface', hideIgnored: true, search: '', region: 'all' })
 const view = ref(defaultView(props.profile?.id ?? `browse:${props.game}`))
 const points = computed(() => [...catalog.value.map(gameLabels.localize), ...custom.value])
 const rows = computed(() => resolveRows(props.profile?.snapshot, points.value, annotations.value))
@@ -45,13 +45,8 @@ const regions = computed(() => [{ value: 'all', label: t('所有地区') }, ...[
 const filtered = computed(() => filterRows(explorationRows.value, view.value, true))
 const pageCount = computed(() => Math.ceil(filtered.value.length / pageSize))
 const paged = computed(() => filtered.value.slice((page.value - 1) * pageSize, page.value * pageSize))
-const shrineChestsComplete = computed(() => {
-  const shrines = rows.value.filter(row => row.point.category === 'shrine')
-  return shrines.length > 0 && shrines.every(row => row.chests?.complete === true)
-})
 const current = computed(() => rows.value.find(r => r.point.id === selected.value))
 const children = computed(() => rows.value.filter(r => r.point.parentId === selected.value || r.point.id === current.value?.point.relatedChestId))
-const statuses = computed(() => [{ value: 'all', label: t('全部状态') }, { value: 'incomplete', label: t('未完成') }, { value: 'complete', label: t('已完成') }, { value: 'unknown', label: t('未知 / 手动记录') }, { value: 'found-unfinished', label: t('已发现 · 未完成') }, { value: 'shrine-chests', label: t('已通关 · 宝箱未领完') }])
 
 const categoryOrder = computed(() => [...categoryDisplayOrder.filter(id => categories.value.includes(id)), ...categories.value.filter(id => !categoryDisplayOrder.includes(id))])
 function categoryName(category: string) {
@@ -82,7 +77,7 @@ async function load() {
     catalog.value = data
     annotations.value = notes
     custom.value = pins
-    view.value = savedView ?? defaultView(profileId ?? `browse:${props.game}`)
+    view.value = savedView ? { ...savedView, status: 'incomplete' } : defaultView(profileId ?? `browse:${props.game}`)
     if (view.value.categories?.length) {
       const available = new Set([...data, ...pins].filter(point => point.at && !point.interior).map(point => point.category))
       const selected = view.value.categories.filter(category => available.has(category))
@@ -100,7 +95,7 @@ async function load() {
   }
 }
 watch(() => [props.profile?.id, props.game], load, { immediate: true })
-watch(() => [view.value.search, view.value.status, view.value.categories?.join(), view.value.region, view.value.layer, view.value.hideIgnored], () => {
+watch(() => [view.value.search, view.value.categories?.join(), view.value.region, view.value.layer, view.value.hideIgnored], () => {
   page.value = 1
 })
 watch(pageCount, count => page.value = Math.min(page.value, Math.max(1, count)))
@@ -214,7 +209,6 @@ async function remove(id: string) {
           <div class="exploration-filters">
             <label class="atlas-search"><span class="i-lucide:search" aria-hidden="true" /><input v-model="view.search" name="places" autocomplete="off" :aria-label="t('搜索探索记录')" :placeholder="t('搜索地点、物品或笔记…')"><button v-if="view.search" class="icon-button" :aria-label="t('清空搜索')" @click="view.search = ''"><span class="i-lucide:x" aria-hidden="true" /></button></label>
             <div class="filter-fields">
-              <AtlasSelect v-if="profile" v-model="view.status" :label="t('进度筛选')" :options="statuses" />
               <AtlasSelect :model-value="view.region ?? 'all'" :label="t('地区筛选')" :options="regions" @update:model-value="view.region = $event" />
             </div>
             <ToggleGroupRoot v-if="game === 'totk'" :model-value="view.layer" type="single" class="filter-layers" :aria-label="t('地图层级')" @update:model-value="value => { if (value === 'sky' || value === 'surface' || value === 'depths') view.layer = value }">
@@ -255,10 +249,10 @@ async function remove(id: string) {
             <span>{{ t('{count} 个地点', { count: filtered.length.toLocaleString(currentLocale) }) }}</span>
           </header>
           <section ref="pointList" class="point-list" :aria-label="t('探索点位列表')">
-            <div v-if="!filtered.length" class="empty-results">
-              <h3>{{ view.status === 'shrine-chests' && shrineChestsComplete ? t('神庙宝箱已领完') : t('当前筛选没有结果') }}</h3>
+            <div v-if="profile && !filtered.length" class="empty-results">
+              <h3>{{ t('当前筛选没有结果') }}</h3>
             </div><button v-for="row in paged" :key="row.point.id" class="point-row" :class="[row.status, { selected: row.point.id === selected, ignored: row.annotation?.ignored }]" @click="select(row.point.id)">
-              <span class="point-symbol" :class="categoryIcon(row.point.category)" aria-hidden="true" /><span class="point-copy"><strong>{{ row.point.name }}</strong><small>{{ row.point.regionLabel ?? row.point.region ?? t(categoryLabels[row.point.category] ?? row.point.category) }}</small><small v-if="row.annotation?.note" class="note-excerpt">{{ row.annotation.note }}</small></span><span class="point-state" :aria-label="t(statusLabels[row.status])"><span v-if="row.status === 'complete'" class="i-lucide:check" aria-hidden="true" /><span v-else-if="row.status === 'unknown'">?</span><span v-else class="i-lucide:chevron-right" aria-hidden="true" /><small v-if="row.annotation?.status">{{ t('手动') }}</small></span>
+              <span class="point-symbol" :class="categoryIcon(row.point.category)" aria-hidden="true" /><span class="point-copy"><strong>{{ row.point.name }}</strong><small>{{ row.point.regionLabel ?? row.point.region ?? t(categoryLabels[row.point.category] ?? row.point.category) }}</small><small v-if="row.annotation?.note" class="note-excerpt">{{ row.annotation.note }}</small></span><span class="point-state"><span class="i-lucide:chevron-right" aria-hidden="true" /><small v-if="row.annotation?.status">{{ t('手动') }}</small></span>
             </button>
           </section>
           <PaginationRoot v-if="pageCount > 1" v-model:page="page" :total="filtered.length" :items-per-page="pageSize" :sibling-count="0" show-edges class="pagination">
