@@ -100,7 +100,7 @@ function restore() {
         <DialogTitle>{{ t('管理冒险档案') }}</DialogTitle><DialogDescription>{{ t('每个 Profile 独立保存进度、笔记和筛选条件。建议定期导出备份。') }}</DialogDescription>
         <div class="profile-manager-list">
           <form v-for="p in profiles" :key="p.id" @submit.prevent="rename(p)">
-            <label :for="`name-${p.id}`">{{ p.game.toUpperCase() }} · {{ p.mode === 'master' ? t('大师模式') : t('普通模式') }}</label><div class="inline-fields">
+            <label :for="`name-${p.id}`">{{ p.game.toUpperCase() }}<template v-if="p.mode !== 'unknown'"> · {{ p.mode === 'master' ? t('大师模式') : t('普通模式') }}</template></label><div class="inline-fields">
               <input :id="`name-${p.id}`" v-model="names[p.id]" required maxlength="80" :disabled="busy"><button type="button" class="button secondary" :disabled="busy" :aria-label="t('导出此 Profile')" @click="download(p.id)">
                 {{ t('导出') }}
               </button><button type="submit" class="button secondary" :disabled="busy">

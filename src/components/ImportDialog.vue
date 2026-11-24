@@ -86,9 +86,6 @@ async function save() {
           <p v-if="busy" role="status">
             {{ t('正在处理…') }}
           </p>
-          <div v-if="preview" class="import-preview">
-            <strong>{{ preview.game.toUpperCase() }}</strong><span>{{ t('{hearts} 颗心 · {rupees} 卢比', { hearts: preview.hearts, rupees: preview.rupees.toLocaleString() }) }}</span><span>{{ t('{items} 项背包记录 · {horses} 匹马', { items: preview.items.length, horses: preview.horses.length }) }}</span><small>SHA-256 {{ preview.fingerprint.slice(0, 16) }}</small>
-          </div>
           <template v-if="preview">
             <AtlasSelect v-model="target" :label="t('导入目标')" :options="targets" :disabled="busy" />
             <template v-if="target === 'new'">

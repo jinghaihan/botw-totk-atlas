@@ -49,3 +49,12 @@ it('exports one profile without leaking another playthrough', async () => {
   expect(backup.profiles.map(p => p.id)).toEqual([first.id])
   expect(backup.imports.every(r => r.profileId === first.id)).toBe(true)
 })
+
+it('drops obsolete inventory and horse payloads when exporting older profiles', async () => {
+  const profile = await saveProfile(snapshot(), 'legacy')
+  const legacy = { ...profile.snapshot, items: [{ id: 'old-item' }], horses: [{ name: 'old-horse' }] }
+  await db.profiles.put({ ...profile, snapshot: legacy })
+  const backup = await exportBackup(profile.id)
+  expect(backup.profiles[0]?.snapshot).not.toHaveProperty('items')
+  expect(backup.profiles[0]?.snapshot).not.toHaveProperty('horses')
+})

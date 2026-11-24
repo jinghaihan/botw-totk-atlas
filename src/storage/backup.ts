@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { collectionSnapshot } from '@/domain/game'
 import { db } from './profiles'
 
 const id = z.string().min(1).max(200)
@@ -10,15 +11,8 @@ const snapshot = z.object({
   fingerprint: z.string().regex(/^[a-f\d]{64}$/),
   importedAt: z.iso.datetime(),
   size: finite.nonnegative(),
-  rupees: finite,
-  mon: finite,
-  hearts: finite,
-  stamina: finite,
-  energy: finite.optional(),
   progress: z.array(z.object({ id, label: text, done: finite, total: finite })),
   milestones: z.array(z.object({ label: text, complete: z.boolean() })),
-  items: z.array(z.object({ slot: finite, id, category: id, quantity: finite, durability: finite.optional(), modifier: finite.optional(), modifierValue: finite.optional(), fuseId: text.optional() })).max(3000),
-  horses: z.array(z.object({ name: text, actor: text, mane: text })).max(20),
   scalars: z.record(z.string().regex(/^\d+$/), z.number().int().min(0).max(0xFFFFFFFF)),
   guids: z.array(z.string().regex(/^\d+$/)).max(20000),
 })
@@ -27,7 +21,7 @@ export const backupSchema = z.object({
   format: z.literal('wilds-atlas'),
   version: z.literal(1),
   exportedAt: z.iso.datetime(),
-  profiles: z.array(z.object({ id, name: z.string().min(1).max(80), game: z.enum(['botw', 'totk']), mode: z.enum(['normal', 'master']), updatedAt: z.iso.datetime(), snapshot })).max(100),
+  profiles: z.array(z.object({ id, name: z.string().min(1).max(80), game: z.enum(['botw', 'totk']), mode: z.enum(['normal', 'master', 'unknown']), updatedAt: z.iso.datetime(), snapshot })).max(100),
   annotations: z.array(z.object({ profileId: id, pointId: id, status: z.enum(['complete', 'incomplete', 'unknown']).optional(), ignored: z.boolean(), note: text, updatedAt: z.iso.datetime() })).max(100000),
   imports: z.array(z.object({ profileId: id, importedAt: z.iso.datetime(), filename: text, fingerprint: text, initial: z.boolean(), changes: z.array(change), regressions: z.array(change).optional() })).max(10000),
   views: z.array(z.object({ profileId: id, categories: z.array(id), status: z.enum(['all', 'complete', 'incomplete', 'unknown', 'found-unfinished', 'shrine-chests']), layer: z.enum(['surface', 'sky', 'depths']), hideIgnored: z.boolean(), search: text, region: text.optional() })).max(100),
@@ -54,7 +48,7 @@ export async function exportBackup(profileId?: string) {
     format: 'wilds-atlas' as const,
     version: 1 as const,
     exportedAt: new Date().toISOString(),
-    profiles: profileId ? await db.profiles.where('id').equals(profileId).toArray() : await db.profiles.toArray(),
+    profiles: (profileId ? await db.profiles.where('id').equals(profileId).toArray() : await db.profiles.toArray()).map(profile => ({ ...profile, snapshot: collectionSnapshot(profile.snapshot) })),
     annotations: profileId ? await db.annotations.where('profileId').equals(profileId).toArray() : await db.annotations.toArray(),
     imports: profileId ? await db.imports.where('profileId').equals(profileId).toArray() : await db.imports.toArray(),
     views: profileId ? await db.views.where('profileId').equals(profileId).toArray() : await db.views.toArray(),

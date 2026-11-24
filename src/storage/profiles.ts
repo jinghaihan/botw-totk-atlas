@@ -2,6 +2,7 @@ import type { EntityTable, Table } from 'dexie'
 import type { CatalogPoint, GameId, GameMode, GameSnapshot, PointAnnotation } from '@/domain/game'
 import { Dexie } from 'dexie'
 import { compareProgress } from '@/domain/completion'
+import { collectionSnapshot } from '@/domain/game'
 
 export interface SaveProfile {
   id: string
@@ -51,12 +52,17 @@ db.version(2).stores({
 })
 
 db.version(3).stores({ pins: '&id, profileId' })
+db.version(4).stores({}).upgrade((transaction) => {
+  return transaction.table('profiles').toCollection().modify((profile) => {
+    profile.snapshot = collectionSnapshot(profile.snapshot)
+  })
+})
 
 export function listProfiles() {
   return db.profiles.orderBy('updatedAt').reverse().toArray()
 }
 
-export async function saveProfile(snapshot: GameSnapshot, name: string, id?: string, mode: GameMode = 'normal', catalog: CatalogPoint[] = []) {
+export async function saveProfile(snapshot: GameSnapshot, name: string, id?: string, mode: GameMode = 'unknown', catalog: CatalogPoint[] = []) {
   const existing = id ? await db.profiles.get(id) : undefined
   if (id && !existing)
     throw new Error('目标 Profile 已不存在，请重新选择。')
@@ -64,16 +70,16 @@ export async function saveProfile(snapshot: GameSnapshot, name: string, id?: str
     throw new Error('这份存档与目标 Profile 的游戏不同，请创建新的 Profile。')
   if (mode === 'master' && snapshot.game === 'totk')
     throw new Error('TOTK 没有大师模式。')
-  const normalizedName = name.trim() || `${snapshot.game.toUpperCase()} · ${mode === 'master' ? '大师模式' : '普通模式'}`
+  const normalizedName = name.trim() || `${snapshot.game.toUpperCase()} · ${mode === 'master' ? '大师模式' : mode === 'normal' ? '普通模式' : '存档'}`
   if (normalizedName.length > 80)
     throw new Error('Profile 名称最多 80 个字符。')
   const profile: SaveProfile = {
     id: id ?? crypto.randomUUID(),
     name: normalizedName,
     game: snapshot.game,
-    mode: existing?.mode ?? mode,
+    mode: snapshot.game === 'totk' ? 'normal' : mode === 'unknown' ? existing?.mode ?? 'unknown' : mode,
     updatedAt: new Date().toISOString(),
-    snapshot,
+    snapshot: collectionSnapshot(snapshot),
   }
   const changes = existing ? compareProgress(existing.snapshot, snapshot, catalog) : []
   const regressions = existing ? compareProgress(snapshot, existing.snapshot, catalog) : []

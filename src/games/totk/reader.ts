@@ -1,4 +1,4 @@
-import type { GameSnapshot, InventoryItem } from '@/domain/game'
+import type { GameSnapshot } from '@/domain/game'
 import murmur from 'murmurhash3js'
 import groups from './completion-flags.json'
 
@@ -48,72 +48,10 @@ export async function readTotkSave(buffer: ArrayBuffer, filename: string): Promi
     return p
   }
   const u = (name: string) => view.getUint32(pos(name), true)
-  const f = (name: string) => view.getFloat32(pos(name), true)
   const scalar = (key: number) => {
     const p = offsets.get(key)
     return p === undefined ? undefined : view.getUint32(p, true)
   }
-  const array = (name: string, stride: number) => {
-    const base = u(name)
-    if (base + 4 > buffer.byteLength)
-      throw new Error('存档中的数组位置无效。')
-    const count = view.getUint32(base, true)
-    if (count > 3000 || base + 4 + count * stride > buffer.byteLength)
-      throw new Error('存档中的数组长度无效。')
-    return { base: base + 4, count }
-  }
-  const utf8 = new TextDecoder('utf-8', { fatal: true })
-  function strings(name: string, wide = false) {
-    const stride = wide ? 32 : 64
-    const a = array(name, stride)
-    const decoder = wide ? new TextDecoder('utf-16le', { fatal: true }) : utf8
-    return Array.from({ length: a.count }, (_, i) => {
-      const bytes = new Uint8Array(buffer, a.base + i * stride, stride)
-      let end = stride
-      for (let j = 0; j < stride; j += wide ? 2 : 1) {
-        if (bytes[j] === 0 && (!wide || bytes[j + 1] === 0)) {
-          end = j
-          break
-        }
-      }
-      return decoder.decode(bytes.subarray(0, end))
-    })
-  }
-  const numbers = (name: string) => {
-    const a = array(name, 4)
-    return Array.from({ length: a.count }, (_, i) => view.getInt32(a.base + i * 4, true))
-  }
-  const items: InventoryItem[] = []
-  const pouches = [
-    ['Weapon', 'weapons', 'Life'],
-    ['Bow', 'bows', 'Life'],
-    ['Shield', 'shields', 'Life'],
-    ['Armor', 'armor', ''],
-    ['Arrow', 'arrows', 'StockNum'],
-    ['Material', 'materials', 'StockNum'],
-    ['Food', 'food', 'StockNum'],
-    ['SpecialParts', 'devices', 'StockNum'],
-    ['KeyItem', 'other', 'StockNum'],
-  ]
-  for (const [pouch, category, quantity] of pouches) {
-    const prefix = `Pouch.${pouch}.Content`
-    const ids = strings(`${prefix}.Name`)
-    const quantities = quantity ? numbers(`${prefix}.${quantity}`) : []
-    const equipment = ['weapons', 'bows', 'shields'].includes(category!)
-    const effects = equipment ? numbers(`${prefix}.Effect.Type`) : []
-    const values = equipment ? numbers(`${prefix}.Effect.Value`) : []
-    const fuses = pouch === 'Weapon' || pouch === 'Shield' ? strings(`${prefix}.Combined.Name`) : []
-    for (let i = 0; i < ids.length; i++) {
-      if (!ids[i])
-        continue
-      items.push({ slot: i + 1, id: ids[i]!, category: category!, quantity: equipment ? 1 : quantities[i] ?? 1, ...(equipment ? { durability: quantities[i], modifier: effects[i]! >>> 0, modifierValue: values[i] } : {}), ...(fuses[i] ? { fuseId: fuses[i] } : {}) })
-    }
-  }
-  const horseActors = strings('OwnedHorseList.ActorName')
-  const horseNames = strings('OwnedHorseList.Name', true)
-  const horseManes = numbers('OwnedHorseList.Mane')
-  const maneNames = ['Horse_Link_Mane', ...Array.from({ length: 13 }, (_, i) => `Horse_Link_Mane_${String(i + 1).padStart(2, '0')}`), 'Horse_Link_Mane_00L', 'Horse_Link_Mane_01L']
-  const horses = horseActors.flatMap((actor, i) => actor ? [{ actor, name: horseNames[i] ?? '', mane: maneNames.find(name => hash(name) === (horseManes[i]! >>> 0)) ?? '默认鬃毛' }] : [])
   const definitions = [
     ['SHRINES_STATUS', '神庙通关', 'Clear'],
     ['LIGHTROOTS_STATUS', '破魔之根', 'Open'],
@@ -138,6 +76,8 @@ export async function readTotkSave(buffer: ArrayBuffer, filename: string): Promi
     const keys = (groups as unknown as Record<string, (number | string)[]>)[id!]
     if (!keys)
       throw new Error(`收集目录缺少 ${id}。`)
+    if (keys.some(key => typeof key === 'number' && scalar(key) === undefined))
+      throw new Error('当前存档的收集标记不完整，请检查文件版本。')
     return { id: id!, label: label!, total: keys.length, done: keys.filter(key => typeof key === 'string' ? guids.has(BigInt(key).toString()) : scalar(key) === (expected ? hash(expected) : 1)).length }
   })
   const digest = await crypto.subtle.digest('SHA-256', buffer)
@@ -147,14 +87,7 @@ export async function readTotkSave(buffer: ArrayBuffer, filename: string): Promi
     fingerprint: Array.from(new Uint8Array(digest), b => b.toString(16).padStart(2, '0')).join(''),
     importedAt: new Date().toISOString(),
     size: buffer.byteLength,
-    rupees: u('PlayerStatus.CurrentRupee'),
-    mon: items.find(i => i.id === 'MinusRupee')?.quantity ?? 0,
-    hearts: u('PlayerStatus.MaxLife') / 4,
-    stamina: f('PlayerStatus.MaxStamina'),
-    energy: f('PlayerStatus.MaxEnergy'),
     progress,
-    items,
-    horses,
     milestones: [{ label: '通关记录', complete: u('IsGameClear') === 1 }],
     scalars: Object.fromEntries(Array.from(offsets, ([key, p]) => [String(key), view.getUint32(p, true)])),
     guids: [...guids],

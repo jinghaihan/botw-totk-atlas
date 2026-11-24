@@ -1,18 +1,7 @@
 export type GameId = 'botw' | 'totk'
-export type GameMode = 'normal' | 'master'
+export type GameMode = 'normal' | 'master' | 'unknown'
 export type PointStatus = 'complete' | 'incomplete' | 'unknown'
 export type MapLayer = 'surface' | 'sky' | 'depths'
-
-export interface InventoryItem {
-  slot: number
-  id: string
-  category: string
-  quantity: number
-  durability?: number
-  modifier?: number
-  modifierValue?: number
-  fuseId?: string
-}
 
 export interface GameSnapshot {
   game: GameId
@@ -20,15 +9,8 @@ export interface GameSnapshot {
   fingerprint: string
   importedAt: string
   size: number
-  rupees: number
-  mon: number
-  hearts: number
-  stamina: number
-  energy?: number
   progress: { id: string, label: string, done: number, total: number }[]
   milestones: { label: string, complete: boolean }[]
-  items: InventoryItem[]
-  horses: { name: string, actor: string, mane: string }[]
   scalars: Record<string, number>
   guids: string[]
 }
@@ -59,4 +41,9 @@ export interface PointAnnotation {
   ignored: boolean
   note: string
   updatedAt: string
+}
+
+export function collectionSnapshot(snapshot: GameSnapshot): GameSnapshot {
+  const { game, filename, fingerprint, importedAt, size, progress, milestones, scalars, guids } = snapshot
+  return { game, filename, fingerprint, importedAt, size, progress, milestones, scalars, guids }
 }

@@ -28,7 +28,7 @@ const busy = ref(true)
 const importOpen = ref(false)
 const managerOpen = ref(false)
 const urlParams = useUrlSearchParams('history')
-const validTabs = ['atlas', 'progress', 'inventory', 'horses']
+const validTabs = ['atlas', 'progress']
 const tab = ref(validTabs.includes(String(urlParams.view)) ? String(urlParams.view) : 'atlas')
 watch(tab, (value) => {
   if (value === 'atlas')
@@ -38,7 +38,6 @@ watch(tab, (value) => {
 watch(() => urlParams.view, (value) => {
   tab.value = validTabs.includes(String(value)) ? String(value) : 'atlas'
 })
-const number = (n: number) => n.toLocaleString(currentLocale.value)
 const time = (s: string) => new Date(s).toLocaleString(currentLocale.value, { hour12: false })
 async function reload() {
   profiles.value = await listProfiles()
@@ -93,12 +92,6 @@ onMounted(async () => {
           <TabsTrigger value="progress">
             <span class="i-lucide:book-open" aria-hidden="true" /><span>{{ t('收集') }}</span>
           </TabsTrigger>
-          <TabsTrigger value="inventory">
-            <span class="i-lucide:backpack" aria-hidden="true" /><span>{{ t('背包') }}</span>
-          </TabsTrigger>
-          <TabsTrigger value="horses">
-            <span class="i-lucide:heart-handshake" aria-hidden="true" /><span>{{ t('马厩') }}</span>
-          </TabsTrigger>
         </TabsList>
         <div class="header-tools">
           <LanguageToggle />
@@ -120,13 +113,10 @@ onMounted(async () => {
           </TabsContent>
           <div v-if="tab !== 'atlas'" class="journal-page">
             <header class="journal-heading">
-              <div><span class="eyebrow">{{ gameName }}</span><h1>{{ tab === 'progress' ? t('冒险手记') : tab === 'inventory' ? t('行囊') : tab === 'horses' ? t('同行的伙伴') : t('导入历史') }}</h1><p>{{ current.name }} · {{ current.mode === 'master' ? t('大师模式') : t('普通模式') }}</p></div><button class="button secondary" @click="tab = 'atlas'">
+              <div><span class="eyebrow">{{ gameName }}</span><h1>{{ t('收集') }}</h1><p>{{ current.name }} · {{ current.mode === 'master' ? t('大师模式') : t('普通模式') }}</p></div><button class="button secondary" @click="tab = 'atlas'">
                 <span class="i-lucide:arrow-up-right" aria-hidden="true" />{{ t('返回地图') }}
               </button>
             </header>
-            <section class="traveler-status" :aria-label="t('角色状态')">
-              <span><span class="i-lucide:heart" aria-hidden="true" />{{ snapshot.hearts }} {{ t('颗心') }}</span><span><span class="i-lucide:circle-gauge" aria-hidden="true" />{{ snapshot.stamina / 1000 }} {{ t('圈') }}</span><span><span class="i-lucide:gem" aria-hidden="true" />{{ number(snapshot.rupees) }}</span><span class="traveler-mode">{{ gameName }}</span>
-            </section>
             <SaveContents :snapshot="snapshot" />
             <TabsContent value="progress">
               <details class="save-provenance">
