@@ -36,7 +36,9 @@ const defaultView = (profileId: string): ProfileView => ({ profileId, categories
 const view = ref(defaultView(props.profile?.id ?? `browse:${props.game}`))
 const points = computed(() => catalog.value.map(gameLabels.localize))
 const rows = computed(() => resolveRows(props.profile?.snapshot, points.value, annotations.value))
-const explorationRows = computed(() => rows.value.filter(row => row.point.at && !row.point.interior))
+const explorationRows = computed(() => rows.value.filter(({ point, automatic }) =>
+  point.at && !point.interior && (point.category !== 'location' || !props.profile?.snapshot || automatic !== undefined),
+))
 const categories = computed(() => [...new Set(explorationRows.value.map(row => row.point.category))].sort((a, b) => categoryName(a).localeCompare(categoryName(b), currentLocale.value)))
 const regions = computed(() => [{ value: 'all', label: t('所有地区') }, ...[...new Set(explorationRows.value.map(row => row.point.region).filter((r): r is string => !!r))].sort().map(r => ({ value: r, label: gameLabels.text(r) }))])
 const filtered = computed(() => filterRows(explorationRows.value, view.value, true))
