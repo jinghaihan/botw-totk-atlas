@@ -15,7 +15,7 @@ const number = (n: number) => n.toLocaleString(currentLocale.value)
     <section class="progress-grid">
       <article v-for="p in snapshot.progress" :key="p.id" class="progress-card">
         <div class="card-heading">
-          <span>{{ t(p.label) }}</span><span class="complete-mark">{{ p.done === p.total ? t('✓ 已齐') : t('未完成') }}</span>
+          <span>{{ t(p.label) }}</span><span class="complete-mark">{{ p.done === p.total ? t('已完成') : t('未完成') }}</span>
         </div><div class="progress-number">
           {{ number(p.done) }}<span>/ {{ number(p.total) }}</span>
         </div><div class="progress-track">
