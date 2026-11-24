@@ -44,12 +44,13 @@ const explorationRows = computed(() => rows.value.filter(({ point, automatic }) 
   point.at && !point.interior && (point.category !== 'location' || !props.profile?.snapshot || automatic !== undefined),
 ))
 const categories = computed(() => [...new Set(explorationRows.value.map(row => row.point.category))].sort((a, b) => categoryName(a).localeCompare(categoryName(b), currentLocale.value)))
-const filtered = computed(() => filterRows(explorationRows.value, view.value, true))
+const activeView = computed(() => ({ ...view.value, search: panelTab.value === 'results' ? view.value.search : '' }))
+const filtered = computed(() => filterRows(explorationRows.value, activeView.value, true))
 const categoryProgress = computed(() => {
   const counts = new Map<string, { done: number, total: number }>()
   if (!props.profile)
     return counts
-  const matching = filterRows(explorationRows.value, { ...view.value, categories: null, status: 'all' }, true)
+  const matching = filterRows(explorationRows.value, { ...view.value, categories: null, status: 'all', search: '' }, true)
   for (const row of matching) {
     const count = counts.get(row.point.category) ?? { done: 0, total: 0 }
     count.total++
@@ -64,7 +65,7 @@ function formatCategoryProgress(category: string) {
   return count ? `${count.done.toLocaleString(currentLocale.value)} / ${count.total.toLocaleString(currentLocale.value)}` : ''
 }
 const checklistRows = computed(() => view.value.status === 'incomplete' && completionUndo.value.size
-  ? filterRows(explorationRows.value, { ...view.value, status: 'all' }, true)
+  ? filterRows(explorationRows.value, { ...activeView.value, status: 'all' }, true)
       .filter(row => row.status === 'incomplete' || completionUndo.value.has(row.point.id))
   : filtered.value)
 const pageCount = computed(() => Math.ceil(checklistRows.value.length / pageSize))
@@ -224,20 +225,17 @@ async function toggleChecklistCompletion(row: ProgressRow) {
           {{ t('explore.loading-catalog') }}
         </p>
         <template v-else-if="!error || catalog.length">
-          <div class="exploration-filters">
-            <label class="atlas-search"><span class="i-lucide:search" aria-hidden="true" /><input v-model="view.search" name="places" autocomplete="off" :aria-label="t('explore.search')" :placeholder="t('explore.search-placeholder')"><button v-if="view.search" class="icon-button" :aria-label="t('explore.clear-search')" @click="view.search = ''"><span class="i-lucide:x" aria-hidden="true" /></button></label>
-            <ToggleGroupRoot v-if="game === 'totk'" :model-value="view.layer" type="single" class="filter-layers" :aria-label="t('map.layers')" @update:model-value="value => { if (value === 'sky' || value === 'surface' || value === 'depths') view.layer = value }">
-              <ToggleGroupItem value="sky">
-                {{ t('map.sky') }}
-              </ToggleGroupItem>
-              <ToggleGroupItem value="surface">
-                {{ t('map.surface') }}
-              </ToggleGroupItem>
-              <ToggleGroupItem value="depths">
-                {{ t('map.depths') }}
-              </ToggleGroupItem>
-            </ToggleGroupRoot>
-          </div>
+          <ToggleGroupRoot v-if="game === 'totk'" :model-value="view.layer" type="single" class="filter-layers" :aria-label="t('map.layers')" @update:model-value="value => { if (value === 'sky' || value === 'surface' || value === 'depths') view.layer = value }">
+            <ToggleGroupItem value="sky">
+              {{ t('map.sky') }}
+            </ToggleGroupItem>
+            <ToggleGroupItem value="surface">
+              {{ t('map.surface') }}
+            </ToggleGroupItem>
+            <ToggleGroupItem value="depths">
+              {{ t('map.depths') }}
+            </ToggleGroupItem>
+          </ToggleGroupRoot>
           <TabsRoot v-model="panelTab" class="exploration-tabs">
             <div class="exploration-tab-bar">
               <TabsList class="panel-tabs" :aria-label="t('explore.views')">
@@ -265,6 +263,7 @@ async function toggleChecklistCompletion(row: ProgressRow) {
               </ToggleGroupRoot>
             </TabsContent>
             <TabsContent value="results" class="checklist-content">
+              <label class="atlas-search"><span class="i-lucide:search" aria-hidden="true" /><input v-model="view.search" name="places" autocomplete="off" :aria-label="t('explore.search')" :placeholder="t('explore.search-placeholder')"><button v-if="view.search" class="icon-button" :aria-label="t('explore.clear-search')" @click="view.search = ''"><span class="i-lucide:x" aria-hidden="true" /></button></label>
               <section ref="pointList" class="point-list" :aria-label="t('explore.point-list')">
                 <div v-if="profile && !checklistRows.length" class="empty-results">
                   <h3>{{ t('explore.no-results') }}</h3>
