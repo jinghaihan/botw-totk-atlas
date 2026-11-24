@@ -69,7 +69,6 @@ const categoryCounts = computed(() => {
 function chooseCategory(category: string) {
   view.value.categories = [category]
   view.value.search = ''
-  panelTab.value = 'results'
 }
 function resetFilters() {
   view.value.status = 'all'
@@ -77,10 +76,6 @@ function resetFilters() {
   view.value.search = ''
   view.value.region = 'all'
 }
-watch(() => view.value.search, (value) => {
-  if (value.trim())
-    panelTab.value = 'results'
-})
 
 let generation = 0
 async function load() {
