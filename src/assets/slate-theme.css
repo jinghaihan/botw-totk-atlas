@@ -1,18 +1,18 @@
 /* Shared slate palette for map controls, journal views, and portalled surfaces. */
 :root {
   --ink: #e3e6d9;
-  --muted: #91a7a5;
-  --accent: #94c6d0;
+  --muted: #929aa6;
+  --accent: #aab1ba;
   --accent-strong: #d2bd8a;
-  --paper: #153139;
-  --panel: #17333a;
+  --paper: #23262b;
+  --panel: #24282d;
   --line: #b1ba9b26;
   color: var(--ink);
-  background: #10262c;
+  background: #1b1d21;
   color-scheme: dark;
 }
 :root[data-game='totk'] {
-  --accent: #9ccfb7;
+  --accent: #aeb4bd;
   --accent-strong: #d2bd8a;
 }
 .header-identity,
@@ -21,14 +21,14 @@
 html[data-game='botw'] .header-identity,
 html[data-game='botw'] .atlas-navigation,
 html[data-game='botw'] .header-tools {
-  background: #122a31eb;
+  background: #1e2125eb;
   border-color: #c0b48338;
 }
 .header-profile.filter-trigger {
-  color: #d2dfd8;
+  color: #d5d8dc;
 }
 .atlas-navigation button {
-  color: #9fb4af;
+  color: #a1a8b2;
 }
 .atlas-navigation button[data-state='active'] {
   background: #bcc59e17;
@@ -36,11 +36,11 @@ html[data-game='botw'] .header-tools {
 }
 .exploration-panel,
 .point-detail {
-  background: #122a31ed;
+  background: #1e2125ed;
   border-color: #b6b28a42;
   box-shadow:
-    0 12px 35px #04181b55,
-    0 1px 3px #04181b66;
+    0 12px 35px #0e0f1155,
+    0 1px 3px #0e0f1166;
 }
 .exploration-heading {
   border-bottom: 1px solid #afb39314;
@@ -52,65 +52,65 @@ html[data-game='botw'] .header-tools {
   color: #ece8d7;
 }
 .exploration-heading .eyebrow {
-  color: #92aeaf;
+  color: #979faa;
 }
 .icon-button {
-  color: #a0b7af;
+  color: #a3aab4;
 }
 .icon-button:hover {
   color: #e2e5d4;
-  background: #abc2b812;
+  background: #afb5be12;
 }
 .atlas-search {
-  background: #091e2590;
-  border-color: #89a5a73b;
-  color: #8eabaa;
+  background: #15171990;
+  border-color: #8e96a23b;
+  color: #939ba6;
 }
 .atlas-search input {
-  color: #dde6df;
+  color: #dfe1e4;
 }
 .atlas-search input::placeholder {
-  color: #7d969a;
+  color: #808a97;
 }
 .atlas-search:focus-within {
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px #83b8c412;
+  box-shadow: 0 0 0 2px #9aa2ad12;
 }
 .panel-tabs {
   border-color: var(--line);
 }
 .panel-tabs button {
-  color: #829d9d;
+  color: #848e9b;
 }
 .panel-tabs button[data-state='active'] {
-  color: #cadbcd;
-  border-bottom-color: #9cb9aa;
+  color: #ced2d7;
+  border-bottom-color: #a2a9b3;
 }
 .panel-tabs button > span {
-  color: #9cae9e;
+  color: #9ca4ae;
 }
 .panel-section-heading h2 {
   color: #c5d0bc;
 }
 .panel-section-heading > span {
-  color: #738f8f;
+  color: #747f8e;
 }
 .category-tiles {
   gap: 5px;
 }
 .category-tiles button {
   border-color: transparent;
-  color: #b5c7b6;
+  color: #b8bdc4;
   background: transparent;
 }
 .category-tiles button:hover {
-  background: #8ebdbb0d;
-  border-color: #7da8a629;
+  background: #9da4ae0d;
+  border-color: #88919d29;
 }
 .category-tiles button[aria-pressed='true'],
 html[data-game='botw'] .category-tiles button[aria-pressed='true'] {
-  background: #8bb9bd10;
-  border-color: #8ab7b92b;
+  background: #9ba2ad10;
+  border-color: #98a0ab2b;
   color: #d4e2cc;
 }
 .category-symbol,
@@ -118,65 +118,65 @@ html[data-game='botw'] .category-symbol {
   color: var(--accent);
 }
 .category-tiles small {
-  color: #769496;
+  color: #7a8492;
 }
 .all-categories-link {
-  color: #a3b6a0;
+  color: #a3aab3;
 }
 .routes-heading {
   border-color: var(--line);
 }
 .journey-links button {
-  color: #91aca7;
-  border-color: #8fa7991d;
+  color: #959da8;
+  border-color: #9199a51d;
 }
 .journey-links button:hover {
-  background: #91b4aa08;
+  background: #99a1ac08;
 }
 .journey-links strong {
   color: #cfd4bc;
 }
 .journey-links small {
-  color: #7f9a99;
+  color: #818b98;
 }
 .journey-links button > span:last-child {
-  color: #839786;
+  color: #838b97;
 }
 .panel-footnote {
-  color: #6e8b8d;
+  color: #717b8a;
   border-color: var(--line);
 }
 .panel-loading {
-  color: #97b2ad;
+  color: #9ba3ae;
 }
 .filter-trigger {
-  background: #0d252d;
-  color: #bed0c3;
-  border-color: #73908b45;
+  background: #1a1d20;
+  color: #c1c6cd;
+  border-color: #757f8e45;
 }
 .result-filters .filter-trigger {
-  background: #10262d;
+  background: #1b1e22;
 }
 .active-categories button:not(.text-button) {
-  background: #8fb6a919;
-  color: #adc4aa;
+  background: #99a1ac19;
+  color: #b0b6be;
 }
 .point-row {
-  border-color: #79918b1f;
+  border-color: #7983911f;
   color: #d6e0d0;
 }
 .point-row:hover,
 .point-row.selected {
-  background: #9bbbad11;
+  background: #a3aab311;
 }
 .point-copy small {
-  color: #7f9b9b;
+  color: #828b98;
 }
 .point-copy .note-excerpt {
   color: #b7b18b;
 }
 .point-state {
-  color: #87a39b;
+  color: #8a93a0;
 }
 .point-symbol {
   color: #bdae7f;
@@ -188,82 +188,82 @@ html[data-game='botw'] .category-symbol {
   color: #cfd9c7;
 }
 .empty-results p {
-  color: #809c99;
+  color: #838c99;
 }
 .pagination {
   border-color: var(--line);
 }
 .pagination button {
-  color: #8fac9f;
+  color: #949ca7;
 }
 .pagination button[data-selected] {
   color: #d4dfc5;
-  background: #8db79921;
+  background: #99a0ab21;
 }
 .pagination span {
-  color: #80998c;
+  color: #818b98;
 }
 .map-action,
 .map-reset {
-  background: #122c32ed;
-  color: #b3c4b2;
+  background: #1f2125ed;
+  color: #b4bac2;
   border-color: #b7b38a42;
-  box-shadow: 0 4px 16px #05151c35;
+  box-shadow: 0 4px 16px #0f101235;
 }
 .map-action.active {
-  background: #35534a;
+  background: #3d434b;
   color: #dddcb6;
 }
 .leaflet-control-zoom {
   border-color: #b6b08a4a !important;
-  box-shadow: 0 4px 16px #05151c35 !important;
+  box-shadow: 0 4px 16px #0f101235 !important;
 }
 .leaflet-control-zoom a {
   color: #bdc9b6 !important;
-  background: #122c32ed !important;
+  background: #1f2125ed !important;
   border-color: #9ca89133 !important;
 }
 .leaflet-tooltip {
-  background: #17343bed !important;
+  background: #25282ded !important;
   color: #d5dfcb !important;
   border-color: #a9b3935c !important;
 }
 .map-layers,
 .map-banner {
-  background: #112a31ed;
+  background: #1e2024ed;
   border-color: #acb08c4a;
 }
 .map-layers button {
-  color: #819f9e;
+  color: #858e9b;
 }
 .map-layers button[data-state='on'] {
   color: #d3ddbb;
   background: #b6bd971b;
 }
 .map-coordinates {
-  color: #b1c1ac;
-  background: #112b31e8;
+  color: #afb5be;
+  background: #1e2024e8;
 }
 .map-legend {
   color: #b6c4af;
-  background: #112b31e8;
+  background: #1e2024e8;
 }
 .detail-category {
-  color: #8ea8a1;
+  color: #9199a5;
 }
 .detail-status {
-  color: #9eb3a3;
-  background: #a2b5a216;
+  color: #a0a7b1;
+  background: #a3aab416;
 }
 .detail-status[data-status='complete'] {
   color: #b5cd9a;
-  background: #a2b99c1b;
+  background: #a2a9b31b;
 }
 .point-detail > p {
-  color: #8ea6a0;
+  color: #9098a4;
 }
 .point-detail .detail-copy {
-  color: #8ba5a4;
+  color: #8e96a2;
 }
 .shrine-chest-summary {
   background: #abc19b0a;
@@ -284,20 +284,20 @@ html[data-game='botw'] .category-symbol {
 }
 .button.primary {
   background: #cdb887;
-  color: #233831;
+  color: #292d32;
   border-color: #d7c99d88;
 }
 .button.primary:hover {
   background: #decb9c;
 }
 .button.secondary {
-  color: #acc2ac;
-  border-color: #8ba78b4a;
+  color: #b0b6be;
+  border-color: #8f97a34a;
   background: transparent;
 }
 .button.secondary:hover {
   color: #d0dcc3;
-  background: #a4c1a412;
+  background: #abb1ba12;
 }
 .button.danger {
   color: #d7a58f;
@@ -305,89 +305,89 @@ html[data-game='botw'] .category-symbol {
   border-color: #bd92773b;
 }
 .point-detail label {
-  color: #a0b59b;
+  color: #9fa7b1;
 }
 .point-detail textarea,
 .dialog-content input {
-  background: #0a222ad9;
-  color: #cddbd0;
-  border-color: #77948c3f;
+  background: #171a1dd9;
+  color: #d0d3d8;
+  border-color: #7983923f;
 }
 .point-detail textarea::placeholder {
-  color: #6b898b;
+  color: #6f7987;
 }
 .tracking-options {
-  color: #8da698;
+  color: #8f98a4;
   border-color: var(--line);
 }
 .automatic-evidence {
-  color: #71918e;
+  color: #747f8e;
 }
 .conflict {
   color: #c6ae7a;
 }
 .detail-coordinates,
 .record-details {
-  color: #688b89;
+  color: #6d7786;
 }
 .point-detail .dialog-close {
-  color: #a8bbae;
+  color: #aab0b9;
 }
 .select-menu,
 .category-popover,
 .filter-popover,
 .data-popover {
-  background: #153039f7;
+  background: #23262bf7;
   color: #c3d0bc;
-  border-color: #90a48b4f;
-  box-shadow: 0 10px 35px #05191e66;
+  border-color: #8d96a24f;
+  box-shadow: 0 10px 35px #10111366;
 }
 .select-item[data-highlighted] {
-  background: #95b9a119;
+  background: #9ea6b019;
   color: #e0e8d2;
 }
 .category-checks label {
-  color: #a0b69d;
+  color: #a1a8b2;
 }
 .checkbox {
-  background: #0c252b;
-  border-color: #7e9a805c;
+  background: #191b1e;
+  border-color: #818a985c;
   color: #dfebcc;
 }
 .checkbox[data-state='checked'] {
-  background: #577e6b;
-  border-color: #74967d;
+  background: #606975;
+  border-color: #798391;
 }
 .check-label,
 .point-detail .check-label {
-  color: #99b495;
+  color: #9ba3ae;
 }
 .text-button {
   color: #a9bc97;
 }
 .data-popover {
-  color: #9eb29c;
+  color: #9ea6b0;
 }
 .dialog-overlay {
-  background: #03161b9c;
+  background: #0d0f109c;
 }
 .dialog-content {
-  background: #153039;
+  background: #23262b;
   border-color: #a4ad8752;
-  box-shadow: 0 25px 80px #01121788;
+  box-shadow: 0 25px 80px #0b0c0d88;
 }
 .dialog-content h2 {
   color: #e0e1cd;
 }
 .dialog-content > p,
 .dialog-content label {
-  color: #91aa9e;
+  color: #949ca7;
 }
 .dialog-close {
-  color: #9ab19c;
+  color: #9da4ae;
 }
 .import-preview {
-  color: #a6bca0;
+  color: #a6adb6;
   background: #abc39d09;
   border-color: #90a38736;
 }
@@ -395,7 +395,7 @@ html[data-game='botw'] .category-symbol {
   color: #cbd5ad;
 }
 .import-preview small {
-  color: #78998c;
+  color: #7d8794;
 }
 .error-message {
   color: #d6ac88;
@@ -409,39 +409,35 @@ html[data-game='botw'] .category-symbol {
   border-color: var(--line);
 }
 .backup-controls p {
-  color: #819d90;
+  color: #848d9a;
 }
 .success-message {
   color: #a6c48e;
 }
 .journal-page {
-  background: #10282e;
+  background: #1c1e22;
 }
 .journal-heading h1 {
   color: #e5e0c7;
 }
 .journal-heading p,
 .journal-heading .eyebrow {
-  color: #879f94;
-}
-.traveler-status {
-  border-color: var(--line);
-  color: #aab893;
+  color: #88919e;
 }
 .section-heading h2 {
   color: #c7d0b2;
 }
 .section-heading > span {
-  color: #6f9184;
+  color: #737e8d;
 }
 .progress-grid,
 .milestones {
-  background: #8aa08d30;
-  border-color: #8aa08d30;
+  background: #8a93a030;
+  border-color: #8a93a030;
 }
 .progress-card,
 .milestones > div {
-  background: #183238;
+  background: #24272c;
 }
 .card-heading {
   color: #b0c19f;
@@ -453,7 +449,7 @@ html[data-game='botw'] .category-symbol {
   color: #dfddbe;
 }
 .progress-number > span {
-  color: #678b7e;
+  color: #6d7785;
 }
 .progress-track {
   background: #8d9f7e15;
@@ -462,68 +458,30 @@ html[data-game='botw'] .category-symbol {
   background: #8faa78;
 }
 .progress-card p {
-  color: #678c80;
+  color: #6d7786;
 }
 .milestones strong {
   color: #a8bc96;
 }
 .coverage-note {
-  color: #6e9384;
+  color: #747e8d;
 }
 .search-box {
-  border-color: #829c7c40;
-  background: #112b31;
-  color: #8eac85;
+  border-color: #818a9840;
+  background: #1e2024;
+  color: #8e97a3;
 }
 .search-box input {
   color: #c4d3b7;
 }
-.table-wrap {
-  border-color: #839b7c33;
-}
-table {
-  background: #163137;
-}
-th {
-  background: #19363b;
-  color: #799c84;
-}
-td {
-  color: #b0c5a3;
-  border-color: #849c7c1f;
-}
-td small,
-td code {
-  color: #749782;
-}
-.horse-card {
-  background: #183338;
-  border-color: #8c9e7f2b;
-}
-.horse-card h3 {
-  color: #cad3ab;
-}
-.horse-card p {
-  color: #86a179;
-}
-.horse-card code {
-  color: #648c78;
-}
-.horse-index {
-  color: #759477;
-}
-.mane {
-  color: #91aa7f;
-  border-color: #9bad7d29;
-}
 .save-provenance,
 .history-card {
   border-color: var(--line);
-  color: #7d9d86;
+  color: #828b98;
 }
 .history-card time,
 .history-card code {
-  color: #668f7a;
+  color: #6e7887;
 }
 @media (max-width: 760px) {
   .exploration-panel[data-state='closed'] .exploration-heading {
@@ -532,7 +490,7 @@ td code {
   }
   .category-tiles small,
   .journey-links small {
-    color: #8ca2a0;
+    color: #8d95a1;
   }
 }
 .leaflet-marker-icon.atlas-cluster {
@@ -549,8 +507,35 @@ td code {
 .category-tiles small,
 .panel-footnote,
 .panel-footnote .icon-button {
-  color: #8ea6a4;
+  color: #9098a4;
 }
 .map-page[hidden] {
   display: none;
+}
+
+:root,
+:root[data-game='totk'] {
+  --accent: #d1bb86;
+  --accent-strong: #d1bb86;
+}
+.category-symbol,
+html[data-game='botw'] .category-symbol,
+.point-symbol,
+.point-row.complete .point-symbol,
+.point-row.unknown .point-symbol {
+  color: #c9b786;
+}
+.panel-tabs button[data-state='active'] {
+  border-bottom-color: #c4b080;
+}
+.atlas-search:focus-within {
+  border-color: #c4b080;
+  box-shadow: 0 0 0 2px #c4b08015;
+}
+:focus-visible {
+  outline-color: #d1bb86;
+}
+.checkbox[data-state='checked'] {
+  background: #a68d58;
+  border-color: #c4ad79;
 }
