@@ -151,13 +151,6 @@ html[data-game='botw'] .category-symbol {
   color: #c1c6cd;
   border-color: #757f8e45;
 }
-.result-filters .filter-trigger {
-  background: #1b1e22;
-}
-.active-categories button:not(.text-button) {
-  background: #99a1ac19;
-  color: #b0b6be;
-}
 .point-row {
   border-color: #7983911f;
   color: #d6e0d0;
@@ -181,7 +174,7 @@ html[data-game='botw'] .category-symbol {
 .empty-results > span {
   color: #9caf8d;
 }
-.empty-results h2 {
+.empty-results h3 {
   color: #cfd9c7;
 }
 .empty-results p {
@@ -225,24 +218,12 @@ html[data-game='botw'] .category-symbol {
   color: #d5dfcb !important;
   border-color: #a9b3935c !important;
 }
-.map-layers,
 .map-banner {
   background: #1e2024ed;
   border-color: #acb08c4a;
 }
-.map-layers button {
-  color: #858e9b;
-}
-.map-layers button[data-state='on'] {
-  color: #d3ddbb;
-  background: #b6bd971b;
-}
 .map-coordinates {
   color: #afb5be;
-  background: #1e2024e8;
-}
-.map-legend {
-  color: #b6c4af;
   background: #1e2024e8;
 }
 .detail-category {
@@ -329,8 +310,7 @@ html[data-game='botw'] .category-symbol {
 .point-detail .dialog-close {
   color: #aab0b9;
 }
-.select-menu,
-.filter-popover {
+.select-menu {
   background: #23262bf7;
   color: #c3d0bc;
   border-color: #8d96a24f;

@@ -371,6 +371,109 @@ button:hover:not(:disabled) {
   overscroll-behavior: contain;
   scrollbar-width: thin;
 }
+.exploration-body[data-state='open'] {
+  display: flex;
+  flex-direction: column;
+}
+.exploration-filters {
+  display: grid;
+  gap: 8px;
+  flex: none;
+  padding: 0 16px 10px;
+}
+.exploration-filters .atlas-search {
+  margin: 0;
+}
+.filter-fields,
+.filter-layers {
+  display: flex;
+  gap: 6px;
+}
+.filter-fields .filter-trigger {
+  flex: 1 1 0;
+  min-width: 0;
+  font-size: 11px;
+  padding: 8px 9px;
+}
+.filter-fields .filter-trigger > span:first-child,
+.category-summary {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.filter-fields .filter-trigger > span:first-child {
+  white-space: normal;
+}
+.category-trigger,
+.filter-layers button {
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  color: var(--ink);
+  background: transparent;
+  font-size: 11px;
+  min-height: 32px;
+}
+.category-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 0 9px;
+}
+.category-trigger > span:first-child {
+  white-space: nowrap;
+}
+.category-summary {
+  margin-left: auto;
+  color: var(--muted);
+}
+.category-trigger[data-state='open'] > span:last-child {
+  transform: rotate(180deg);
+}
+.filter-layers button {
+  flex: 1;
+}
+.category-trigger:hover,
+.filter-layers button:hover,
+.filter-layers button[data-state='on'] {
+  background: #d1bb861a;
+}
+.category-options {
+  max-height: min(210px, 25dvh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  margin-top: 6px;
+}
+.category-options .category-tiles button {
+  min-height: 55px;
+  padding: 7px 4px;
+  justify-content: center;
+}
+.filter-actions,
+.checklist-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.filter-actions button {
+  margin-left: auto;
+}
+.checklist-heading {
+  flex: none;
+  padding: 9px 16px;
+  border-block: 1px solid var(--line);
+}
+.checklist-heading h2 {
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 600;
+  margin: 0;
+}
 .atlas-search {
   display: flex;
   align-items: center;
@@ -558,36 +661,11 @@ button:hover:not(:disabled) {
   font-size: 12px;
   color: var(--muted);
 }
-.result-filters {
-  display: flex;
-  gap: 5px;
-  align-items: center;
-  padding: 15px 16px 8px;
-}
-.result-filters .filter-trigger {
-  flex: 1;
-  min-width: 0;
-  font-size: 11px;
-  padding: 9px 11px;
-}
-.active-categories {
-  display: flex;
-  gap: 6px;
-  padding: 0 17px 12px;
-  flex-wrap: wrap;
-}
-.active-categories button:not(.text-button) {
-  color: #687d59;
-  background: #e9eddf;
-  font-size: 10px;
-  border-radius: 4px;
-  padding: 5px 8px;
-}
-.active-categories .text-button {
-  font-size: 10px;
-}
 .point-list {
-  min-height: 120px;
+  min-height: 72px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
 }
 .point-row {
   display: flex;
@@ -652,7 +730,7 @@ button:hover:not(:disabled) {
   margin-top: 5px;
 }
 .empty-results {
-  padding: 42px 20px;
+  padding: 22px 16px;
   text-align: center;
 }
 .empty-results > span {
@@ -660,10 +738,10 @@ button:hover:not(:disabled) {
   display: inline-block;
   color: #8da175;
 }
-.empty-results h2 {
-  font-size: 15px;
+.empty-results h3 {
+  font-size: 12px;
   font-weight: 500;
-  margin: 17px 0 8px;
+  margin: 0;
 }
 .empty-results p {
   font-size: 11px;
@@ -676,8 +754,15 @@ button:hover:not(:disabled) {
   min-height: 35px;
 }
 .pagination {
-  padding: 15px 10px;
+  flex: none;
+  padding: 8px 10px;
   border-top: 1px solid var(--line);
+}
+.page-summary {
+  margin: 0 0 3px;
+  color: var(--muted);
+  font-size: 11px;
+  text-align: center;
 }
 .pagination > div {
   display: flex;
@@ -728,34 +813,6 @@ button:hover:not(:disabled) {
   background: #e2edce;
   color: #36592d;
 }
-.map-layers {
-  position: absolute;
-  bottom: max(25px, env(safe-area-inset-bottom));
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 4px;
-  padding: 5px;
-  border-radius: 8px;
-  background: #183128ee;
-  border: 1px solid #a6b08b44;
-  box-shadow: 0 8px 24px #14291b40;
-  z-index: 15;
-}
-.map-layers button {
-  background: transparent;
-  color: #a1b49c;
-  padding: 10px 19px;
-  font-size: 12px;
-  border-radius: 5px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.map-layers button[data-state='on'] {
-  background: #c9caa52b;
-  color: #e7ddb3;
-}
 .map-banner {
   position: absolute;
   top: 105px;
@@ -781,29 +838,6 @@ button:hover:not(:disabled) {
 .map-banner.tile-warning {
   top: auto;
   bottom: 86px;
-}
-.map-legend {
-  position: absolute;
-  bottom: 24px;
-  left: 365px;
-  color: #efe7c9;
-  background: #193128dd;
-  padding: 8px 13px;
-  display: flex;
-  gap: 14px;
-  font-size: 10px;
-  border-radius: 5px;
-  pointer-events: none;
-}
-.map-legend > span {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-.map-legend svg {
-  display: block;
-  width: 18px;
-  height: 22px;
 }
 .leaflet-control-zoom {
   margin-right: 22px !important;
@@ -1081,15 +1115,6 @@ button:hover:not(:disabled) {
   background: #e8eddd;
   color: #3c5f35;
 }
-.filter-popover {
-  z-index: 90;
-  background: #fbf9f1;
-  border: 1px solid #e0e3d3;
-  padding: 22px;
-  border-radius: 8px;
-  box-shadow: 0 10px 40px #142c2230;
-  max-width: calc(100vw - 32px);
-}
 .checkbox {
   width: 17px;
   height: 17px;
@@ -1103,11 +1128,6 @@ button:hover:not(:disabled) {
 .checkbox[data-state='checked'] {
   background: #75925d;
   border-color: #75925d;
-}
-.filter-popover {
-  display: grid;
-  gap: 18px;
-  width: 250px;
 }
 .check-label,
 .point-detail .check-label {
@@ -1559,9 +1579,6 @@ button:hover:not(:disabled) {
   .point-detail {
     width: 320px;
   }
-  .map-legend {
-    display: none;
-  }
 }
 @media (max-width: 1000px) {
   .atlas-brand small {
@@ -1784,14 +1801,6 @@ button:hover:not(:disabled) {
   }
   .map-action > span:last-child {
     display: none;
-  }
-  .map-layers {
-    bottom: max(30px, env(safe-area-inset-bottom));
-  }
-  .map-layers button {
-    padding: 10px 17px;
-    font-size: 11px;
-    gap: 6px;
   }
   .leaflet-control-zoom {
     margin-right: 12px !important;

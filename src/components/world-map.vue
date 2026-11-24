@@ -143,8 +143,5 @@ onBeforeUnmount(() => {
     <div v-if="pointer" class="map-coordinates" translate="no">
       {{ pointer }}
     </div>
-    <div class="map-legend" :aria-label="t('地图图例')">
-      <span><span v-html="markerSvg('default', 'incomplete')" />{{ t('未完成') }}</span><span><span v-html="markerSvg('default', 'complete')" />{{ t('已完成') }}</span><span><span v-html="markerSvg('default', 'unknown')" />{{ t('进度未知') }}</span>
-    </div>
   </div>
 </template>
