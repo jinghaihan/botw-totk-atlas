@@ -57,16 +57,10 @@ watch(tab, (value) => {
 watch(() => urlParams.view, (value) => {
   tab.value = validTabs.includes(String(value)) ? String(value) : 'atlas'
 })
-watch([current, tab], ([profile, view]) => {
-  if (profile && !profile.snapshot && view === 'progress')
-    tab.value = 'atlas'
-})
 async function reload() {
   profiles.value = await listProfiles()
   if (!current.value)
     activeId.value = profiles.value[0]?.id ?? ''
-  if (!current.value)
-    tab.value = 'atlas'
 }
 async function openProfile(profileId: string) {
   await reload()
@@ -104,7 +98,7 @@ onMounted(async () => {
       <header class="atlas-header">
         <div class="header-main">
           <AtlasSelect v-if="profiles.length" v-model="activeId" class="header-profile" :label="t('切换存档 Profile')" :options="options" /><AtlasSelect v-else v-model="browseGame" class="header-profile" :label="t('选择游戏')" :options="[{ value: 'botw', label: t('旷野之息') }, { value: 'totk', label: t('王国之泪') }]" />
-          <TabsList v-if="snapshot" class="atlas-navigation" :aria-label="t('存档内容')">
+          <TabsList class="atlas-navigation" :aria-label="t('存档内容')">
             <TabsTrigger value="atlas" :aria-label="t('地图')">
               <span class="i-lucide:map" aria-hidden="true" /><span>{{ t('地图') }}</span>
             </TabsTrigger>
@@ -136,22 +130,26 @@ onMounted(async () => {
         <TabsContent v-if="!busy || current" value="atlas" class="map-page" force-mount :hidden="tab !== 'atlas'">
           <ExplorerPanel :key="current?.id ?? game" :profile="current" :game="game" @import="importer?.chooseFile()" />
         </TabsContent>
-        <template v-if="snapshot && current">
-          <div v-if="tab !== 'atlas'" class="journal-page">
-            <header class="journal-heading">
-              <div>
-                <span class="eyebrow">{{ gameName }}</span><h1>{{ t('收集') }}</h1><p>
-                  {{ current.name }}<template v-if="current.mode !== 'unknown'">
-                    · {{ current.mode === 'master' ? t('大师模式') : t('普通模式') }}
-                  </template>
-                </p>
-              </div><button class="button secondary" @click="tab = 'atlas'">
-                <span class="i-lucide:arrow-up-right" aria-hidden="true" />{{ t('返回地图') }}
-              </button>
-            </header>
-            <SaveContents :snapshot="snapshot" />
-          </div>
-        </template>
+        <div v-if="tab === 'progress' && !busy" class="journal-page">
+          <header class="journal-heading">
+            <div>
+              <span class="eyebrow">{{ gameName }}</span><h1>{{ t('收集') }}</h1><p v-if="current">
+                {{ current.name }}<template v-if="snapshot && current.mode !== 'unknown'">
+                  · {{ current.mode === 'master' ? t('大师模式') : t('普通模式') }}
+                </template>
+              </p>
+            </div><button class="button secondary" @click="tab = 'atlas'">
+              <span class="i-lucide:arrow-up-right" aria-hidden="true" />{{ t('返回地图') }}
+            </button>
+          </header>
+          <SaveContents v-if="current" :key="current.id" :profile="current" />
+          <TabsContent v-else value="progress" class="profile-manager-empty">
+            <p>{{ t('暂无档案') }}</p>
+            <button class="button primary" @click="managerOpen = true">
+              {{ t('管理存档') }}
+            </button>
+          </TabsContent>
+        </div>
         <div v-if="busy" class="map-loading" role="status">
           {{ t('正在读取…') }}
         </div>
