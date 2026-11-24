@@ -17,24 +17,6 @@ Import a save, keep separate profiles for each playthrough, and find what remain
 - Simplified Chinese, Traditional Chinese and English interfaces, with official localized game names where available.
 - Full-screen maps with charcoal and gold controls, built with Reka UI.
 
-## Development
-
-Use Node.js 22.12+ and pnpm 11.9.0.
-
-```sh
-pnpm install
-pnpm dev
-```
-
-```sh
-pnpm lint
-pnpm typecheck
-pnpm exec vitest run
-pnpm build
-```
-
-The static build is written to `dist/`. Map imagery requires an internet connection. See [data coverage](docs/data-coverage.md) for supported save records and catalog limitations.
-
 ## Credits
 
 - [jinghaihan/starter-vue](https://github.com/jinghaihan/starter-vue) — project template.
