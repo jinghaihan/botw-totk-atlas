@@ -11,7 +11,8 @@
     "names": {
       "zh-CN": 2937,
       "zh-TW": 2937,
-      "en-US": 2937
+      "en-US": 2937,
+      "ja-JP": 2936
     },
     "note": "Only short names, no dialogue or descriptions. Original game text © Nintendo."
   },
@@ -326,7 +327,8 @@
     "names": {
       "zh-CN": 3331,
       "zh-TW": 3331,
-      "en-US": 3331
+      "en-US": 3331,
+      "ja-JP": 3331
     },
     "note": "Only short names, no dialogue or descriptions. Original game text © Nintendo."
   }

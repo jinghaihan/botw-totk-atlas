@@ -30,9 +30,9 @@ Camp markers cover only some enemy-chest locations. The catalog does not contain
 
 Short names are indexed from [BotwText](https://github.com/sh0wer1ee/BotwText) (1.6.0) and [TotkText](https://github.com/sh0wer1ee/TotkText) (1.2.1). Game text is originally © Nintendo. Only short name records are bundled, without dialogue or descriptions. Files and SHA-256 digests are listed in `public/labels/sources.json`.
 
-The three language indexes currently contain 2,937 BOTW and 3,331 TOTK records each: CNzh, TWzh and USen. The name index is broader than the set of catalog entries with a reliable identifier match. Some community place names, generic puzzles, new-version fabrics and reward labels have no matching localized name and retain their existing label or identifier.
+The CNzh, TWzh and USen indexes contain 2,937 BOTW and 3,331 TOTK records each; JPja contains 2,936 BOTW and 3,331 TOTK names. The current source has no Korean game-text records, so the Korean interface uses English game names. The name index is broader than the set of catalog entries with a reliable identifier match. Some community place names, generic puzzles, new-version fabrics and reward labels have no matching localized name and retain their existing label or identifier.
 
-The interface uses Vue I18n for Simplified Chinese, Traditional Chinese and English, including persisted language choice and locale-aware numbers/dates. CJK font fallbacks cover Chinese, Japanese and Korean text in user names and notes. Japanese/Korean interface translation packs are not included in this iteration.
+The interface uses Vue I18n for Simplified Chinese, Traditional Chinese, Japanese, Korean and English, including browser-language detection, persisted language choice and locale-aware numbers/dates. Each UI pack is maintained independently. CJK font fallbacks cover Chinese, Japanese and Korean text in user names and notes.
 
 ## Map imagery and offline behavior
 

@@ -8,7 +8,8 @@ const schema = z.object({ ids: z.record(z.string(), z.string()), english: z.reco
 type Labels = z.infer<typeof schema>
 const cache = new Map<string, Promise<Labels>>()
 export function loadGameLabels(game: GameId, locale: string) {
-  const key = `${game}-${locale}`
+  // The current game-text source has no Korean records; use its English names.
+  const key = `${game}-${locale === 'ko-KR' ? 'en-US' : locale}`
   if (!cache.has(key)) {
     const request = readJsonResource(`labels/${key}.json`, 'Game labels unavailable').then(data => schema.parse(data)).catch((error) => {
       cache.delete(key)
