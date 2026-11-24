@@ -35,6 +35,7 @@ const saving = reactive(new Set<string>())
 const pageSize = 40
 const selected = ref('')
 const detailOpen = ref(false)
+const detailFromChecklist = ref(false)
 const focus = ref<[number, number]>()
 const defaultView = (profileId: string): ProfileView => ({ profileId, categories: props.profile ? ['shrine', 'korok', 'chest'] : ['shrine'], status: 'incomplete', layer: 'surface', search: '', region: 'all' })
 const view = ref(defaultView(props.profile?.id ?? `browse:${props.game}`))
@@ -132,8 +133,9 @@ watchDebounced(view, async (value) => {
     error.value = new AppError('error.filters-save')
   }
 }, { deep: true, debounce: 250 })
-function select(id: string) {
+function select(id: string, fromChecklist = false) {
   selected.value = id
+  detailFromChecklist.value = fromChecklist
   if (compact.value)
     panelOpen.value = false
   detailOpen.value = true
@@ -186,15 +188,6 @@ async function toggleChecklistCompletion(row: ProgressRow) {
   const undo = completionUndo.value.has(pointId)
   const status = undo ? completionUndo.value.get(pointId) : 'complete'
   await save({ profileId, pointId, status, updatedAt: new Date().toISOString() }, true)
-}
-function locate(point: CatalogPoint) {
-  const parent = point.parentId ? points.value.find(p => p.id === point.parentId) : undefined
-  const target = parent ?? point
-  if (!target.at)
-    return
-  view.value.layer = target.layer ?? 'surface'
-  focus.value = [...target.at]
-  detailOpen.value = false
 }
 </script>
 
@@ -258,7 +251,7 @@ function locate(point: CatalogPoint) {
                   <h3>{{ t('explore.no-results') }}</h3>
                 </div>
                 <div v-for="row in paged" :key="row.point.id" class="point-row" :class="{ selected: row.point.id === selected, complete: row.status === 'complete' }">
-                  <button type="button" class="point-row-details" @click="select(row.point.id)">
+                  <button type="button" class="point-row-details" @click="select(row.point.id, true)">
                     <span class="point-symbol" :class="categoryIcon(row.point.category)" aria-hidden="true" />
                     <span class="point-copy"><strong>{{ row.point.name }}</strong><small>{{ row.point.regionLabel ?? row.point.region ?? categoryLabel(game, row.point.category) }}</small></span>
                     <span v-if="!profile || row.annotation?.status" class="point-state">
@@ -296,6 +289,6 @@ function locate(point: CatalogPoint) {
         </template>
       </CollapsibleContent>
     </CollapsibleRoot>
-    <PointDetail v-model:open="detailOpen" :game="game" :row="current" :profile-id="profile?.id" :children="children" @save="save" @locate="locate" @select="select" @import="emit('import')" />
+    <PointDetail v-model:open="detailOpen" :game="game" :row="current" :profile-id="profile?.id" :children="children" :show-completion="!detailFromChecklist || !panelOpen" @save="save" @select="select" @import="emit('import')" />
   </div>
 </template>
