@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { CatalogPoint, GameId, PointAnnotation } from '@/domain/game'
 import type { ProfileView, SaveProfile } from '@/storage/profiles'
-import { CheckboxIndicator, CheckboxRoot, CollapsibleContent, CollapsibleRoot, CollapsibleTrigger, PaginationEllipsis, PaginationList, PaginationListItem, PaginationNext, PaginationPrev, PaginationRoot, PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger, TabsContent, TabsList, TabsRoot, TabsTrigger, ToggleGroupItem, ToggleGroupRoot } from 'reka-ui'
+import { CollapsibleContent, CollapsibleRoot, CollapsibleTrigger, PaginationEllipsis, PaginationList, PaginationListItem, PaginationNext, PaginationPrev, PaginationRoot, PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger, TabsContent, TabsList, TabsRoot, TabsTrigger, ToggleGroupItem, ToggleGroupRoot } from 'reka-ui'
 import { useGameLabels } from '@/composables/game-labels'
 import { coordinateLabel } from '@/domain/coordinates'
 import { filterRows, resolveRows } from '@/domain/exploration'
@@ -51,6 +51,7 @@ const statuses = computed(() => [{ value: 'all', label: t('全部状态') }, { v
 
 const categoryIcons: Record<string, string> = { shrine: 'i-lucide:landmark', korok: 'i-lucide:leaf', chest: 'i-lucide:archive', tower: 'i-lucide:radio-tower', lightroot: 'i-lucide:sprout', cave: 'i-lucide:mountain', well: 'i-lucide:circle-dot', camp: 'i-lucide:tent', hinox: 'i-lucide:skull', talus: 'i-lucide:gem', molduga: 'i-lucide:fish', rematch: 'i-lucide:swords', gleeok: 'i-lucide:flame', lynel: 'i-lucide:swords' }
 const highlights = computed(() => ['shrine', 'korok', 'chest', 'tower', 'lightroot', 'cave', 'well', 'camp', 'hinox'].filter(id => categories.value.includes(id)))
+const categoryOrder = computed(() => [...highlights.value, ...categories.value.filter(id => !highlights.value.includes(id))])
 const categoryCounts = computed(() => {
   const counts: Record<string, { remaining: number, complete: number, unknown: number, total: number }> = {}
   for (const row of rows.value) {
@@ -69,10 +70,6 @@ function chooseCategory(category: string) {
   view.value.categories = [category]
   view.value.search = ''
   panelTab.value = 'results'
-}
-function toggleCategory(category: string, checked: boolean) {
-  const selected = view.value.categories ?? categories.value
-  view.value.categories = checked ? [...new Set([...selected, category])] : selected.filter(id => id !== category)
 }
 function resetFilters() {
   view.value.status = 'all'
@@ -206,7 +203,7 @@ async function remove(id: string) {
 <template>
   <div class="explorer">
     <WorldMap :game="game" :layer="view.layer" :rows="mapRows" :focus="focus" :placing="placing" @select="select" @place="place" />
-    <CollapsibleRoot v-model:open="panelOpen" class="exploration-panel">
+    <CollapsibleRoot v-model:open="panelOpen" class="exploration-panel" :class="{ 'is-category-grid': panelOpen && panelTab === 'discover' && !loading }">
       <header class="exploration-heading">
         <div><span class="eyebrow">{{ game === 'botw' ? t('旷野之息') : t('王国之泪') }}</span><h1>{{ t('探索海拉鲁') }}</h1></div><CollapsibleTrigger class="icon-button panel-collapse" :aria-label="panelOpen ? t('收起探索面板') : t('展开探索面板')">
           <span :class="panelOpen ? 'i-lucide:panel-left-close' : 'i-lucide:panel-left-open'" aria-hidden="true" />
@@ -232,32 +229,13 @@ async function remove(id: string) {
           </TabsList>
           <TabsContent value="discover" class="discover-content">
             <div class="panel-section-heading">
-              <h2>{{ t('寻找下一站') }}</h2><span>{{ t('按类型探索') }}</span>
+              <h2>{{ t('分类') }}</h2>
             </div>
-            <div class="category-tiles">
-              <button v-for="category in highlights" :key="category" :aria-pressed="view.categories === null || view.categories.includes(category)" @click="chooseCategory(category)">
+            <ToggleGroupRoot type="multiple" class="category-tiles" :aria-label="t('筛选点位分类')" :model-value="view.categories ?? categories" @update:model-value="values => view.categories = Array.isArray(values) ? values.filter((value): value is string => typeof value === 'string') : []">
+              <ToggleGroupItem v-for="category in categoryOrder" :key="category" :value="category">
                 <span class="category-symbol" :class="categoryIcons[category] ?? 'i-lucide:map-pin'" aria-hidden="true" /><strong>{{ t(category === 'camp' ? '营地' : categoryLabels[category] ?? category) }}</strong><small>{{ !profile ? t('{count} 个地点', { count: categoryCounts[category]?.total ?? 0 }) : categoryCounts[category]?.unknown === categoryCounts[category]?.total ? t('手动记录') : t('{count} 待探索', { count: categoryCounts[category]?.remaining ?? 0 }) }}</small>
-              </button>
-            </div>
-            <PopoverRoot>
-              <PopoverTrigger class="all-categories-link">
-                {{ t('所有分类') }}<span class="i-lucide:arrow-up-right" aria-hidden="true" />
-              </PopoverTrigger><PopoverPortal>
-                <PopoverContent class="category-popover" :side-offset="12" side="right" :aria-label="t('筛选点位分类')">
-                  <div class="popover-heading">
-                    <strong>{{ t('显示哪些项目') }}</strong><div class="category-selection-actions">
-                      <button class="text-button" @click="view.categories = null">
-                        {{ t('全选') }}
-                      </button><button class="text-button" @click="view.categories = []">
-                        {{ t('清空') }}
-                      </button>
-                    </div>
-                  </div><div class="category-checks">
-                    <label v-for="c in categories" :key="c"><CheckboxRoot :model-value="view.categories === null || view.categories.includes(c)" class="checkbox" @update:model-value="value => toggleCategory(c, value === true)"><CheckboxIndicator>✓</CheckboxIndicator></CheckboxRoot>{{ t(categoryLabels[c] ?? c) }}</label>
-                  </div>
-                </PopoverContent>
-              </PopoverPortal>
-            </PopoverRoot>
+              </ToggleGroupItem>
+            </ToggleGroupRoot>
           </TabsContent>
           <TabsContent value="results" class="results-content">
             <div class="result-filters">
@@ -276,8 +254,6 @@ async function remove(id: string) {
             <div v-if="view.categories?.length" class="active-categories">
               <button v-for="category in view.categories" :key="category" @click="chooseCategory(category)">
                 {{ t(category === 'camp' ? '营地' : categoryLabels[category] ?? category) }}
-              </button><button class="text-button" @click="view.categories = null">
-                {{ t('全部') }}
               </button>
             </div>
             <section class="point-list" :aria-label="t('探索点位列表')">

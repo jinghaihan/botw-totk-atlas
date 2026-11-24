@@ -454,6 +454,28 @@ button:hover:not(:disabled) {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 6px;
 }
+.exploration-panel.is-category-grid {
+  width: min(650px, calc(100vw - 40px));
+}
+.is-category-grid .category-tiles {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+@media (min-width: 761px) and (max-width: 1100px) {
+  .exploration-panel.is-category-grid {
+    width: 460px;
+  }
+  .is-category-grid .category-tiles {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+@media (max-width: 760px) {
+  .exploration-panel.is-category-grid {
+    width: min(420px, calc(100vw - 24px));
+  }
+  .is-category-grid .category-tiles {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
 .category-tiles button {
   min-width: 0;
   min-height: 88px;
@@ -489,17 +511,6 @@ button:hover:not(:disabled) {
   font-size: 9px;
   color: #879178;
   font-variant-numeric: tabular-nums;
-}
-.all-categories-link {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  padding: 14px 5px;
-  width: 100%;
-  background: transparent;
-  color: #6f7f5f;
-  font-size: 11px;
 }
 .routes-heading {
   margin-top: 8px;
@@ -1092,9 +1103,7 @@ button:hover:not(:disabled) {
   background: #e8eddd;
   color: #3c5f35;
 }
-.category-popover,
-.filter-popover,
-.data-popover {
+.filter-popover {
   z-index: 90;
   background: #fbf9f1;
   border: 1px solid #e0e3d3;
@@ -1102,34 +1111,6 @@ button:hover:not(:disabled) {
   border-radius: 8px;
   box-shadow: 0 10px 40px #142c2230;
   max-width: calc(100vw - 32px);
-}
-.category-popover {
-  width: 420px;
-  max-height: min(70dvh, 600px);
-  overflow: auto;
-}
-.popover-heading {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 19px;
-  font-size: 13px;
-}
-.category-selection-actions {
-  display: flex;
-  gap: 8px;
-}
-.category-checks {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px 13px;
-}
-.category-checks label {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  font-size: 12px;
-  color: #738366;
 }
 .checkbox {
   width: 17px;
@@ -1149,12 +1130,6 @@ button:hover:not(:disabled) {
   display: grid;
   gap: 18px;
   width: 250px;
-}
-.data-popover {
-  width: 290px;
-  font-size: 12px;
-  color: #7c886b;
-  line-height: 1.9;
 }
 .check-label,
 .point-detail .check-label {
@@ -1791,9 +1766,6 @@ button:hover:not(:disabled) {
   .panel-section-heading > span {
     font-size: 9px;
   }
-  .all-categories-link {
-    padding: 11px 5px;
-  }
   .routes-heading {
     margin-top: 3px;
     padding-top: 13px;
@@ -1917,16 +1889,6 @@ button:hover:not(:disabled) {
   }
   .inline-fields input {
     flex: 1 1 100%;
-  }
-  .category-popover {
-    width: calc(100vw - 24px);
-    padding: 20px;
-  }
-  .category-checks {
-    gap: 13px;
-  }
-  .category-checks label {
-    font-size: 11px;
   }
   .app-error {
     top: 120px;

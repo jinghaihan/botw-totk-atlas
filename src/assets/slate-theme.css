@@ -120,9 +120,6 @@ html[data-game='botw'] .category-symbol {
 .category-tiles small {
   color: #7a8492;
 }
-.all-categories-link {
-  color: #a3aab3;
-}
 .routes-heading {
   border-color: var(--line);
 }
@@ -333,9 +330,7 @@ html[data-game='botw'] .category-symbol {
   color: #aab0b9;
 }
 .select-menu,
-.category-popover,
-.filter-popover,
-.data-popover {
+.filter-popover {
   background: #23262bf7;
   color: #c3d0bc;
   border-color: #8d96a24f;
@@ -344,9 +339,6 @@ html[data-game='botw'] .category-symbol {
 .select-item[data-highlighted] {
   background: #9ea6b019;
   color: #e0e8d2;
-}
-.category-checks label {
-  color: #a1a8b2;
 }
 .checkbox {
   background: #191b1e;
@@ -363,9 +355,6 @@ html[data-game='botw'] .category-symbol {
 }
 .text-button {
   color: #a9bc97;
-}
-.data-popover {
-  color: #9ea6b0;
 }
 .dialog-overlay {
   background: #0d0f109c;
