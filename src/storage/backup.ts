@@ -24,7 +24,7 @@ export const backupSchema = z.object({
   profiles: z.array(z.object({ id, name: z.string().min(1).max(80), game: z.enum(['botw', 'totk']), mode: z.enum(['normal', 'master', 'unknown']), updatedAt: z.iso.datetime(), snapshot: snapshot.optional(), completionTimes: z.record(id, z.iso.datetime()).optional() })).max(100),
   annotations: z.array(z.object({ profileId: id, pointId: id, status: z.enum(['complete', 'incomplete', 'unknown']).optional().transform(status => status === 'unknown' ? undefined : status), updatedAt: z.iso.datetime(), completedAt: z.iso.datetime().optional() })).max(100000),
   imports: z.array(z.object({ profileId: id, importedAt: z.iso.datetime(), filename: text, fingerprint: text, initial: z.boolean(), changes: z.array(change), regressions: z.array(change).optional() })).max(10000),
-  views: z.array(z.object({ profileId: id, categories: z.array(id).nullable(), status: z.enum(['all', 'complete', 'incomplete', 'unknown', 'found-unfinished', 'shrine-chests']).transform(status => status === 'unknown' ? 'incomplete' : status), layer: z.enum(['surface', 'sky', 'depths']), search: text, region: text.optional() })).max(100),
+  views: z.array(z.object({ profileId: id, categories: z.array(id).nullable(), status: z.enum(['all', 'complete', 'incomplete', 'unknown', 'found-unfinished', 'shrine-chests']).transform(status => status === 'unknown' ? 'incomplete' : status), layer: z.enum(['surface', 'sky', 'depths']), search: text })).max(100),
 }).superRefine((backup, ctx) => {
   const ids = new Set(backup.profiles.map(p => p.id))
   if (ids.size !== backup.profiles.length)

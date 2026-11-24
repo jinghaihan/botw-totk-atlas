@@ -351,22 +351,9 @@ button:hover:not(:disabled) {
 .exploration-filters .atlas-search {
   margin: 0;
 }
-.filter-fields,
 .filter-layers {
   display: flex;
   gap: 6px;
-}
-.filter-fields .filter-trigger {
-  flex: 1 1 0;
-  min-width: 0;
-  font-size: 11px;
-  padding: 8px 9px;
-}
-.filter-fields .filter-trigger > span:first-child {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: normal;
 }
 .filter-layers button {
   border: 1px solid var(--line);

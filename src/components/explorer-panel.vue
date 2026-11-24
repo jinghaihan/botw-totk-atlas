@@ -10,7 +10,6 @@ import { categoryDisplayOrder, categoryLabel, loadCatalog } from '@/games/catalo
 import { categoryIcon } from '@/games/category-icons'
 import { currentLocale, tr as t } from '@/modules/i18n'
 import { db, listAnnotations, putAnnotation } from '@/storage/profiles'
-import AtlasSelect from './atlas-select.vue'
 import PointDetail from './point-detail.vue'
 import WorldMap from './world-map.vue'
 
@@ -37,7 +36,7 @@ const selected = ref('')
 const detailOpen = ref(false)
 const detailFromChecklist = ref(false)
 const focus = ref<[number, number]>()
-const defaultView = (profileId: string): ProfileView => ({ profileId, categories: props.profile ? ['shrine', 'korok', 'chest'] : ['shrine'], status: 'incomplete', layer: 'surface', search: '', region: 'all' })
+const defaultView = (profileId: string): ProfileView => ({ profileId, categories: props.profile ? ['shrine', 'korok', 'chest'] : ['shrine'], status: 'incomplete', layer: 'surface', search: '' })
 const view = ref(defaultView(props.profile?.id ?? `browse:${props.game}`))
 const points = computed(() => catalog.value.map(gameLabels.localize))
 const rows = computed(() => resolveRows(props.profile?.snapshot, points.value, annotations.value))
@@ -45,7 +44,6 @@ const explorationRows = computed(() => rows.value.filter(({ point, automatic }) 
   point.at && !point.interior && (point.category !== 'location' || !props.profile?.snapshot || automatic !== undefined),
 ))
 const categories = computed(() => [...new Set(explorationRows.value.map(row => row.point.category))].sort((a, b) => categoryName(a).localeCompare(categoryName(b), currentLocale.value)))
-const regions = computed(() => [{ value: 'all', label: t('explore.all-regions') }, ...[...new Set(explorationRows.value.map(row => row.point.region).filter((r): r is string => !!r))].sort().map(r => ({ value: r, label: gameLabels.text(r) }))])
 const filtered = computed(() => filterRows(explorationRows.value, view.value, true))
 const categoryProgress = computed(() => {
   const counts = new Map<string, { done: number, total: number }>()
@@ -93,7 +91,13 @@ async function load() {
       return
     catalog.value = data
     annotations.value = records
-    view.value = savedView ? { ...savedView, status: savedView.status === 'all' ? 'all' : 'incomplete' } : defaultView(profileId ?? `browse:${props.game}`)
+    if (savedView) {
+      const { profileId, categories, layer, search, status } = savedView
+      view.value = { profileId, categories, layer, search, status: status === 'all' ? 'all' : 'incomplete' }
+    }
+    else {
+      view.value = defaultView(profileId ?? (`browse:${props.game}`))
+    }
     if (view.value.categories?.length) {
       const available = new Set(data.filter(point => point.at && !point.interior).map(point => point.category))
       const selected = view.value.categories.filter(category => available.has(category))
@@ -111,7 +115,7 @@ async function load() {
   }
 }
 watch(() => [props.profile?.id, props.game], load, { immediate: true })
-watch(() => [view.value.search, view.value.categories?.join(), view.value.region, view.value.layer, view.value.status], () => {
+watch(() => [view.value.search, view.value.categories?.join(), view.value.layer, view.value.status], () => {
   completionUndo.value = new Map()
   page.value = 1
 })
@@ -222,9 +226,6 @@ async function toggleChecklistCompletion(row: ProgressRow) {
         <template v-else-if="!error || catalog.length">
           <div class="exploration-filters">
             <label class="atlas-search"><span class="i-lucide:search" aria-hidden="true" /><input v-model="view.search" name="places" autocomplete="off" :aria-label="t('explore.search')" :placeholder="t('explore.search-placeholder')"><button v-if="view.search" class="icon-button" :aria-label="t('explore.clear-search')" @click="view.search = ''"><span class="i-lucide:x" aria-hidden="true" /></button></label>
-            <div class="filter-fields">
-              <AtlasSelect :model-value="view.region ?? 'all'" :label="t('explore.region-filter')" :options="regions" @update:model-value="view.region = $event" />
-            </div>
             <ToggleGroupRoot v-if="game === 'totk'" :model-value="view.layer" type="single" class="filter-layers" :aria-label="t('map.layers')" @update:model-value="value => { if (value === 'sky' || value === 'surface' || value === 'depths') view.layer = value }">
               <ToggleGroupItem value="sky">
                 {{ t('map.sky') }}

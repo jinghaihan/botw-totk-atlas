@@ -10,7 +10,7 @@ Import a save, keep separate profiles for each playthrough, and find what remain
 
 ## Features
 
-- Interactive maps for BOTW and TOTK's Sky, Surface, and Depths, with category, region, and text filters.
+- Interactive maps for BOTW and TOTK's Sky, Surface, and Depths, with category and text filters.
 - Separate profiles for BOTW Normal Mode, BOTW Master Mode, and TOTK.
 - Import a save file or a folder. Folder imports can detect BOTW mode from companion metadata.
 - Browse both maps without a save, or create a profile and mark progress by hand.

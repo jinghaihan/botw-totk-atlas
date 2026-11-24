@@ -30,7 +30,6 @@ export interface ProfileView {
   status: 'all' | 'incomplete' | 'complete' | 'found-unfinished' | 'shrine-chests'
   layer: 'surface' | 'sky' | 'depths'
   search: string
-  region?: string
 }
 
 export const db = new Dexie('wilds-atlas') as Dexie & {

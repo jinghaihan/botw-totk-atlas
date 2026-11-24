@@ -103,7 +103,6 @@
     "totk-missing-field": "This TOTK save is missing {name}."
   },
   "explore": {
-    "all-regions": "All regions",
     "all-statuses": "All statuses",
     "back": "Back to exploring",
     "category": "Categories",
@@ -120,7 +119,6 @@
     "place-count": "{count} places",
     "point-list": "Exploration checklist",
     "progress-filter": "Progress filter",
-    "region-filter": "Region filter",
     "remaining": "remaining",
     "remaining-count": "{count} remaining",
     "search": "Search exploration records",

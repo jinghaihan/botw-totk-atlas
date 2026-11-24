@@ -33,8 +33,6 @@ export function filterRows(rows: ProgressRow[], view: Omit<ProfileView, 'profile
     const p = row.point
     if (view.categories !== null && !view.categories.includes(p.category))
       return false
-    if (view.region && view.region !== 'all' && p.region !== view.region)
-      return false
     if (spatial && (!p.at || p.interior || (p.layer ?? 'surface') !== view.layer))
       return false
     if (query && !`${p.name} ${(p.aliases ?? []).join(' ')} ${p.id} ${p.detail ?? ''} ${p.region ?? ''}`.toLocaleLowerCase().includes(query))

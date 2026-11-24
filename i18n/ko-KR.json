@@ -103,7 +103,6 @@
     "totk-missing-field": "저장 데이터에 {name} 항목이 없습니다."
   },
   "explore": {
-    "all-regions": "모든 지역",
     "all-statuses": "모든 상태",
     "back": "탐색으로 돌아가기",
     "category": "분류",
@@ -120,7 +119,6 @@
     "place-count": "{count}곳",
     "point-list": "탐색 장소 목록",
     "progress-filter": "진행 상황 필터",
-    "region-filter": "지역 필터",
     "remaining": "미탐색",
     "remaining-count": "미탐색 {count}개",
     "search": "탐색 기록 검색",

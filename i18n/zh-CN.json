@@ -103,7 +103,6 @@
     "totk-missing-field": "当前存档缺少 {name}。"
   },
   "explore": {
-    "all-regions": "所有地区",
     "all-statuses": "全部状态",
     "back": "返回探索",
     "category": "分类",
@@ -120,7 +119,6 @@
     "place-count": "{count} 个地点",
     "point-list": "探索点位列表",
     "progress-filter": "进度筛选",
-    "region-filter": "地区筛选",
     "remaining": "待探索",
     "remaining-count": "{count} 待探索",
     "search": "搜索探索记录",

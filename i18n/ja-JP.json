@@ -103,7 +103,6 @@
     "totk-missing-field": "セーブデータに {name} がありません。"
   },
   "explore": {
-    "all-regions": "すべての地域",
     "all-statuses": "すべての状態",
     "back": "探索に戻る",
     "category": "カテゴリ",
@@ -120,7 +119,6 @@
     "place-count": "{count} か所",
     "point-list": "探索地点のリスト",
     "progress-filter": "進行状況で絞り込み",
-    "region-filter": "地域で絞り込み",
     "remaining": "未探索",
     "remaining-count": "未探索 {count} 件",
     "search": "探索記録を検索",
