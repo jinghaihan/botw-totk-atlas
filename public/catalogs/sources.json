@@ -6,7 +6,7 @@
       "game": "botw",
       "source": "https://raw.githubusercontent.com/jv-prado/hyrule-tracker/master/data/botw-world.json",
       "sha256": "2110bf326fcffe8465e2437b4675cd739f667621fd25c211e4318d62b62c70fe",
-      "points": 3922,
+      "points": 3797,
       "note": "Normalized flag semantics and shrine/chest relationships. Catalog coverage differs from official map percentage."
     },
     {

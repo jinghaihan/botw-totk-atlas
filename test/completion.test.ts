@@ -30,3 +30,13 @@ describe('completion evidence', () => {
     expect(reader.shrineChests(shrine, chests)).toMatchObject({ total: 2, opened: 1, complete: false })
   })
 })
+
+it('keeps individual tablets unknown until their overall quest is complete', () => {
+  const save = snapshot({ game: 'totk' })
+  const reader = createProgressReader(save)
+  const tablet: CatalogPoint = { id: 'tablet:a', category: 'tablet', name: 'Tablet', key: 'Step_ZonauReliefSearch', values: ['Complete'], rule: 'enum' }
+  save.scalars[String(reader.hash('Step_ZonauReliefSearch'))] = reader.hash('Research')
+  expect(reader.status(tablet)).toBe('unknown')
+  save.scalars[String(reader.hash('Step_ZonauReliefSearch'))] = reader.hash('Complete')
+  expect(reader.status(tablet)).toBe('complete')
+})

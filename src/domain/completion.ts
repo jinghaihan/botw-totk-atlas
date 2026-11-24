@@ -24,6 +24,8 @@ export function createProgressReader(snapshot: GameSnapshot) {
     const actual = value(point.key)
     if (actual === undefined)
       return 'unknown'
+    if (snapshot.game === 'totk' && point.category === 'tablet' && actual !== hash('Complete'))
+      return 'unknown'
     if (point.values?.length)
       return point.values.some(expected => hash(expected) === actual) ? 'complete' : 'incomplete'
     if (point.rule === 'positive')
