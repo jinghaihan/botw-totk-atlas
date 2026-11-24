@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import type { SaveProfile } from '@/storage/profiles'
 import { TabsContent, TabsList, TabsRoot, TabsTrigger } from 'reka-ui'
-import AtlasSelect from '@/components/AtlasSelect.vue'
-import ImportDialog from '@/components/ImportDialog.vue'
-import ImportHistory from '@/components/ImportHistory.vue'
+import AtlasSelect from '@/components/atlas-select.vue'
+import ImportDialog from '@/components/import-dialog.vue'
+import ImportHistory from '@/components/import-history.vue'
 import LanguageToggle from '@/components/language-toggle.vue'
-import ProfileManager from '@/components/ProfileManager.vue'
-import SaveContents from '@/components/SaveContents.vue'
+import ProfileManager from '@/components/profile-manager.vue'
+import SaveContents from '@/components/save-contents.vue'
 import { loadCatalog } from '@/games/catalog'
 import { readSave } from '@/games/read-save'
 import { currentLocale, tr as t } from '@/modules/i18n'
@@ -14,7 +14,7 @@ import { listProfiles, saveProfile } from '@/storage/profiles'
 import './assets/atlas.css'
 import './assets/slate-theme.css'
 
-const ExplorerPanel = defineAsyncComponent(() => import('@/components/ExplorerPanel.vue'))
+const ExplorerPanel = defineAsyncComponent(() => import('@/components/explorer-panel.vue'))
 const profiles = shallowRef<SaveProfile[]>([])
 const activeId = useLocalStorage('wilds-atlas:active-profile', '')
 const current = computed(() => profiles.value.find(p => p.id === activeId.value))

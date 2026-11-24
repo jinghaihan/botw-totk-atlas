@@ -8,9 +8,9 @@ import { filterRows, resolveRows } from '@/domain/exploration'
 import { categoryLabels, loadCatalog, statusLabels } from '@/games/catalog'
 import { currentLocale, tr as t } from '@/modules/i18n'
 import { db, listAnnotations, putAnnotation } from '@/storage/profiles'
-import AtlasSelect from './AtlasSelect.vue'
-import PointDetail from './PointDetail.vue'
-import WorldMap from './WorldMap.vue'
+import AtlasSelect from './atlas-select.vue'
+import PointDetail from './point-detail.vue'
+import WorldMap from './world-map.vue'
 
 const props = defineProps<{ profile?: SaveProfile, game: GameId }>()
 const emit = defineEmits<{ import: [] }>()

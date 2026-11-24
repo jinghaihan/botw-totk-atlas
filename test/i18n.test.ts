@@ -9,7 +9,7 @@ describe('interface languages', () => {
   it('covers the same messages in Simplified Chinese, Traditional Chinese and English', () => {
     expect(Object.keys(tw)).toEqual(Object.keys(cn))
     expect(Object.keys(en)).toEqual(Object.keys(cn))
-    const files = ['src/App.vue', ...readdirSync('src/components').filter(p => p.endsWith('.vue')).map(p => `src/components/${p}`)]
+    const files = ['src/app.vue', ...readdirSync('src/components').filter(p => p.endsWith('.vue')).map(p => `src/components/${p}`)]
     for (const file of files) {
       for (const match of readFileSync(file, 'utf8').matchAll(/\bt\('([^']+)'/g)) {
         expect(Object.hasOwn(en, match[1]!), `${file}: ${match[1]}`).toBe(true)

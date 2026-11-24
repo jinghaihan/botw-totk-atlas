@@ -7,7 +7,7 @@ import { inspectSaveFolder } from '@/games/import-folder'
 import { readSave } from '@/games/read-save'
 import { currentLocale, tr as t } from '@/modules/i18n'
 import { db, saveProfile } from '@/storage/profiles'
-import AtlasSelect from './AtlasSelect.vue'
+import AtlasSelect from './atlas-select.vue'
 
 const props = defineProps<{ profiles: SaveProfile[] }>()
 const emit = defineEmits<{ imported: [profile: SaveProfile] }>()

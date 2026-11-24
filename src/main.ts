@@ -1,6 +1,6 @@
 import type { UserModule } from './types'
 import { createApp } from 'vue'
-import App from './App.vue'
+import App from './app.vue'
 import '@unocss/reset/tailwind.css'
 import 'uno.css'
 import '@/assets/main.css'

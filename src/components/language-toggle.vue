@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { currentLocale, loadLanguageAsync } from '@/modules/i18n'
-import AtlasSelect from './AtlasSelect.vue'
+import AtlasSelect from './atlas-select.vue'
 </script>
 
 <template>

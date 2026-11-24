@@ -4,13 +4,13 @@ Reviewed against the [Vercel Web Interface Guidelines](https://github.com/vercel
 
 ## Findings and changes
 
-- `src/App.vue`: the previous sidebar, large heading, file metadata and character cards pushed the map below an administration-style layout. The map now fills the viewport. Navigation and profile tools float above it; collection totals and import records have a separate collection view.
-- `src/components/ExplorerPanel.vue`: the long toolbar and permanent results list competed with the map. Exploration categories and explicit filters now live in one collapsible floating panel. Search opens the checklist. Mobile starts with the panel collapsed.
+- `src/app.vue`: the previous sidebar, large heading, file metadata and character cards pushed the map below an administration-style layout. The map now fills the viewport. Navigation and profile tools float above it; collection totals and import records have a separate collection view.
+- `src/components/explorer-panel.vue`: the long toolbar and permanent results list competed with the map. Exploration categories and explicit filters now live in one collapsible floating panel. Search opens the checklist. Mobile starts with the panel collapsed.
 - `src/assets/slate-theme.css`: the first redesign's pale paper surfaces did not match the map or navigation. Floating panels, menus, dialogs and journal views now share a dark translucent slate palette, restrained gold borders and black-and-gold highlights.
-- `src/components/PointDetail.vue`: the centered blocking dialog interrupted map exploration. Details now open alongside the map, using a nonmodal Reka Dialog, with a bottom sheet layout on mobile. Manual completion is directly available; secondary tracking options are collapsed. Custom marker deletion has confirmation.
-- `src/components/WorldMap.vue`: dense symbols obscured terrain on small screens. Leaflet.markercluster now groups them and expands as the map zooms. Marker titles provide accessible names. Tile imagery, notes and completion semantics are preserved.
-- `src/components/AtlasSelect.vue`: styling attributes were not reaching Reka's actual trigger. Explicit attribute forwarding fixes the profile selector's contrast and sizing.
-- `src/App.vue`: navigation tabs now follow the URL's `view` query parameter. The map remains mounted while opening the collection view, preserving the camera position.
+- `src/components/point-detail.vue`: the centered blocking dialog interrupted map exploration. Details now open alongside the map, using a nonmodal Reka Dialog, with a bottom sheet layout on mobile. Manual completion is directly available; secondary tracking options are collapsed. Custom marker deletion has confirmation.
+- `src/components/world-map.vue`: dense symbols obscured terrain on small screens. Leaflet.markercluster now groups them and expands as the map zooms. Marker titles provide accessible names. Tile imagery, notes and completion semantics are preserved.
+- `src/components/atlas-select.vue`: styling attributes were not reaching Reka's actual trigger. Explicit attribute forwarding fixes the profile selector's contrast and sizing.
+- `src/app.vue`: navigation tabs now follow the URL's `view` query parameter. The map remains mounted while opening the collection view, preserving the camera position.
 
 ## Verification
 

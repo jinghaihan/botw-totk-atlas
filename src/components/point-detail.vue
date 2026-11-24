@@ -5,7 +5,7 @@ import { AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDe
 import { coordinateLabel } from '@/domain/coordinates'
 import { categoryLabels, statusLabels } from '@/games/catalog'
 import { tr as t } from '@/modules/i18n'
-import AtlasSelect from './AtlasSelect.vue'
+import AtlasSelect from './atlas-select.vue'
 
 const props = defineProps<{ row?: ProgressRow, profileId?: string, children: ProgressRow[] }>()
 const emit = defineEmits<{ save: [annotation: PointAnnotation], locate: [point: CatalogPoint], select: [id: string], remove: [id: string], import: [] }>()
