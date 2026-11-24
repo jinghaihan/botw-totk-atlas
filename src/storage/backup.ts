@@ -18,7 +18,7 @@ const snapshot = z.object({
 })
 const change = z.object({ id, name: text })
 export const backupSchema = z.object({
-  format: z.literal('wilds-atlas'),
+  format: z.enum(['zelda-notes', 'wilds-atlas']),
   version: z.union([z.literal(1), z.literal(2)]),
   exportedAt: z.iso.datetime(),
   profiles: z.array(z.object({ id, name: z.string().min(1).max(80), game: z.enum(['botw', 'totk']), mode: z.enum(['normal', 'master', 'unknown']), updatedAt: z.iso.datetime(), snapshot })).max(100),
@@ -45,7 +45,7 @@ export const backupSchema = z.object({
 
 export async function exportBackup(profileId?: string) {
   return db.transaction('r', [db.profiles, db.annotations, db.imports, db.views, db.pins], async () => ({
-    format: 'wilds-atlas' as const,
+    format: 'zelda-notes' as const,
     version: 2 as const,
     exportedAt: new Date().toISOString(),
     profiles: (profileId ? await db.profiles.where('id').equals(profileId).toArray() : await db.profiles.toArray()).map(profile => ({ ...profile, snapshot: collectionSnapshot(profile.snapshot) })),

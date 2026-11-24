@@ -1,4 +1,4 @@
-# Wilds Atlas 开发计划
+# Zelda Notes 开发计划
 
 一个项目、一个在线网页，支持 BOTW 普通模式、BOTW 大师模式及 TOTK 的多个独立 Profile。浏览器本地读取用户导入的存档，将已完成和未完成的项目对应到地图；地图与点位数据由网站提供，使用者无需安装 Recomp 或提供游戏资源。
 
@@ -55,7 +55,7 @@ src/
 
 先确认页面布局和双游戏主题，让用户尽早看到效果。演示数据明确标识，与真实导入结果区分。
 
-- `chore: bootstrap wilds-atlas from starter-vue`
+- `chore: bootstrap zelda-wilds-notes from starter-vue`
 - `refactor: remove unused routing and state management`
 - `docs: define development milestones and visual direction`
 - `feat: define game and collection contracts`

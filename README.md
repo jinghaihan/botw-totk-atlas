@@ -1,4 +1,4 @@
-# Wilds Atlas
+# Zelda Notes
 
 A local-first exploration atlas for **Breath of the Wild** and **Tears of the Kingdom**.
 

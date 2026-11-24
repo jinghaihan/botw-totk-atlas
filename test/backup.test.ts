@@ -15,7 +15,7 @@ describe('portable backups', () => {
     const backup = await exportBackup()
     const [emptyId] = await restoreBackup(backup)
     expect((await db.views.get(emptyId!))?.categories).toEqual([])
-    const [legacyId] = await restoreBackup({ ...backup, version: 1 })
+    const [legacyId] = await restoreBackup({ ...backup, version: 1, format: 'wilds-atlas' })
     expect((await db.views.get(legacyId!))?.categories).toBeNull()
     await db.views.update(profile.id, { categories: null })
     const [allId] = await restoreBackup(await exportBackup(profile.id))

@@ -1,4 +1,4 @@
-# Wilds Atlas 视觉方向
+# Zelda Notes 视觉方向
 
 整体采用 BOTW／TOTK 平板地图界面的视觉语言。地图为主体，Profile、筛选、详情和收集清单围绕地图组织。进入不同游戏的 Profile 时使用对应主题，共享布局和操作方式。
 

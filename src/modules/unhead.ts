@@ -18,7 +18,7 @@ export const install: UserModule = ({ app }) => {
           {
             rel: 'icon',
             type: 'image/svg+xml',
-            href: () => dataUrl('favicon.svg?v=atlas'),
+            href: () => dataUrl('favicon.svg?v=zelda-notes'),
           },
         ],
       },

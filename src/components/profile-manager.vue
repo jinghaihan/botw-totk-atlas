@@ -59,7 +59,7 @@ function download(profileId?: string) {
     const url = URL.createObjectURL(new Blob([JSON.stringify(content)], { type: 'application/json' }))
     const a = document.createElement('a')
     a.href = url
-    a.download = `wilds-atlas-${new Date().toISOString().slice(0, 10)}.json`
+    a.download = `zelda-notes-${new Date().toISOString().slice(0, 10)}.json`
     a.click()
     setTimeout(() => URL.revokeObjectURL(url), 1000)
     success.value = profileId ? t('Profile 备份已导出。') : t('备份已导出，包含所有 Profile、笔记、自建营地和导入历史。')
@@ -114,7 +114,7 @@ function restore() {
         <div class="backup-controls">
           <h3>{{ t('备份与恢复') }}</h3><p>{{ t('数据保存在当前浏览器，清理网站数据会移除这些档案。') }}</p><button class="button secondary" :disabled="busy || !profiles.length" @click="download()">
             {{ t('导出全部档案') }}
-          </button><label class="backup-input">{{ t('选择 Wilds Atlas 备份') }}<input type="file" accept=".json,application/json" :disabled="busy" @change="chooseBackup"></label><div v-if="backup">
+          </button><label class="backup-input">{{ t('选择 Zelda Notes 备份') }}<input type="file" accept=".json,application/json" :disabled="busy" @change="chooseBackup"></label><div v-if="backup">
             <p>{{ t('将新增 {count} 个 Profile：{names}', { count: backupNames.length, names: backupNames.join(' / ') }) }}</p><button class="button primary" :disabled="busy" @click="restore">
               {{ t('恢复为独立副本') }}
             </button>
