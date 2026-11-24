@@ -70,9 +70,13 @@ function chooseCategory(category: string) {
   view.value.search = ''
   panelTab.value = 'results'
 }
+function toggleCategory(category: string, checked: boolean) {
+  const selected = view.value.categories ?? categories.value
+  view.value.categories = checked ? [...new Set([...selected, category])] : selected.filter(id => id !== category)
+}
 function resetFilters() {
   view.value.status = 'all'
-  view.value.categories = []
+  view.value.categories = null
   view.value.search = ''
   view.value.region = 'all'
 }
@@ -110,7 +114,7 @@ async function load() {
   }
 }
 watch(() => [props.profile?.id, props.game], load, { immediate: true })
-watch(() => [view.value.search, view.value.status, view.value.categories.join(), view.value.region, view.value.layer, view.value.hideIgnored], () => {
+watch(() => [view.value.search, view.value.status, view.value.categories?.join(), view.value.region, view.value.layer, view.value.hideIgnored], () => {
   page.value = 1
 })
 watch(() => view.value.status, (status) => {
@@ -231,7 +235,7 @@ async function remove(id: string) {
               <h2>{{ t('寻找下一站') }}</h2><span>{{ t('按类型探索') }}</span>
             </div>
             <div class="category-tiles">
-              <button v-for="category in highlights" :key="category" :aria-pressed="view.categories.includes(category)" @click="chooseCategory(category)">
+              <button v-for="category in highlights" :key="category" :aria-pressed="view.categories === null || view.categories.includes(category)" @click="chooseCategory(category)">
                 <span class="category-symbol" :class="categoryIcons[category] ?? 'i-lucide:map-pin'" aria-hidden="true" /><strong>{{ t(category === 'camp' ? '营地' : categoryLabels[category] ?? category) }}</strong><small>{{ !profile ? t('{count} 个地点', { count: categoryCounts[category]?.total ?? 0 }) : categoryCounts[category]?.unknown === categoryCounts[category]?.total ? t('手动记录') : t('{count} 待探索', { count: categoryCounts[category]?.remaining ?? 0 }) }}</small>
               </button>
             </div>
@@ -241,11 +245,15 @@ async function remove(id: string) {
               </PopoverTrigger><PopoverPortal>
                 <PopoverContent class="category-popover" :side-offset="12" side="right" :aria-label="t('筛选点位分类')">
                   <div class="popover-heading">
-                    <strong>{{ t('显示哪些项目') }}</strong><button class="text-button" @click="view.categories = []">
-                      {{ t('全部') }}
-                    </button>
+                    <strong>{{ t('显示哪些项目') }}</strong><div class="category-selection-actions">
+                      <button class="text-button" @click="view.categories = null">
+                        {{ t('全选') }}
+                      </button><button class="text-button" @click="view.categories = []">
+                        {{ t('清空') }}
+                      </button>
+                    </div>
                   </div><div class="category-checks">
-                    <label v-for="c in categories" :key="c"><CheckboxRoot :model-value="view.categories.includes(c)" class="checkbox" @update:model-value="value => view.categories = value ? [...view.categories, c] : view.categories.filter(id => id !== c)"><CheckboxIndicator>✓</CheckboxIndicator></CheckboxRoot>{{ t(categoryLabels[c] ?? c) }}</label>
+                    <label v-for="c in categories" :key="c"><CheckboxRoot :model-value="view.categories === null || view.categories.includes(c)" class="checkbox" @update:model-value="value => toggleCategory(c, value === true)"><CheckboxIndicator>✓</CheckboxIndicator></CheckboxRoot>{{ t(categoryLabels[c] ?? c) }}</label>
                   </div>
                 </PopoverContent>
               </PopoverPortal>
@@ -265,10 +273,10 @@ async function remove(id: string) {
                 </PopoverPortal>
               </PopoverRoot>
             </div>
-            <div v-if="view.categories.length" class="active-categories">
+            <div v-if="view.categories?.length" class="active-categories">
               <button v-for="category in view.categories" :key="category" @click="chooseCategory(category)">
                 {{ t(category === 'camp' ? '营地' : categoryLabels[category] ?? category) }}
-              </button><button class="text-button" @click="view.categories = []">
+              </button><button class="text-button" @click="view.categories = null">
                 {{ t('全部') }}
               </button>
             </div>
@@ -299,15 +307,7 @@ async function remove(id: string) {
           </TabsContent>
         </TabsRoot>
         <footer class="panel-footnote">
-          <span class="i-lucide:hard-drive" aria-hidden="true" /><span>{{ profile ? t('你的记录仅保存在此设备') : t('导入存档后显示收集进度') }}</span><PopoverRoot>
-            <PopoverTrigger class="icon-button" :aria-label="t('关于地图数据')">
-              <span class="i-lucide:info" aria-hidden="true" />
-            </PopoverTrigger><PopoverPortal>
-              <PopoverContent class="data-popover" :side-offset="10">
-                {{ t('宝箱与收集点来自社区目录。未知字段保留为未知；营地只预置部分宝箱关联点，可自行补充。清单数量不等于游戏地图完成率。') }}
-              </PopoverContent>
-            </PopoverPortal>
-          </PopoverRoot>
+          <span class="i-lucide:hard-drive" aria-hidden="true" /><span>{{ profile ? t('你的记录仅保存在此设备') : t('导入存档后显示收集进度') }}</span>
         </footer>
       </CollapsibleContent>
     </CollapsibleRoot>

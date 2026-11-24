@@ -1113,6 +1113,10 @@ button:hover:not(:disabled) {
   margin-bottom: 19px;
   font-size: 13px;
 }
+.category-selection-actions {
+  display: flex;
+  gap: 8px;
+}
 .category-checks {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

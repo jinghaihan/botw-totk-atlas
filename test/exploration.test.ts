@@ -5,8 +5,14 @@ import { mapToWorld, worldToMap } from '@/domain/coordinates'
 import { filterRows, resolveRows } from '@/domain/exploration'
 import { snapshot } from './helpers/snapshot'
 
-const view = { categories: [] as string[], status: 'all' as const, layer: 'surface' as const, hideIgnored: true, search: '' }
+const view = { categories: null, status: 'all' as const, layer: 'surface' as const, hideIgnored: true, search: '' }
 describe('exploration filters', () => {
+  it('distinguishes all categories, a subset and no categories', () => {
+    const rows = resolveRows(undefined, [{ id: 'a', name: 'a', category: 'shrine' }, { id: 'b', name: 'b', category: 'chest' }], [])
+    expect(filterRows(rows, view)).toHaveLength(2)
+    expect(filterRows(rows, { ...view, categories: ['chest'] }).map(row => row.point.id)).toEqual(['b'])
+    expect(filterRows(rows, { ...view, categories: [] })).toHaveLength(0)
+  })
   it('keeps a manual override distinct from automatic evidence', () => {
     const save = snapshot()
     const point: CatalogPoint = { id: 'p', name: '点位', category: 'camp', key: 'flag' }

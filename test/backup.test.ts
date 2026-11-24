@@ -9,6 +9,18 @@ beforeEach(async () => {
   })
 })
 describe('portable backups', () => {
+  it('preserves no-category selections and converts legacy all-category selections', async () => {
+    const profile = await saveProfile(snapshot(), 'filters')
+    await db.views.put({ profileId: profile.id, categories: [], status: 'all', layer: 'surface', hideIgnored: true, search: '' })
+    const backup = await exportBackup()
+    const [emptyId] = await restoreBackup(backup)
+    expect((await db.views.get(emptyId!))?.categories).toEqual([])
+    const [legacyId] = await restoreBackup({ ...backup, version: 1 })
+    expect((await db.views.get(legacyId!))?.categories).toBeNull()
+    await db.views.update(profile.id, { categories: null })
+    const [allId] = await restoreBackup(await exportBackup(profile.id))
+    expect((await db.views.get(allId!))?.categories).toBeNull()
+  })
   it('restores independent copies and remaps custom point annotations', async () => {
     const original = await saveProfile(snapshot(), '我的周目')
     await db.pins.add({ id: 'custom:old', profileId: original.id, category: 'camp', name: '营地', at: [123, -456], layer: 'surface', rule: 'manual' })

@@ -34,7 +34,7 @@ export function filterRows(rows: ProgressRow[], view: Omit<ProfileView, 'profile
     const p = row.point
     if (view.hideIgnored && row.annotation?.ignored)
       return false
-    if (view.categories.length && !view.categories.includes(p.category))
+    if (view.categories !== null && !view.categories.includes(p.category))
       return false
     if (view.region && view.region !== 'all' && p.region !== view.region)
       return false

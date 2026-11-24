@@ -24,7 +24,7 @@ export interface ImportRecord {
 }
 export interface ProfileView {
   profileId: string
-  categories: string[]
+  categories: string[] | null
   status: 'all' | 'incomplete' | 'complete' | 'unknown' | 'found-unfinished' | 'shrine-chests'
   layer: 'surface' | 'sky' | 'depths'
   hideIgnored: boolean
@@ -55,6 +55,12 @@ db.version(3).stores({ pins: '&id, profileId' })
 db.version(4).stores({}).upgrade((transaction) => {
   return transaction.table('profiles').toCollection().modify((profile) => {
     profile.snapshot = collectionSnapshot(profile.snapshot)
+  })
+})
+db.version(5).stores({}).upgrade((transaction) => {
+  return transaction.table('views').toCollection().modify((view) => {
+    if (view.categories?.length === 0)
+      view.categories = null
   })
 })
 
