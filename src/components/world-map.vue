@@ -70,10 +70,10 @@ function resetView() {
   map?.setView([0, 0], 3.5)
 }
 function locate() {
+  focusMarker?.remove()
   if (!map || !props.focus)
     return
   map.setView(worldToMap(props.focus), Math.max(map.getZoom(), 6))
-  focusMarker?.remove()
   focusMarker = L.circleMarker(worldToMap(props.focus), { radius: 15, color: '#e2cb8e', fillOpacity: 0, weight: 2, interactive: false }).addTo(map)
 }
 watch(() => [props.game, props.layer], base)

@@ -139,6 +139,8 @@ async function save(annotation: PointAnnotation) {
     await putAnnotation(annotation)
     if (annotation.profileId === props.profile?.id) {
       annotations.value = await listAnnotations(props.profile?.id)
+      if (!filtered.value.some(row => row.point.id === annotation.pointId))
+        focus.value = undefined
       detailOpen.value = false
     }
   }

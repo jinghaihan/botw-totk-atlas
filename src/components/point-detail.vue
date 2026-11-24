@@ -65,7 +65,7 @@ function save() {
         <form v-if="profileId" @submit.prevent="save">
           <label>{{ t('冒险笔记') }}<textarea v-model="note" name="point-note" autocomplete="off" maxlength="4000" rows="3" :placeholder="t('记下路线、想法或稍后要做的事…')" /></label>
           <details class="tracking-options">
-            <summary>{{ t('记录选项') }}<span class="i-lucide:chevron-down" aria-hidden="true" /></summary><AtlasSelect v-model="status" :label="t('完成状态')" :options="[{ value: 'auto', label: t('跟随存档记录') }, { value: 'complete', label: t('手动：已完成') }, { value: 'incomplete', label: t('手动：未完成') }, { value: 'unknown', label: t('手动：待确认') }]" /><label class="check-label"><input v-model="ignored" type="checkbox">{{ t('忽略此项目（可从筛选中恢复显示）') }}</label><p class="automatic-evidence">
+            <summary>{{ t('记录选项') }}<span class="i-lucide:chevron-down" aria-hidden="true" /></summary><AtlasSelect v-model="status" :label="t('完成状态')" :options="[{ value: 'auto', label: t(row.point.category === 'lynel' ? '默认未完成' : '跟随存档记录') }, { value: 'complete', label: t('手动：已完成') }, { value: 'incomplete', label: t('手动：未完成') }, { value: 'unknown', label: t('手动：待确认') }]" /><label class="check-label"><input v-model="ignored" type="checkbox">{{ t('忽略此项目（可从筛选中恢复显示）') }}</label><p v-if="row.point.category !== 'lynel'" class="automatic-evidence">
               {{ t('存档记录：') }}{{ t(statusLabels[row.automatic]) }}
             </p><p v-if="row.annotation?.status && row.annotation.status !== row.automatic && row.automatic !== 'unknown'" class="conflict">
               {{ t('手动记录与当前存档不同，已保留你的选择。') }}

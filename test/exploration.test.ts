@@ -21,6 +21,16 @@ describe('exploration filters', () => {
     expect(rows[0]).toMatchObject({ automatic: 'complete', status: 'incomplete' })
     expect(filterRows(rows, { ...view, search: '路线 A', status: 'incomplete' })).toHaveLength(1)
   })
+  it('shows unmarked Lynels in the default unfinished view until marked complete', () => {
+    const lynel: CatalogPoint = { id: 'lynel:1', name: 'Lynel', category: 'lynel', at: [0, 0], rule: 'manual' }
+    const camp: CatalogPoint = { id: 'camp:1', name: 'Camp', category: 'camp', at: [0, 0], rule: 'manual' }
+    const unfinished = { ...view, status: 'incomplete' as const }
+    const save = snapshot()
+    const rows = resolveRows(save, [lynel, camp], [])
+    expect(filterRows(rows, unfinished, true)).toMatchObject([{ point: lynel, automatic: 'unknown', status: 'incomplete' }])
+    const marked = resolveRows(save, [lynel, camp], [{ profileId: 'a', pointId: lynel.id, status: 'complete', ignored: false, note: '', updatedAt: new Date().toISOString() }])
+    expect(filterRows(marked, unfinished, true)).toEqual([])
+  })
   it('finds cleared shrines with unclaimed chests without treating unknown as missing', () => {
     const save = snapshot()
     const reader = createProgressReader(save)

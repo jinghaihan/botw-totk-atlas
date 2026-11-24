@@ -10,9 +10,13 @@ export interface ProgressRow {
   found: boolean
   chests?: { total: number | null, opened: number | null, complete: boolean | undefined }
 }
+function untrackedStatus(point: CatalogPoint): PointStatus {
+  return point.category === 'lynel' ? 'incomplete' : 'unknown'
+}
+
 export function resolveRows(snapshot: GameSnapshot | undefined, points: CatalogPoint[], annotations: PointAnnotation[]): ProgressRow[] {
   if (!snapshot)
-    return points.map(point => ({ point, automatic: 'unknown', status: 'unknown', found: false }))
+    return points.map(point => ({ point, automatic: 'unknown', status: untrackedStatus(point), found: false }))
   const reader = createProgressReader(snapshot)
   const notes = new Map(annotations.map(a => [a.pointId, a]))
   // Index children once; avoid scanning thousands of chests per shrine and filter update.
@@ -24,7 +28,8 @@ export function resolveRows(snapshot: GameSnapshot | undefined, points: CatalogP
   return points.map((point) => {
     const automatic = reader.status(point)
     const annotation = notes.get(point.id)
-    return { point, automatic, status: annotation?.status ?? automatic, annotation, found: reader.found(point), ...(point.category === 'shrine' ? { chests: reader.shrineChests(point, children.get(point.id) ?? []) } : {}) }
+    const status = annotation?.status ?? (automatic === 'unknown' ? untrackedStatus(point) : automatic)
+    return { point, automatic, status, annotation, found: reader.found(point), ...(point.category === 'shrine' ? { chests: reader.shrineChests(point, children.get(point.id) ?? []) } : {}) }
   })
 }
 
