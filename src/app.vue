@@ -11,7 +11,7 @@ import { loadCatalog } from '@/games/catalog'
 import { readSave } from '@/games/read-save'
 import { tr as t } from '@/modules/i18n'
 import { listProfiles, saveProfile } from '@/storage/profiles'
-import './assets/atlas.css'
+import './assets/app.css'
 import './assets/slate-theme.css'
 
 const ExplorerPanel = defineAsyncComponent(() => import('@/components/explorer-panel.vue'))
