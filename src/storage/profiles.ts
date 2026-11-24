@@ -12,6 +12,7 @@ export interface SaveProfile {
   mode: GameMode
   updatedAt: string
   snapshot?: GameSnapshot
+  completionTimes?: Record<string, string>
 }
 export interface ImportRecord {
   id?: number
@@ -106,6 +107,14 @@ export function saveProfile(snapshot: GameSnapshot, name: string, id?: string, m
     const normalizedName = name.trim() || `${snapshot.game.toUpperCase()} · ${mode === 'master' ? '大师模式' : mode === 'normal' ? '普通模式' : '存档'}`
     if (normalizedName.length > 80)
       throw new AppError('error.profile-name-too-long')
+    const previous = existing?.snapshot
+    const changes = previous ? compareProgress(previous, snapshot, catalog) : []
+    const regressions = previous ? compareProgress(snapshot, previous, catalog) : []
+    const changedIds = new Set(changes.map(({ id }) => id))
+    const completionTimes = Object.fromEntries(compareProgress(undefined, snapshot, catalog).map(({ id }) => [
+      id,
+      previous && !changedIds.has(id) ? existing?.completionTimes?.[id] ?? previous.importedAt : snapshot.importedAt,
+    ]))
     const profile = {
       id: id ?? crypto.randomUUID(),
       name: normalizedName,
@@ -113,10 +122,8 @@ export function saveProfile(snapshot: GameSnapshot, name: string, id?: string, m
       mode: snapshot.game === 'totk' ? 'normal' : mode === 'unknown' ? existing?.mode ?? 'unknown' : mode,
       updatedAt: new Date().toISOString(),
       snapshot: collectionSnapshot(snapshot),
+      completionTimes,
     } satisfies SaveProfile
-    const previous = existing?.snapshot
-    const changes = previous ? compareProgress(previous, snapshot, catalog) : []
-    const regressions = previous ? compareProgress(snapshot, previous, catalog) : []
     await db.profiles.put(profile)
     await db.imports.add({ profileId: profile.id, importedAt: profile.updatedAt, filename: snapshot.filename, fingerprint: snapshot.fingerprint, initial: !previous, changes, regressions })
     return profile
@@ -141,10 +148,21 @@ export function listAnnotations(profileId: string) {
   return db.annotations.where('profileId').equals(profileId).toArray()
 }
 
-export async function putAnnotation(annotation: PointAnnotation) {
-  if (!await db.profiles.get(annotation.profileId))
-    throw new AppError('error.profile-missing')
-  await db.annotations.put(annotation)
+export function putAnnotation(annotation: PointAnnotation) {
+  return db.transaction('rw', db.profiles, db.annotations, async () => {
+    if (!await db.profiles.get(annotation.profileId))
+      throw new AppError('error.profile-missing')
+    if (!annotation.status) {
+      await db.annotations.delete([annotation.profileId, annotation.pointId])
+      return
+    }
+    const record = {
+      ...annotation,
+      completedAt: annotation.status === 'complete' ? annotation.completedAt ?? annotation.updatedAt : undefined,
+    }
+    await db.annotations.put(record)
+    return record
+  })
 }
 
 export function listImports(profileId: string) {

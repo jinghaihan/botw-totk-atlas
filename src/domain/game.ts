@@ -37,6 +37,7 @@ export interface PointAnnotation {
   profileId: string
   pointId: string
   status?: PointStatus
+  completedAt?: string
   updatedAt: string
 }
 

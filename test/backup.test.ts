@@ -17,7 +17,7 @@ describe('portable backups', () => {
     const [restoredId] = await restoreBackup(JSON.parse(JSON.stringify(backup)))
     expect(await db.profiles.get(restoredId!)).toMatchObject({ game: 'totk', mode: 'normal' })
     expect((await db.profiles.get(restoredId!))?.snapshot).toBeUndefined()
-    expect(await listAnnotations(restoredId!)).toMatchObject([{ pointId: 'chest:1', status: 'complete' }])
+    expect(await listAnnotations(restoredId!)).toMatchObject([{ pointId: 'chest:1', status: 'complete', completedAt: profile.updatedAt }])
     expect(backup.imports).toEqual([])
   })
 
