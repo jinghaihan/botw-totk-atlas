@@ -43,16 +43,15 @@
     "vue": "catalog:frontend",
     "vue-i18n": "catalog:frontend",
     "zod": "catalog:frontend",
+    "crc-32": "catalog:hash",
+    "murmurhash3js": "catalog:hash",
     "leaflet": "catalog:map",
-    "leaflet.markercluster": "catalog:map",
-    "crc-32": "catalog:utils",
-    "murmurhash3js": "catalog:utils"
+    "leaflet.markercluster": "catalog:map"
   },
   "devDependencies": {
     "@octohash/vite-config": "catalog:build",
     "vite": "catalog:build",
     "bumpp": "catalog:dev",
-    "opencc-js": "catalog:dev",
     "pncat": "catalog:dev",
     "simple-git-hooks": "catalog:dev",
     "taze": "catalog:dev",

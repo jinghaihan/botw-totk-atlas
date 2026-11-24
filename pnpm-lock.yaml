@@ -16,9 +16,6 @@ catalogs:
     bumpp:
       specifier: ^11.1.0
       version: 11.1.0
-    opencc-js:
-      specifier: ^1.4.2
-      version: 1.4.2
     pncat:
       specifier: ^0.12.0
       version: 0.12.0
@@ -62,6 +59,13 @@ catalogs:
     zod:
       specifier: ^4.6.7
       version: 4.6.7
+  hash:
+    crc-32:
+      specifier: ^1.2.2
+      version: 1.2.2
+    murmurhash3js:
+      specifier: ^3.0.1
+      version: 3.0.1
   icons:
     '@iconify-json/lucide':
       specifier: ^1.2.114
@@ -112,13 +116,6 @@ catalogs:
     '@types/node':
       specifier: ^26.6.6
       version: 26.6.6
-  utils:
-    crc-32:
-      specifier: ^1.2.2
-      version: 1.2.2
-    murmurhash3js:
-      specifier: ^3.0.1
-      version: 3.0.1
 
 importers:
 
@@ -134,7 +131,7 @@ importers:
         specifier: catalog:frontend
         version: 14.3.0(vue@3.5.39(typescript@6.0.3))
       crc-32:
-        specifier: catalog:utils
+        specifier: catalog:hash
         version: 1.2.2
       dexie:
         specifier: catalog:frontend
@@ -146,7 +143,7 @@ importers:
         specifier: catalog:map
         version: 1.5.3(leaflet@1.9.4)
       murmurhash3js:
-        specifier: catalog:utils
+        specifier: catalog:hash
         version: 3.0.1
       reka-ui:
         specifier: catalog:frontend
@@ -203,9 +200,6 @@ importers:
       lint-staged:
         specifier: catalog:lint
         version: 17.0.8
-      opencc-js:
-        specifier: catalog:dev
-        version: 1.4.2
       pncat:
         specifier: catalog:dev
         version: 0.12.0
@@ -3696,9 +3690,6 @@ packages:
   open@8.4.2:
     resolution: {integrity: sha512-7x81NCL719oNbsq/3mh+hVrAWmFuEYUqrq/Iw3kUzH8ReypT9QQ0BLoJS7/G9k6N81XjW4qHWtjWwe/9eLy1EQ==}
     engines: {node: '>=12'}
-
-  opencc-js@1.4.2:
-    resolution: {integrity: sha512-EdcspgdROiCCZDM+jZR6Pa670xW+EW2QhctPBQ8gRjg6lrx4IHEl+2s+kt5izk/TkxVRgdWuFgaGkaEdIUfdaw==}
 
   optionator@0.9.4:
     resolution: {integrity: sha512-6IpQ7mKUxRcZNLIObR0hz7lxsapSSIYNZJwXPGeF0mTVqGKFIXj1DQcMoT22S3ROcLyY/rz0PWaWZ9ayWmad9g==}
@@ -8081,8 +8072,6 @@ snapshots:
       define-lazy-prop: 2.0.0
       is-docker: 2.2.1
       is-wsl: 2.2.0
-
-  opencc-js@1.4.2: {}
 
   optionator@0.9.4:
     dependencies:
