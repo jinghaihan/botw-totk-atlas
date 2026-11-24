@@ -1523,6 +1523,9 @@ button:hover:not(:disabled) {
   width: 30px;
   padding: 4px;
 }
+.profile-rename > span {
+  font-size: 13px;
+}
 @media (min-width: 1600px) {
   .exploration-panel {
     left: 28px;
