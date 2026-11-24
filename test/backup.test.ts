@@ -41,3 +41,11 @@ describe('portable backups', () => {
     expect(await db.annotations.count()).toBe(1)
   })
 })
+
+it('exports one profile without leaking another playthrough', async () => {
+  const first = await saveProfile(snapshot(), 'first')
+  await saveProfile(snapshot(), 'second')
+  const backup = await exportBackup(first.id)
+  expect(backup.profiles.map(p => p.id)).toEqual([first.id])
+  expect(backup.imports.every(r => r.profileId === first.id)).toBe(true)
+})

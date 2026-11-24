@@ -49,16 +49,16 @@ export const backupSchema = z.object({
     ctx.addIssue({ code: 'custom', message: '备份包含重复标记。' })
 })
 
-export async function exportBackup() {
+export async function exportBackup(profileId?: string) {
   return db.transaction('r', [db.profiles, db.annotations, db.imports, db.views, db.pins], async () => ({
     format: 'wilds-atlas' as const,
     version: 1 as const,
     exportedAt: new Date().toISOString(),
-    profiles: await db.profiles.toArray(),
-    annotations: await db.annotations.toArray(),
-    imports: await db.imports.toArray(),
-    views: await db.views.toArray(),
-    pins: await db.pins.toArray(),
+    profiles: profileId ? await db.profiles.where('id').equals(profileId).toArray() : await db.profiles.toArray(),
+    annotations: profileId ? await db.annotations.where('profileId').equals(profileId).toArray() : await db.annotations.toArray(),
+    imports: profileId ? await db.imports.where('profileId').equals(profileId).toArray() : await db.imports.toArray(),
+    views: profileId ? await db.views.where('profileId').equals(profileId).toArray() : await db.views.toArray(),
+    pins: profileId ? await db.pins.where('profileId').equals(profileId).toArray() : await db.pins.toArray(),
   }))
 }
 
