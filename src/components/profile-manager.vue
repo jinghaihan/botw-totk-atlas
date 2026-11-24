@@ -173,7 +173,7 @@ function backup(profileId?: string) {
               {{ t('新建档案') }}
             </button>
             <button type="button" class="button primary" @click="emit('import', 'folder')">
-              {{ t('导入存档文件夹') }}
+              {{ t('导入存档') }}
             </button>
           </div>
         </div>
