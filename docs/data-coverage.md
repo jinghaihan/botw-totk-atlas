@@ -2,17 +2,15 @@
 
 ## Save evidence
 
-| Area            | BOTW                                                                      | TOTK                                                                                                                        |
-| --------------- | ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| Save input      | `game_data.sav`, interleaved hash/value records                           | `progress.sav`, hash/value records and indirect arrays                                                                      |
-| Modes           | Separate Normal / Master profiles, selected on import                     | Normal only                                                                                                                 |
-| Shrines         | 136 clear flags, separate whole-shrine chest flags                        | 152 clear states; 166 cataloged shrine chests use individual `IsTreasureBoxOpen` fields                                     |
-| Koroks          | 900 puzzle records                                                        | 800 hidden puzzles + 100 friend pairs; 900 map entries represent 1,000 seeds                                                |
-| Outdoor chests  | Per-object hash flags                                                     | 64-bit GUID membership, kept as decimal strings                                                                             |
-| Interior chests | Whole-shrine flag; no inferred individual count                           | Individual opening flags, not global GUID membership                                                                        |
-| Progress        | Towers, bosses, compendium, acquisition flags and supported quest records | Shrines, roots, bosses, caves, wells, signs, maps, wills, quests, recipes, fabrics, pristine weapon qualifications and more |
-| Inventory       | Contents, quantities, raw modifiers, current equipment durability         | Contents, quantities, raw modifiers, current equipment durability and fusion IDs                                            |
-| Horses          | Registration order; UTF-8 names                                           | Registration order; UTF-16 names                                                                                            |
+| Area            | BOTW                                                                                    | TOTK                                                                                                                        |
+| --------------- | --------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Save input      | `game_data.sav`, interleaved hash/value records                                         | `progress.sav`, hash/value records and indirect arrays                                                                      |
+| Modes           | Separate Normal / Master profiles, detected from companion `caption.sav` when available | Normal only                                                                                                                 |
+| Shrines         | 136 clear flags, separate whole-shrine chest flags                                      | 152 clear states; 166 cataloged shrine chests use individual `IsTreasureBoxOpen` fields                                     |
+| Koroks          | 900 puzzle records                                                                      | 800 hidden puzzles + 100 friend pairs; 900 map entries represent 1,000 seeds                                                |
+| Outdoor chests  | Per-object hash flags                                                                   | 64-bit GUID membership, kept as decimal strings                                                                             |
+| Interior chests | Whole-shrine flag; no inferred individual count                                         | Individual opening flags, not global GUID membership                                                                        |
+| Progress        | Towers, bosses, compendium, acquisition flags and supported quest records               | Shrines, roots, bosses, caves, wells, signs, maps, wills, quests, recipes, fabrics, pristine weapon qualifications and more |
 
 Readers reject invalid headers, missing required records and unsafe pointer ranges. They do not write saves. Format compatibility is checked from structure and required fields; a full released-version compatibility matrix has not been established. Real-file verification currently covers the user's two BOTW saves and one TOTK save. These fixtures are not distributed.
 

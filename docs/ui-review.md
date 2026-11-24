@@ -4,13 +4,13 @@ Reviewed against the [Vercel Web Interface Guidelines](https://github.com/vercel
 
 ## Findings and changes
 
-- `src/App.vue`: the previous sidebar, large heading, file metadata and character cards pushed the map below an administration-style layout. The map now fills the viewport. Navigation and profile tools float above it; inventory, collection totals and import records have separate journal views.
-- `src/components/ExplorerPanel.vue`: the long toolbar and permanent results list competed with the map. Exploration categories and three useful shortcuts now live in one collapsible floating panel. Search opens the checklist. Mobile starts with the panel collapsed.
-- `src/assets/slate-theme.css`: the first redesign's pale paper surfaces did not match the map or navigation. Floating panels, menus, dialogs and journal views now share a dark translucent slate palette, restrained gold borders and blue/green game accents.
+- `src/App.vue`: the previous sidebar, large heading, file metadata and character cards pushed the map below an administration-style layout. The map now fills the viewport. Navigation and profile tools float above it; collection totals and import records have a separate collection view.
+- `src/components/ExplorerPanel.vue`: the long toolbar and permanent results list competed with the map. Exploration categories and explicit filters now live in one collapsible floating panel. Search opens the checklist. Mobile starts with the panel collapsed.
+- `src/assets/slate-theme.css`: the first redesign's pale paper surfaces did not match the map or navigation. Floating panels, menus, dialogs and journal views now share a dark translucent slate palette, restrained gold borders and black-and-gold highlights.
 - `src/components/PointDetail.vue`: the centered blocking dialog interrupted map exploration. Details now open alongside the map, using a nonmodal Reka Dialog, with a bottom sheet layout on mobile. Manual completion is directly available; secondary tracking options are collapsed. Custom marker deletion has confirmation.
 - `src/components/WorldMap.vue`: dense symbols obscured terrain on small screens. Leaflet.markercluster now groups them and expands as the map zooms. Marker titles provide accessible names. Tile imagery, notes and completion semantics are preserved.
 - `src/components/AtlasSelect.vue`: styling attributes were not reaching Reka's actual trigger. Explicit attribute forwarding fixes the profile selector's contrast and sizing.
-- `src/App.vue`: navigation tabs now follow the URL's `view` query parameter. The map remains mounted while opening inventory/collection views, preserving the camera position.
+- `src/App.vue`: navigation tabs now follow the URL's `view` query parameter. The map remains mounted while opening the collection view, preserving the camera position.
 
 ## Verification
 
@@ -21,3 +21,13 @@ Screenshots cover a 1512 Ã— 982 desktop map, selected point details, and a 390 Ã
 An axe WCAG 2 A/AA pass supplements the Vercel guideline review. Its initial missing marker-name finding was fixed; the exercised desktop map now reports zero WCAG 2 A/AA violations. Screenshot artifacts and machine results are kept outside the repository under the local BOTW workspace's `artifacts/wilds-atlas-redesign/` directory.
 
 These checks verify the observed screens and interactions; they do not establish that every game-data entry or every browser/device has been audited.
+
+## Scope and flow corrections
+
+The welcome page and pre-file import dialog were removed. First visits go directly to a browsable map. The import action opens the folder picker immediately. Companion BOTW caption metadata identifies Normal/Master Mode, slots are grouped by game/mode, and the newest save in each group is selected. The mode dropdown was removed. Repetitive journey shortcut cards were replaced by the existing explicit filters.
+
+Inventory, equipment and stable screens and their readers, snapshot fields and backup fields were removed. Database version 4 strips obsolete snapshot properties from existing profiles. Game item names remain only as map reward and collection labels. Panel surfaces are neutral charcoal; the Vue template favicons and runtime icon link were replaced with the atlas mark. Public JSON requests resolve relative to the deployment base and report a readable failure if a server returns an HTML fallback.
+
+Forced `pncat migrate -f` leaves the manifests and lockfile unchanged. Custom rules extend the defaults without repeating the built-in `types` rule. Dependency catalogs separate runtime mapping libraries (`map`) and save hashing utilities (`hash`), with type packages retained in `types`. UI locale files are maintained independently; OpenCC and its generation script were removed.
+
+The final folder-import pass uses production output at `/atlas/` in an isolated Chromium context. It detects BOTW Normal, BOTW Master and TOTK profiles from one folder, opens the native picker directly, and reports no runtime errors, horizontal overflow or axe WCAG 2 A/AA violations on the exercised desktop screen. Current screenshots and results are under `artifacts/wilds-atlas-direct/` outside this repository.

@@ -7,14 +7,15 @@ Import a save, keep separate profiles for each playthrough, and find what remain
 ## Features
 
 - BOTW Normal / Master Mode and TOTK profiles, with separate notes, manual progress, ignored entries and filters.
-- Read-only import preview, profile updates, and history showing newly completed entries and regressions.
+- Direct folder selection, automatic game/mode detection from companion metadata, read-only import preview, profile updates, and history showing newly completed entries and regressions.
+- Browse either game map before importing a save; unknown completion stays unknown.
 - Leaflet maps for BOTW and TOTK's Sky, Surface and Depths; category, region, status and text filters.
 - Separate shrine completion and chest tracking, including a **cleared shrines with unopened chests** filter.
-- Collection checklists, inventory values, equipment modifiers and registered horses.
+- Collection checklists for shrines, treasure chests, quests and supported completion records.
 - Manual camp markers, notes and overrides that survive subsequent save imports.
 - Single-profile and workspace JSON backup; validated restore creates independent copies in a transaction.
 - Simplified Chinese, Traditional Chinese and English interfaces, with official localized game names where available.
-- BOTW blue and TOTK green interfaces, using Reka UI for selects, dialogs, tabs, popovers and pagination.
+- Full-screen maps with charcoal and gold controls, built with Reka UI.
 
 ## Development
 
@@ -32,29 +33,18 @@ pnpm exec vitest run
 pnpm build
 ```
 
-Parsing, completion rules, profile isolation, backup rollback and language coverage have command-line checks. Real saves are private local fixtures excluded from Git and production builds. The map, point details and mobile layout have also been checked in an isolated headless screenshot pass; see [UI review](docs/ui-review.md). Broader browser/device testing remains separate.
+The static build is written to `dist/`. Map imagery requires an internet connection. See [data coverage](docs/data-coverage.md) for supported save records and catalog limitations.
 
-The production output is a static SPA in `dist/`. Serve it over HTTPS (or localhost for development). Online map imagery is fetched from ZeldaMods; local progress remains available through the checklist if imagery fails. This is not an offline tile cache or a hosted service yet.
+## Credits
 
-## Data and limitations
+- [jinghaihan/starter-vue](https://github.com/jinghaihan/starter-vue) — project template.
+- [jv-prado/hyrule-tracker](https://github.com/jv-prado/hyrule-tracker) and [LucieTheFool/boomerang-tracker](https://github.com/LucieTheFool/boomerang-tracker) contributors — community map metadata, adapted under the MIT license.
+- [ZeldaMods BOTW Object Map](https://objmap.zeldamods.org/) and [TOTK Object Map](https://objmap-totk.zeldamods.org/) — map imagery and game-data research.
+- [marcrobledo/savegame-editors](https://github.com/marcrobledo/savegame-editors), MrCheeze and McSpazzy — save-format and completion-flag research.
+- [sh0wer1ee/BotwText](https://github.com/sh0wer1ee/BotwText) and [sh0wer1ee/TotkText](https://github.com/sh0wer1ee/TotkText) — localized game-name indexes.
 
-See [data coverage](docs/data-coverage.md) for sources, save semantics and supported scope. The catalog is not an authoritative count of every game object, and its totals differ from the games' official map percentages. Unsupported records remain **unknown** rather than being counted as missing.
+Game imagery and text belong to Nintendo. Third-party notices are preserved in [NOTICE](public/catalogs/NOTICE.txt); source manifests are included with the [catalogs](public/catalogs/sources.json) and [localized names](public/labels/sources.json).
 
-Map and game-text source manifests are shipped in `public/catalogs/` and `public/labels/`. No ROM, extracted textures or private saves are bundled. Nintendo retains rights in game imagery and text; third-party metadata credits are in [NOTICE](public/catalogs/NOTICE.txt).
+## License
 
-To refresh metadata:
-
-```sh
-python3 scripts/build-game-labels.py
-node scripts/build-catalogs.mjs
-node scripts/build-ui-locales.mjs
-```
-
-UI translations are maintained in `i18n/source.json`; the other locale files are generated. OpenCC generates the Traditional Chinese UI draft with explicit terminology overrides. Official CNzh and TWzh game names come from independent game-text records, not character conversion. Missing game translations fall back to the catalog name or item ID. User names and notes are kept verbatim.
-
-## Project notes
-
-- [Development milestones](docs/development-plan.md)
-- [Visual direction](docs/visual-direction.md)
-
-All development commits are currently local. Nothing has been pushed or published.
+[MIT](./LICENSE.md) License © [jinghaihan](https://github.com/jinghaihan)
