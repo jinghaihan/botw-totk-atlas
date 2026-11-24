@@ -104,10 +104,10 @@ function backup(profileId?: string) {
             <button v-if="!creating && profiles.length" class="toolbar-control" :aria-label="t('备份')" :title="t('备份')" :disabled="busy" @click="backup()">
               <span class="i-lucide:save" aria-hidden="true" />
             </button>
-            <button v-if="!creating && profiles.length" class="toolbar-control" :aria-label="t('导入')" :title="t('导入')" :disabled="busy" @click="emit('import')">
+            <button v-if="!creating" class="toolbar-control" :aria-label="t('导入文件')" :title="t('导入文件')" :disabled="busy" @click="emit('import')">
               <span class="i-lucide:upload" aria-hidden="true" />
             </button>
-            <button v-if="!creating" class="toolbar-control" :aria-label="t('导入存档文件夹')" :title="t('导入存档文件夹')" :disabled="busy" @click="emit('import', 'folder')">
+            <button v-if="!creating && profiles.length" class="toolbar-control" :aria-label="t('导入存档文件夹')" :title="t('导入存档文件夹')" :disabled="busy" @click="emit('import', 'folder')">
               <span class="i-lucide:folder-open" aria-hidden="true" />
             </button>
             <DialogClose class="toolbar-control" :aria-label="t('关闭档案管理')" :title="t('关闭档案管理')" :disabled="busy">
@@ -172,8 +172,8 @@ function backup(profileId?: string) {
             <button type="button" class="button secondary" @click="startCreate">
               {{ t('新建档案') }}
             </button>
-            <button type="button" class="button primary" @click="emit('import')">
-              {{ t('导入存档') }}
+            <button type="button" class="button primary" @click="emit('import', 'folder')">
+              {{ t('导入存档文件夹') }}
             </button>
           </div>
         </div>
