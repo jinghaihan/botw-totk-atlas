@@ -2,6 +2,7 @@
 import type { ProgressRow } from '@/domain/exploration'
 import type { GameId, MapLayer, PointStatus } from '@/domain/game'
 import * as L from 'leaflet'
+import horseIcon from '@/assets/icons/horse.svg?raw'
 import skullIcon from '@/assets/icons/skull.svg?raw'
 import { coordinateLabel, mapToWorld, tileUrl, worldToMap } from '@/domain/coordinates'
 import { isMonsterCategory } from '@/games/category-icons'
@@ -33,12 +34,11 @@ const glyphs: Record<string, string> = {
   well: 'M4 9h16v11H4ZM2 9l10-7 10 7M8 12v5M16 12v5',
   camp: 'M12 3 22 21H2ZM8 21l4-8 4 8',
   shop: 'M4 10v11h16V10M3 7l2-4h14l2 4v3c0 2-3 2-3 0 0 2-4 2-4 0 0 2-4 2-4 0 0 2-4 2-4 0 0 2-3 2-3 0ZM10 21v-6h4v6',
-  stable: 'M3 21V8l9-5 9 5v13ZM7 21V10h10v11M7 14h10M7 17h10',
   default: 'M12 3a7 7 0 0 1 7 7c0 5-7 11-7 11S5 15 5 10a7 7 0 0 1 7-7ZM10 10h4',
 }
 function markerSvg(category: string, status: PointStatus) {
   const color = status === 'complete' ? '#a89e84' : '#d8bd7f'
-  const glyph = isMonsterCategory(category) ? skullGlyph : `<path d="${glyphs[category] ?? glyphs.default}"/>`
+  const glyph = isMonsterCategory(category) ? skullGlyph : category === 'stable' ? horseIcon : `<path d="${glyphs[category] ?? glyphs.default}"/>`
   const badge = status === 'complete' ? '<path d="m20 25 2 2 4-5" fill="none" stroke="currentColor" stroke-width="2"/>' : '<text x="23" y="28" text-anchor="middle" fill="currentColor" font-size="11" font-family="sans-serif">?</text>'
   return `<svg width="24" height="28" viewBox="0 0 30 34" aria-hidden="true" style="color:${color}"><path d="M15 1 28 8v16l-13 8L2 24V8Z" fill="${status === 'complete' ? '#3e3b32' : '#292b2c'}" stroke="currentColor" stroke-width="1.5" ${status === 'unknown' ? 'stroke-dasharray="3 2"' : ''}/><g transform="translate(3 3)" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">${glyph}</g>${status === 'incomplete' ? '' : `<circle cx="23" cy="25" r="6" fill="#292b2c"/>${badge}`}</svg>`
 }

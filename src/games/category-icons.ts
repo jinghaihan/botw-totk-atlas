@@ -10,7 +10,7 @@ const icons: Record<string, string> = {
   well: 'i-lucide:circle-dot',
   camp: 'i-lucide:tent',
   shop: 'i-lucide:store',
-  stable: 'i-lucide:warehouse',
+  stable: 'horse-icon',
 }
 
 export const categoryIconClasses = [...new Set([...Object.values(icons), 'i-lucide:skull', 'i-lucide:map-pin'])]
