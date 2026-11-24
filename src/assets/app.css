@@ -116,14 +116,9 @@ button:hover:not(:disabled) {
   z-index: 45;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 16px;
-  pointer-events: none;
-}
-.header-identity,
-.atlas-navigation,
-.header-tools {
-  pointer-events: auto;
+  min-height: 56px;
+  padding: 6px 10px 6px 14px;
   color: #ecebdc;
   background: #182e29f2;
   border: 1px solid #a29e7040;
@@ -135,8 +130,6 @@ button:hover:not(:disabled) {
   display: flex;
   align-items: center;
   min-width: 0;
-  padding: 0 8px 0 15px;
-  height: 62px;
 }
 .atlas-brand {
   display: flex;
@@ -192,8 +185,8 @@ button:hover:not(:disabled) {
 }
 .atlas-navigation {
   display: flex;
-  padding: 5px;
-  height: 54px;
+  gap: 3px;
+  height: 40px;
   flex-shrink: 0;
 }
 .atlas-navigation button {
@@ -219,11 +212,10 @@ button:hover:not(:disabled) {
   color: #eee8d4;
 }
 .header-tools {
-  height: 54px;
   display: flex;
   align-items: center;
   gap: 3px;
-  padding: 5px;
+  margin-left: auto;
   flex-shrink: 0;
 }
 .toolbar-control,
@@ -1387,9 +1379,6 @@ button:hover:not(:disabled) {
   }
 }
 @media (max-width: 1250px) {
-  .header-identity {
-    padding-left: 12px;
-  }
   .atlas-brand > span {
     font-size: 13px;
   }
@@ -1442,9 +1431,6 @@ button:hover:not(:disabled) {
   .header-tools .filter-trigger > span:last-child {
     display: none;
   }
-  .header-identity {
-    height: 54px;
-  }
   .exploration-panel {
     width: 290px;
     top: 90px;
@@ -1474,14 +1460,15 @@ button:hover:not(:disabled) {
     left: 12px;
     right: 12px;
     top: max(12px, env(safe-area-inset-top));
-    gap: 8px;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px 6px;
+    padding: 6px;
   }
   .header-identity {
-    flex: 1;
-    min-width: 0;
-    height: 48px;
-    padding-left: 12px;
+    grid-column: 1 / -1;
+    min-height: 34px;
+    padding: 0 4px;
   }
   .atlas-brand svg {
     width: 22px;
@@ -1502,8 +1489,8 @@ button:hover:not(:disabled) {
     font-size: 10px;
   }
   .header-tools {
-    height: 48px;
-    padding: 4px;
+    grid-column: 2;
+    grid-row: 2;
     gap: 0;
   }
   .toolbar-control,
@@ -1517,13 +1504,13 @@ button:hover:not(:disabled) {
     font-size: 10px;
   }
   .atlas-navigation {
-    order: 3;
-    margin: 0 auto;
-    height: 42px;
-    padding: 4px;
+    grid-column: 1;
+    grid-row: 2;
+    height: 34px;
+    justify-self: start;
   }
   .atlas-navigation button {
-    padding: 0 18px;
+    padding: 0 8px;
     font-size: 11px;
   }
   .atlas-navigation button > span:first-child {
@@ -1705,10 +1692,12 @@ button:hover:not(:disabled) {
     max-width: 138px;
   }
   .atlas-navigation button {
-    padding: 0 16px;
+    width: 34px;
+    justify-content: center;
+    padding: 0;
   }
-  .header-identity {
-    padding-left: 10px;
+  .atlas-navigation button > span:last-child {
+    display: none;
   }
   .exploration-panel {
     width: 260px;
@@ -1764,9 +1753,7 @@ button:hover:not(:disabled) {
   --accent: #3e6e79;
   --accent-strong: #2d5963;
 }
-html[data-game='botw'] .header-identity,
-html[data-game='botw'] .atlas-navigation,
-html[data-game='botw'] .header-tools {
+html[data-game='botw'] .atlas-header {
   background: #1b3033f2;
 }
 html[data-game='botw'] .category-symbol {

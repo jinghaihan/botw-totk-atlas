@@ -107,10 +107,10 @@ onMounted(async () => {
           <AtlasSelect v-if="profiles.length" v-model="activeId" class="header-profile" :label="t('切换存档 Profile')" :options="options" /><AtlasSelect v-else v-model="browseGame" class="header-profile" :label="t('选择游戏')" :options="[{ value: 'botw', label: t('旷野之息') }, { value: 'totk', label: t('王国之泪') }]" />
         </div>
         <TabsList v-if="current" class="atlas-navigation" :aria-label="t('存档内容')">
-          <TabsTrigger value="atlas">
+          <TabsTrigger value="atlas" :aria-label="t('地图')">
             <span class="i-lucide:map" aria-hidden="true" /><span>{{ t('地图') }}</span>
           </TabsTrigger>
-          <TabsTrigger value="progress">
+          <TabsTrigger value="progress" :aria-label="t('收集')">
             <span class="i-lucide:book-open" aria-hidden="true" /><span>{{ t('收集') }}</span>
           </TabsTrigger>
         </TabsList>
