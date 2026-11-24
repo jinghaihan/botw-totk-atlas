@@ -9,7 +9,7 @@ describe('bOTW save validation', () => {
   it('rejects a different save format instead of treating it as an empty BOTW save', async () => {
     const buffer = new ArrayBuffer(200_000)
     new DataView(buffer).setUint32(0, 0x01020304, true)
-    await expect(readBotwSave(buffer, 'progress.sav')).rejects.toThrow('TOTK')
+    await expect(readBotwSave(buffer, 'progress.sav')).rejects.toThrow('game_data.sav')
   })
 
   it('rejects a damaged BOTW table instead of reporting zero percent', async () => {

@@ -7,7 +7,7 @@ export type BotwSnapshot = GameSnapshot
 export async function readBotwSave(buffer: ArrayBuffer, filename: string): Promise<BotwSnapshot> {
   const view = new DataView(buffer)
   if (view.byteLength < 100_000 || view.byteLength > 4_000_000 || view.getUint32(4, true) !== 0xFFFFFFFF)
-    throw new Error('请选择 BOTW 的 game_data.sav；当前预览尚不支持 TOTK 存档。')
+    throw new Error('请选择 BOTW 的 game_data.sav。')
 
   const offsets = new Map<number, number>()
   for (let p = 12; p + 8 <= view.byteLength; p += 8) {
