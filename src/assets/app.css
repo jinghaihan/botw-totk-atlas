@@ -1265,6 +1265,20 @@ button:hover:not(:disabled) {
   flex-shrink: 0;
   gap: 3px;
 }
+.profile-manager-empty {
+  display: grid;
+  justify-items: center;
+  gap: 16px;
+  padding: 24px 0 8px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.profile-manager-empty > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
 .profile-manager-list,
 .backup-profiles {
   list-style: none;

@@ -165,7 +165,7 @@ onMounted(async () => {
       :game="game"
       @changed="reload"
       @created="openProfile"
-      @restore="importer?.chooseFile('backup')"
+      @import="importer?.chooseFile($event)"
       @select="activeId = $event"
     />
   </div>

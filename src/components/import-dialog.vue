@@ -11,7 +11,7 @@ import { backupSchema, restoreBackup } from '@/storage/backup'
 import { db, saveProfile } from '@/storage/profiles'
 import AtlasSelect from './atlas-select.vue'
 
-type ImportSource = 'file' | 'folder' | 'backup'
+type ImportSource = 'file' | 'folder'
 const props = defineProps<{ profiles: SaveProfile[] }>()
 const emit = defineEmits<{ selected: [], imported: [profileId: string] }>()
 const open = defineModel<boolean>('open', { required: true })
@@ -30,7 +30,7 @@ const busy = ref(false)
 const count = computed(() => groups.value.filter(group => enabled.value[group.id]).length)
 const gameLabel = (group: FolderSaveGroup) => group.game === 'botw' ? t('旷野之息') : t('王国之泪')
 const modeLabel = (group: FolderSaveGroup) => group.mode === 'master' ? t('大师模式') : t('普通模式')
-const title = computed(() => backup.value || source.value === 'backup' ? t('恢复备份') : source.value === 'folder' ? t('导入存档文件夹') : t('导入存档'))
+const title = computed(() => backup.value ? t('恢复备份') : source.value === 'folder' ? t('导入存档文件夹') : t('导入存档'))
 function options(group: FolderSaveGroup) {
   const compatible = props.profiles.filter(profile => profile.game === group.game && (group.mode === 'unknown' || profile.mode === group.mode || (!profile.snapshot && profile.mode === 'unknown')))
   return [{ value: 'new', label: t('创建新的 Profile') }, ...compatible.map(profile => ({ value: profile.id, label: t('更新：{name}', { name: profile.name }) }))]
@@ -40,8 +40,6 @@ function chooseFile(from: ImportSource = 'file') {
   if (!input || busy.value)
     return
   source.value = from
-  if (from !== 'folder')
-    input.accept = from === 'backup' ? '.json,application/json' : '.sav,.json,application/json'
   input.value = ''
   input.click()
 }
@@ -83,7 +81,7 @@ async function choose(event: Event) {
       if (!found.length)
         throw new Error(t('文件夹里没有找到 game_data.sav 或 progress.sav。'))
     }
-    else if (source.value === 'backup' || file.name.toLowerCase().endsWith('.json')) {
+    else if (file.name.toLowerCase().endsWith('.json')) {
       backup.value = await previewBackup(file)
       if (!backup.value.profiles.length) {
         backup.value = undefined

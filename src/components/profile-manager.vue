@@ -8,7 +8,7 @@ import { createProfile, deleteProfile, renameProfile } from '@/storage/profiles'
 import AtlasSelect from './atlas-select.vue'
 
 const props = defineProps<{ profiles: SaveProfile[], activeId: string, game: GameId }>()
-const emit = defineEmits<{ changed: [], created: [profileId: string], restore: [], select: [profileId: string] }>()
+const emit = defineEmits<{ changed: [], created: [profileId: string], import: [source?: 'folder'], select: [profileId: string] }>()
 const open = defineModel<boolean>('open', { required: true })
 const error = ref('')
 const busy = ref(false)
@@ -98,14 +98,17 @@ function backup(profileId?: string) {
         <header class="profile-manager-header">
           <DialogTitle>{{ t(creating ? '新建档案' : '管理存档') }}</DialogTitle>
           <div class="profile-manager-controls">
-            <button v-if="!creating" class="toolbar-control" :aria-label="t('新建档案')" :title="t('新建档案')" :disabled="busy" @click="startCreate">
+            <button v-if="!creating && profiles.length" class="toolbar-control" :aria-label="t('新建档案')" :title="t('新建档案')" :disabled="busy" @click="startCreate">
               <span class="i-lucide:file-plus" aria-hidden="true" />
             </button>
-            <button v-if="!creating" class="toolbar-control" :aria-label="t('备份')" :title="t('备份')" :disabled="busy || !profiles.length" @click="backup()">
+            <button v-if="!creating && profiles.length" class="toolbar-control" :aria-label="t('备份')" :title="t('备份')" :disabled="busy" @click="backup()">
               <span class="i-lucide:save" aria-hidden="true" />
             </button>
-            <button v-if="!creating" class="toolbar-control" :aria-label="t('恢复备份')" :title="t('恢复备份')" :disabled="busy" @click="emit('restore')">
+            <button v-if="!creating && profiles.length" class="toolbar-control" :aria-label="t('导入')" :title="t('导入')" :disabled="busy" @click="emit('import')">
               <span class="i-lucide:upload" aria-hidden="true" />
+            </button>
+            <button v-if="!creating" class="toolbar-control" :aria-label="t('导入存档文件夹')" :title="t('导入存档文件夹')" :disabled="busy" @click="emit('import', 'folder')">
+              <span class="i-lucide:folder-open" aria-hidden="true" />
             </button>
             <DialogClose class="toolbar-control" :aria-label="t('关闭档案管理')" :title="t('关闭档案管理')" :disabled="busy">
               <span class="i-lucide:x" aria-hidden="true" />
@@ -163,6 +166,17 @@ function backup(profileId?: string) {
             </template>
           </li>
         </ul>
+        <div v-else class="profile-manager-empty">
+          <p>{{ t('暂无档案') }}</p>
+          <div>
+            <button type="button" class="button secondary" @click="startCreate">
+              {{ t('新建档案') }}
+            </button>
+            <button type="button" class="button primary" @click="emit('import')">
+              {{ t('导入存档') }}
+            </button>
+          </div>
+        </div>
         <p v-if="error && !confirm" role="alert" class="error-message">
           {{ t(error) }}
         </p>
