@@ -40,9 +40,12 @@
     "@vueuse/core": "catalog:frontend",
     "crc-32": "catalog:frontend",
     "dexie": "catalog:frontend",
+    "leaflet": "catalog:frontend",
+    "murmurhash3js": "catalog:frontend",
     "reka-ui": "catalog:frontend",
     "vue": "catalog:frontend",
-    "vue-i18n": "catalog:frontend"
+    "vue-i18n": "catalog:frontend",
+    "zod": "catalog:frontend"
   },
   "devDependencies": {
     "@octohash/vite-config": "catalog:build",
@@ -61,7 +64,10 @@
     "eslint-plugin-format": "catalog:lint",
     "lint-staged": "catalog:lint",
     "vue-tsc": "catalog:lint",
-    "vitest": "catalog:test"
+    "fake-indexeddb": "catalog:test",
+    "vitest": "catalog:test",
+    "@types/leaflet": "catalog:types",
+    "@types/murmurhash3js": "catalog:types"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm lint-staged"

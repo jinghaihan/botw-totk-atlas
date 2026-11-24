@@ -21,10 +21,13 @@ catalogs:
     '@vueuse/core': ^14.3.0
     crc-32: ^1.2.2
     dexie: ^4.4.7
+    leaflet: 1.9.4
+    murmurhash3js: ^3.0.1
     reka-ui: ^2.11.0
     unocss: ^66.7.3
     vue: ^3.5.39
     vue-i18n: ^11.4.6
+    zod: ^4.6.7
   icons:
     '@iconify-json/lucide': ^1.2.114
   lint:
@@ -35,7 +38,11 @@ catalogs:
     lint-staged: ^17.0.8
     vue-tsc: ^3.3.5
   test:
+    fake-indexeddb: ^6.2.8
     vitest: ^4.1.9
+  types:
+    '@types/leaflet': ^1.9.22
+    '@types/murmurhash3js': ^3.0.7
 onlyBuiltDependencies:
   - esbuild
   - simple-git-hooks
