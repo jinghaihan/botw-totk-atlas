@@ -120,10 +120,10 @@ onMounted(async () => {
             <span class="i-lucide:settings-2" aria-hidden="true" />
           </button>
           <button class="toolbar-control" :aria-label="t('导出')" :title="t('导出')" :disabled="exporting || !profiles.length" @click="download">
-            <span class="i-lucide:download" aria-hidden="true" /><span class="toolbar-label">{{ t('导出') }}</span>
+            <span class="i-lucide:save" aria-hidden="true" />
           </button>
           <button class="toolbar-control" :aria-label="t('导入')" :title="t('导入')" @click="importer?.chooseFile()">
-            <span class="i-lucide:upload" aria-hidden="true" /><span class="toolbar-label">{{ t('导入') }}</span>
+            <span class="i-lucide:upload" aria-hidden="true" />
           </button>
           <button class="toolbar-control" :aria-label="t('导入存档文件夹')" :title="t('导入存档文件夹')" @click="importer?.chooseFile('folder')">
             <span class="i-lucide:folder-open" aria-hidden="true" />

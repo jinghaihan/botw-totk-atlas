@@ -1357,9 +1357,6 @@ button:hover:not(:disabled) {
   margin-top: 22px;
 }
 @media (max-width: 480px) {
-  .profile-manager-header .toolbar-label {
-    display: none;
-  }
   .profile-manager-header h2 {
     font-size: 21px;
   }
@@ -1435,7 +1432,6 @@ button:hover:not(:disabled) {
     min-width: 77px;
     font-size: 11px;
   }
-  .header-tools .toolbar-label,
   .header-tools .filter-trigger > span:last-child {
     display: none;
   }

@@ -73,10 +73,10 @@ function backup(profileId?: string) {
           <DialogTitle>{{ t('管理存档') }}</DialogTitle>
           <div class="profile-manager-controls">
             <button class="toolbar-control" :aria-label="t('备份')" :title="t('备份')" :disabled="busy || !profiles.length" @click="backup()">
-              <span class="i-lucide:download" aria-hidden="true" /><span class="toolbar-label">{{ t('备份') }}</span>
+              <span class="i-lucide:save" aria-hidden="true" />
             </button>
             <button class="toolbar-control" :aria-label="t('恢复备份')" :title="t('恢复备份')" :disabled="busy" @click="emit('restore')">
-              <span class="i-lucide:upload" aria-hidden="true" /><span class="toolbar-label">{{ t('恢复备份') }}</span>
+              <span class="i-lucide:upload" aria-hidden="true" />
             </button>
             <DialogClose class="toolbar-control" :aria-label="t('关闭档案管理')" :title="t('关闭档案管理')" :disabled="busy">
               <span class="i-lucide:x" aria-hidden="true" />
