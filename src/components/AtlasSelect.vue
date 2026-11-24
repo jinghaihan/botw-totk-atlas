@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { SelectContent, SelectItem, SelectItemIndicator, SelectItemText, SelectPortal, SelectRoot, SelectTrigger, SelectValue, SelectViewport } from 'reka-ui'
 
+defineOptions({ inheritAttrs: false })
 defineProps<{ label: string, options: { value: string, label: string }[], disabled?: boolean }>()
 const model = defineModel<string>({ required: true })
 </script>
 
 <template>
   <SelectRoot v-model="model" :disabled="disabled">
-    <SelectTrigger class="filter-trigger" :aria-label="label">
+    <SelectTrigger v-bind="$attrs" class="filter-trigger" :aria-label="label">
       <SelectValue :placeholder="label" /><span class="i-lucide:chevrons-up-down" />
     </SelectTrigger>
     <SelectPortal>

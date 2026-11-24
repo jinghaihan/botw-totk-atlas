@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ProgressRow } from '@/domain/exploration'
 import type { CatalogPoint, PointAnnotation, PointStatus } from '@/domain/game'
-import { DialogClose, DialogContent, DialogDescription, DialogOverlay, DialogPortal, DialogRoot, DialogTitle } from 'reka-ui'
+import { AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogOverlay, AlertDialogPortal, AlertDialogRoot, AlertDialogTitle, DialogClose, DialogContent, DialogDescription, DialogPortal, DialogRoot, DialogTitle } from 'reka-ui'
 import { coordinateLabel } from '@/domain/coordinates'
 import { categoryLabels, statusLabels } from '@/games/catalog'
 import { tr as t } from '@/modules/i18n'
@@ -10,6 +10,7 @@ import AtlasSelect from './AtlasSelect.vue'
 const props = defineProps<{ row?: ProgressRow, profileId: string, children: ProgressRow[] }>()
 const emit = defineEmits<{ save: [annotation: PointAnnotation], locate: [point: CatalogPoint], select: [id: string], remove: [id: string] }>()
 const open = defineModel<boolean>('open', { required: true })
+const confirmDelete = ref(false)
 const status = ref('auto')
 const ignored = ref(false)
 const note = ref('')
@@ -18,6 +19,10 @@ watch(() => [props.row?.point.id, open.value], () => {
   ignored.value = props.row?.annotation?.ignored ?? false
   note.value = props.row?.annotation?.note ?? ''
 }, { immediate: true })
+function toggleComplete() {
+  status.value = props.row?.status === 'complete' ? 'incomplete' : 'complete'
+  save()
+}
 function save() {
   if (!props.row)
     return
@@ -26,45 +31,69 @@ function save() {
 </script>
 
 <template>
-  <DialogRoot v-model:open="open">
+  <DialogRoot v-model:open="open" :modal="false">
     <DialogPortal>
-      <DialogOverlay class="dialog-overlay" /><DialogContent v-if="row" class="dialog-content point-detail">
-        <DialogTitle>{{ row.point.name }}</DialogTitle><DialogDescription>{{ t(categoryLabels[row.point.category] ?? row.point.category) }} · {{ row.point.regionLabel ?? row.point.region ?? t('海拉鲁') }}</DialogDescription>
-        <div class="evidence">
-          <span>{{ t('存档记录：') }}<strong>{{ t(statusLabels[row.automatic]) }}</strong></span><span v-if="row.annotation?.status">{{ t('手动记录：') }}{{ t(statusLabels[row.annotation.status]) }}</span><span v-if="row.annotation?.status && row.annotation.status !== row.automatic && row.automatic !== 'unknown'" class="conflict">{{ t('手动记录与当前存档不同，已保留你的选择。') }}</span>
+      <DialogContent v-if="row" class="point-detail" @interact-outside="$event.preventDefault()">
+        <div class="detail-category">
+          <span class="i-lucide:map-pin" aria-hidden="true" />{{ t(categoryLabels[row.point.category] ?? row.point.category) }}<span class="detail-status" :data-status="row.status">{{ t(statusLabels[row.status]) }}</span>
         </div>
+        <DialogTitle>{{ row.point.name }}</DialogTitle><DialogDescription>{{ row.point.regionLabel ?? row.point.region ?? t('海拉鲁') }}</DialogDescription>
         <p v-if="row.point.detail" class="detail-copy">
           {{ row.point.detail }}
         </p>
-        <div v-if="row.chests" class="evidence">
-          {{ t('神庙宝箱：') }}{{ row.chests.complete === true ? t('已领完') : row.chests.complete === false ? t('尚未领完') : t('记录未知') }}<span v-if="row.chests.total !== null">{{ row.chests.opened }} / {{ row.chests.total }}</span>
+        <div v-if="row.chests" class="shrine-chest-summary">
+          <span class="i-lucide:archive" aria-hidden="true" /><div><strong>{{ t('神庙宝箱') }}</strong><span>{{ row.chests.complete === true ? t('已领完') : row.chests.complete === false ? t('尚未领完') : t('记录未知') }}</span></div><b v-if="row.chests.total !== null">{{ row.chests.opened }} / {{ row.chests.total }}</b>
         </div>
         <div v-if="children.length" class="child-list">
           <button v-for="child in children" :key="child.point.id" @click="emit('select', child.point.id)">
-            {{ child.point.name }} <span>{{ t(statusLabels[child.status]) }}</span>
+            <span>{{ child.point.name }}</span><span>{{ child.status === 'complete' ? '✓' : '◇' }}<span class="sr-only">{{ t(statusLabels[child.status]) }}</span></span>
           </button>
         </div>
-        <button v-if="row.point.at" class="button secondary" @click="emit('locate', row.point)">
-          <span class="i-lucide:locate-fixed" /> {{ t('地图定位') }} · {{ coordinateLabel(row.point.at) }}
-        </button>
+        <div class="detail-main-actions">
+          <button class="button primary" @click="toggleComplete">
+            <span :class="row.status === 'complete' ? 'i-lucide:rotate-ccw' : 'i-lucide:check'" aria-hidden="true" />{{ row.status === 'complete' ? t('标为未完成') : t('标为已完成') }}
+          </button><button v-if="row.point.at" class="icon-button" :aria-label="t('地图定位')" @click="emit('locate', row.point)">
+            <span class="i-lucide:locate-fixed" aria-hidden="true" />
+          </button>
+        </div>
         <form @submit.prevent="save">
-          <AtlasSelect v-model="status" :label="t('完成状态')" :options="[{ value: 'auto', label: t('跟随存档记录') }, { value: 'complete', label: t('手动：已完成') }, { value: 'incomplete', label: t('手动：未完成') }, { value: 'unknown', label: t('手动：待确认') }]" />
-          <label class="check-label"><input v-model="ignored" type="checkbox">{{ t('忽略此项目（可从筛选中恢复显示）') }}</label>
-          <label>{{ t('冒险笔记') }}<textarea v-model="note" maxlength="4000" rows="3" :placeholder="t('记下路线、想法或稍后要做的事…')" /></label>
-          <button class="button primary" type="submit">
-            {{ t('保存记录') }}
+          <label>{{ t('冒险笔记') }}<textarea v-model="note" name="point-note" autocomplete="off" maxlength="4000" rows="3" :placeholder="t('记下路线、想法或稍后要做的事…')" /></label>
+          <details class="tracking-options">
+            <summary>{{ t('记录选项') }}<span class="i-lucide:chevron-down" aria-hidden="true" /></summary><AtlasSelect v-model="status" :label="t('完成状态')" :options="[{ value: 'auto', label: t('跟随存档记录') }, { value: 'complete', label: t('手动：已完成') }, { value: 'incomplete', label: t('手动：未完成') }, { value: 'unknown', label: t('手动：待确认') }]" /><label class="check-label"><input v-model="ignored" type="checkbox">{{ t('忽略此项目（可从筛选中恢复显示）') }}</label><p class="automatic-evidence">
+              {{ t('存档记录：') }}{{ t(statusLabels[row.automatic]) }}
+            </p><p v-if="row.annotation?.status && row.annotation.status !== row.automatic && row.automatic !== 'unknown'" class="conflict">
+              {{ t('手动记录与当前存档不同，已保留你的选择。') }}
+            </p>
+          </details>
+          <button class="button secondary save-note" type="submit">
+            {{ t('保存笔记与记录') }}
           </button>
         </form>
+        <div v-if="row.point.at" class="detail-coordinates">
+          <span class="i-lucide:crosshair" aria-hidden="true" /><span translate="no">{{ coordinateLabel(row.point.at) }}</span>
+        </div>
         <details class="record-details">
-          <summary>{{ t('存档字段与来源') }}</summary><code>{{ row.point.id }}</code><code>{{ row.point.key ?? t('仅支持手动记录') }}</code><p>{{ t('自动记录来自存档；手动选择不会写入游戏存档。营地与可重复敌人的历史可能无法从存档可靠恢复。') }}</p>
+          <summary>{{ t('存档字段与来源') }}</summary><code>{{ row.point.id }}</code><code>{{ row.point.key ?? t('仅支持手动记录') }}</code><p>{{ t('自动记录来自存档；手动选择不会写入游戏存档。营地与可重复敌人的历史可能无法从存档可靠恢复。') }}</p><button v-if="row.point.id.startsWith('custom:')" class="button danger" @click="confirmDelete = true">
+            {{ t('删除自建标记') }}
+          </button>
         </details>
-        <button v-if="row.point.id.startsWith('custom:')" class="button danger" @click="emit('remove', row.point.id)">
-          {{ t('删除自建标记') }}
-        </button>
-        <DialogClose class="dialog-close" :aria-label="t('关闭点位详情')">
-          ×
+        <DialogClose class="dialog-close icon-button" :aria-label="t('关闭点位详情')">
+          <span class="i-lucide:x" aria-hidden="true" />
         </DialogClose>
       </DialogContent>
     </DialogPortal>
   </DialogRoot>
+  <AlertDialogRoot v-model:open="confirmDelete">
+    <AlertDialogPortal>
+      <AlertDialogOverlay class="dialog-overlay" /><AlertDialogContent class="dialog-content">
+        <AlertDialogTitle>{{ t('删除自建标记') }}</AlertDialogTitle><AlertDialogDescription>{{ t('删除「{name}」？', { name: row?.point.name ?? '' }) }}</AlertDialogDescription><div class="dialog-actions">
+          <AlertDialogCancel class="button secondary">
+            {{ t('取消') }}
+          </AlertDialogCancel><AlertDialogAction class="button danger" @click="row && emit('remove', row.point.id)">
+            {{ t('删除') }}
+          </AlertDialogAction>
+        </div>
+      </AlertDialogContent>
+    </AlertDialogPortal>
+  </AlertDialogRoot>
 </template>
