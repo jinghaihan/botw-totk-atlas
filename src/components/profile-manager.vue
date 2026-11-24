@@ -5,8 +5,8 @@ import { tr as t } from '@/modules/i18n'
 import { downloadBackup } from '@/storage/backup'
 import { deleteProfile, renameProfile } from '@/storage/profiles'
 
-defineProps<{ profiles: SaveProfile[] }>()
-const emit = defineEmits<{ changed: [], restore: [] }>()
+defineProps<{ profiles: SaveProfile[], activeId: string }>()
+const emit = defineEmits<{ changed: [], restore: [], select: [profileId: string] }>()
 const open = defineModel<boolean>('open', { required: true })
 const error = ref('')
 const busy = ref(false)
@@ -33,6 +33,10 @@ async function action(fn: () => Promise<void>) {
   finally {
     busy.value = false
   }
+}
+function selectProfile(id: string) {
+  emit('select', id)
+  open.value = false
 }
 async function editName(profile: SaveProfile) {
   editing.value = profile.id
@@ -95,7 +99,16 @@ function backup(profileId?: string) {
               </button>
             </form>
             <template v-else>
-              <strong class="profile-manager-name">{{ profile.name }}</strong>
+              <button
+                type="button" class="profile-manager-select"
+                :aria-current="profile.id === activeId ? 'true' : undefined"
+                :aria-label="t('切换到 {name}', { name: profile.name })"
+                :disabled="busy"
+                @click="selectProfile(profile.id)"
+              >
+                <span :class="profile.id === activeId ? 'i-lucide:circle-check' : 'i-lucide:circle'" aria-hidden="true" />
+                <span class="profile-manager-name">{{ profile.name }}</span>
+              </button>
               <div class="profile-row-actions">
                 <button class="button secondary" :disabled="busy" :aria-label="t('重命名存档')" @click="editName(profile)">
                   {{ t('重命名') }}

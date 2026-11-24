@@ -154,6 +154,13 @@ onMounted(async () => {
       </main>
     </TabsRoot>
     <ImportDialog ref="importer" v-model:open="importOpen" :profiles="profiles" @selected="managerOpen = false" @imported="imported" />
-    <ProfileManager v-model:open="managerOpen" :profiles="profiles" @changed="reload" @restore="importer?.chooseFile('backup')" />
+    <ProfileManager
+      v-model:open="managerOpen"
+      :profiles="profiles"
+      :active-id="activeId"
+      @changed="reload"
+      @restore="importer?.chooseFile('backup')"
+      @select="activeId = $event"
+    />
   </div>
 </template>
