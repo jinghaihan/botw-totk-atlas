@@ -10,10 +10,6 @@ html.dark {
   color-scheme: dark;
 }
 
-#nprogress {
-  pointer-events: none;
-}
-
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation: none;
@@ -30,15 +26,4 @@ html.dark {
 }
 .dark::view-transition-new(root) {
   z-index: 1;
-}
-
-/* Transitions */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
 }

@@ -38,11 +38,8 @@
     "@unhead/vue": "catalog:frontend",
     "@unocss/reset": "catalog:frontend",
     "@vueuse/core": "catalog:frontend",
-    "pinia": "catalog:frontend",
     "vue": "catalog:frontend",
-    "vue-i18n": "catalog:frontend",
-    "vue-router": "catalog:frontend",
-    "nprogress": "catalog:prod"
+    "vue-i18n": "catalog:frontend"
   },
   "devDependencies": {
     "@octohash/vite-config": "catalog:build",
@@ -61,8 +58,7 @@
     "eslint-plugin-format": "catalog:lint",
     "lint-staged": "catalog:lint",
     "vue-tsc": "catalog:lint",
-    "vitest": "catalog:test",
-    "@types/nprogress": "catalog:types"
+    "vitest": "catalog:test"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm lint-staged"

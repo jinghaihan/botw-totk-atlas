@@ -13,7 +13,5 @@ declare module 'vue' {
   export interface GlobalComponents {
     DarkToggle: typeof import('./../components/dark-toggle.vue')['default']
     LanguageToggle: typeof import('./../components/language-toggle.vue')['default']
-    RouterLink: typeof import('vue-router')['RouterLink']
-    RouterView: typeof import('vue-router')['RouterView']
   }
 }

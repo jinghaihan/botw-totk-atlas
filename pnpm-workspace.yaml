@@ -19,11 +19,9 @@ catalogs:
     '@unocss/preset-web-fonts': ^66.7.3
     '@unocss/reset': ^66.7.3
     '@vueuse/core': ^14.3.0
-    pinia: ^3.0.4
     unocss: ^66.7.3
     vue: ^3.5.39
     vue-i18n: ^11.4.6
-    vue-router: ^5.1.0
   icons:
     '@iconify-json/lucide': ^1.2.114
   lint:
@@ -33,12 +31,8 @@ catalogs:
     eslint-plugin-format: ^2.0.1
     lint-staged: ^17.0.8
     vue-tsc: ^3.3.5
-  prod:
-    nprogress: ^0.2.0
   test:
     vitest: ^4.1.9
-  types:
-    '@types/nprogress': ^0.2.3
 onlyBuiltDependencies:
   - esbuild
   - simple-git-hooks
