@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ProgressRow } from '@/domain/exploration'
-import type { GameId, MapLayer } from '@/domain/game'
+import type { GameId, MapLayer, PointStatus } from '@/domain/game'
 import * as L from 'leaflet'
 import { coordinateLabel, mapToWorld, tileUrl, worldToMap } from '@/domain/coordinates'
 import { tr as t } from '@/modules/i18n'
@@ -21,6 +21,11 @@ let mounted = false
 let alive = true
 let focusMarker: L.CircleMarker | undefined
 const glyphs: Record<string, string> = { shrine: 'M12 4 21 20H3Z M12 10v4 M12 17v1', korok: 'M19 4C7 3 3 9 6 16c7 5 14-1 13-12ZM5 20l10-11', chest: 'M4 8h16v12H4ZM4 12h16M10 10h4v5h-4ZM6 8V5h12v3', tower: 'M10 4h4l2 16H8ZM6 5 3 8l3 3M18 5l3 3-3 3', lightroot: 'M12 20V9M12 13C4 14 3 7 4 5c6 0 9 3 8 8ZM12 10c0-6 5-8 8-7 1 5-3 8-8 7', cave: 'M2 20 8 6l4 7 3-9 7 16ZM9 20v-4a3 3 0 0 1 6 0v4', well: 'M4 9h16v11H4ZM2 9l10-7 10 7M8 12v5M16 12v5', camp: 'M12 3 22 21H2ZM8 21l4-8 4 8', default: 'M12 3a7 7 0 0 1 7 7c0 5-7 11-7 11S5 15 5 10a7 7 0 0 1 7-7ZM10 10h4' }
+function markerSvg(category: string, status: PointStatus, ignored = false) {
+  const color = status === 'complete' ? '#a89e84' : '#d8bd7f'
+  const badge = status === 'complete' ? '<path d="m20 25 2 2 4-5" fill="none" stroke="currentColor" stroke-width="2"/>' : '<text x="23" y="28" text-anchor="middle" fill="currentColor" font-size="11" font-family="sans-serif">?</text>'
+  return `<svg width="24" height="28" viewBox="0 0 30 34" aria-hidden="true" style="color:${color};opacity:${ignored ? 0.4 : 1}"><path d="M15 1 28 8v16l-13 8L2 24V8Z" fill="${status === 'complete' ? '#3e3b32' : '#292b2c'}" stroke="currentColor" stroke-width="1.5" ${status === 'unknown' ? 'stroke-dasharray="3 2"' : ''}/><g transform="translate(3 3)" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><path d="${glyphs[category] ?? glyphs.default}"/></g>${status === 'incomplete' ? '' : `<circle cx="23" cy="25" r="6" fill="#292b2c"/>${badge}`}</svg>`
+}
 function base() {
   if (!map)
     return
@@ -46,8 +51,7 @@ function markers() {
   for (const row of props.rows) {
     if (!row.point.at)
       continue
-    const color = row.status === 'complete' ? '#a89e84' : '#d8bd7f'
-    const marker = L.marker(worldToMap(row.point.at), { title: row.point.name, icon: L.divIcon({ className: `atlas-marker ${row.status}`, html: `<svg width="24" height="28" viewBox="0 0 30 34" aria-hidden="true"><path d="M15 1 28 8v16l-13 8L2 24V8Z" fill="${row.status === 'complete' ? '#3e3b32' : '#292b2c'}" stroke="${color}" stroke-width="1.5" opacity="${row.annotation?.ignored ? 0.4 : 1}"/><g transform="translate(3 3)" fill="none" stroke="${color}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><path d="${glyphs[row.point.category] ?? glyphs.default}"/></g></svg>`, iconSize: [24, 28], iconAnchor: [12, 14], tooltipAnchor: [0, -15] }) })
+    const marker = L.marker(worldToMap(row.point.at), { title: row.point.name, icon: L.divIcon({ className: `atlas-marker ${row.status}`, html: markerSvg(row.point.category, row.status, row.annotation?.ignored), iconSize: [24, 28], iconAnchor: [12, 14], tooltipAnchor: [0, -15] }) })
     const label = document.createElement('span')
     label.textContent = row.point.name
     marker.bindTooltip(label, { direction: 'top' }).on('click', (event) => {
@@ -135,8 +139,8 @@ onBeforeUnmount(() => {
     <div v-if="pointer" class="map-coordinates" translate="no">
       {{ pointer }}
     </div>
-    <div class="map-legend">
-      <span>{{ t('● 未完成') }}</span><span class="muted">{{ t('○ 已完成') }}</span><span>{{ t('◌ 未知') }}</span><span>{{ t('底图需要联网') }}</span>
+    <div class="map-legend" :aria-label="t('地图图例')">
+      <span><span v-html="markerSvg('default', 'incomplete')" />{{ t('未完成') }}</span><span><span v-html="markerSvg('default', 'complete')" />{{ t('已完成') }}</span><span><span v-html="markerSvg('default', 'unknown')" />{{ t('进度未知') }}</span>
     </div>
   </div>
 </template>

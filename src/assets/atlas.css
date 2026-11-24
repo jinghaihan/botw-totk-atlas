@@ -806,6 +806,16 @@ button:hover:not(:disabled) {
   border-radius: 5px;
   pointer-events: none;
 }
+.map-legend > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.map-legend svg {
+  display: block;
+  width: 18px;
+  height: 22px;
+}
 .leaflet-control-zoom {
   margin-right: 22px !important;
   margin-bottom: 50px !important;
