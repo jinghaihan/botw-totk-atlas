@@ -11,6 +11,8 @@ const icons: Record<string, string> = {
   camp: 'i-lucide:tent',
 }
 
+export const categoryIconClasses = [...new Set([...Object.values(icons), 'i-lucide:skull', 'i-lucide:map-pin'])]
+
 export function isMonsterCategory(category: string) {
   return monsters.has(category)
 }

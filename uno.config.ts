@@ -9,8 +9,10 @@ import {
   transformerDirectives,
   transformerVariantGroup,
 } from 'unocss'
+import { categoryIconClasses } from './src/games/category-icons'
 
 export default defineConfig({
+  safelist: categoryIconClasses,
   shortcuts: [
     ['flex-center', 'flex items-center justify-center'],
     ['flex-col-center', 'flex flex-col items-center justify-center'],
