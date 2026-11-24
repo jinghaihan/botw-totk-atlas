@@ -9,6 +9,18 @@ const mapLocations = new Set(totkGroups.LOCATIONS_VISITED)
 const botwNames = JSON.parse(await readFile('public/labels/botw-en-US.json', 'utf8')).ids
 const botwQuestIds = new Map(Object.entries(botwNames).filter(([id]) => id.startsWith('QL_')).map(([id, name]) => [name, id.slice(3)]))
 
+// Quest text IDs do not always use the same suffix as the game's completion flags.
+// https://github.com/MrCheeze/botw-tools/blob/master/gamedata.json
+const botwQuestFlagOverrides = new Map([
+  ['quest:tools-of-the-trade', 'GerudoMiniJewel_Finished'],
+  ['quest:the-sheep-rustlers', 'HatenoMini_GoatThief_Finished'],
+  ['quest:xenoblade-chronicles-2', 'bf2_collabo_Finish'],
+  ['shrine-quest:the-perfect-drink', 'Gerudo_CarryIce_Finished'],
+  ['shrine-quest:secret-of-the-cedars', 'HatenoMini_ThreeTree_Finished'],
+  ['shrine-quest:a-landscape-of-a-stable', 'MtMotelMini_Landscape_Finished'],
+  ['shrine-quest:the-ancient-rito-song', 'RitoSongMystery_Finished'],
+])
+
 const upstream = 'https://raw.githubusercontent.com/jv-prado/hyrule-tracker/master/'
 const local = process.argv.indexOf('--source-dir')
 const sourceDir = local >= 0 ? process.argv[local + 1] : undefined
@@ -41,7 +53,12 @@ for (const game of ['botw', 'totk']) {
     if (p.key === undefined)
       p.rule = 'manual'
     if (game === 'botw') {
-      if (!p.key && ['quest', 'shrine-quest', 'dlc-quest'].includes(p.category) && botwQuestIds.has(p.name)) {
+      const questFlag = botwQuestFlagOverrides.get(p.id)
+      if (questFlag) {
+        p.key = questFlag
+        p.rule = 'boolean'
+      }
+      else if (!p.key && ['quest', 'shrine-quest', 'dlc-quest'].includes(p.category) && botwQuestIds.has(p.name)) {
         p.key = `${botwQuestIds.get(p.name)}_Finish`
         p.rule = 'boolean'
       }

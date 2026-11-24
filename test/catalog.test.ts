@@ -11,6 +11,19 @@ describe('bundled catalogs', () => {
       expect(points.filter(p => p.category === 'shrine')).toHaveLength(total)
     })
   }
+  it('uses the actual BOTW quest completion flags when they differ from text IDs', () => {
+    const flags = {
+      'quest:tools-of-the-trade': 'GerudoMiniJewel_Finished',
+      'quest:the-sheep-rustlers': 'HatenoMini_GoatThief_Finished',
+      'quest:xenoblade-chronicles-2': 'bf2_collabo_Finish',
+      'shrine-quest:the-perfect-drink': 'Gerudo_CarryIce_Finished',
+      'shrine-quest:secret-of-the-cedars': 'HatenoMini_ThreeTree_Finished',
+      'shrine-quest:a-landscape-of-a-stable': 'MtMotelMini_Landscape_Finished',
+      'shrine-quest:the-ancient-rito-song': 'RitoSongMystery_Finished',
+    }
+    const quests = read('botw').filter(point => point.rule === 'boolean' && Object.hasOwn(flags, point.id))
+    expect(Object.fromEntries(quests.map(point => [point.id, point.key]))).toEqual(flags)
+  })
   it('links all 166 TOTK shrine chests to parents and individual save flags', () => {
     const points = read('totk')
     const shrines = new Set(points.filter(p => p.category === 'shrine').map(p => p.id))
