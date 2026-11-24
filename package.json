@@ -51,6 +51,7 @@
     "@octohash/vite-config": "catalog:build",
     "vite": "catalog:build",
     "bumpp": "catalog:dev",
+    "opencc-js": "catalog:dev",
     "pncat": "catalog:dev",
     "simple-git-hooks": "catalog:dev",
     "taze": "catalog:dev",
@@ -67,7 +68,8 @@
     "fake-indexeddb": "catalog:test",
     "vitest": "catalog:test",
     "@types/leaflet": "catalog:types",
-    "@types/murmurhash3js": "catalog:types"
+    "@types/murmurhash3js": "catalog:types",
+    "@types/node": "catalog:types"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm lint-staged"

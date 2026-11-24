@@ -10,6 +10,7 @@ catalogs:
     vite: ^8.1.0
   dev:
     bumpp: ^11.1.0
+    opencc-js: ^1.4.2
     pncat: ^0.12.0
     simple-git-hooks: ^2.13.1
     taze: ^19.14.1
@@ -43,6 +44,7 @@ catalogs:
   types:
     '@types/leaflet': ^1.9.22
     '@types/murmurhash3js': ^3.0.7
+    '@types/node': ^26.6.6
 onlyBuiltDependencies:
   - esbuild
   - simple-git-hooks
