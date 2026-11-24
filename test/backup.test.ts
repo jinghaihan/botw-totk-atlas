@@ -61,7 +61,7 @@ describe('portable backups', () => {
   it('rejects invalid references before changing the database', async () => {
     await saveProfile(snapshot(), '保留这个')
     const backup = await exportBackup()
-    backup.annotations.push({ profileId: 'missing', pointId: 'p', status: 'complete', updatedAt: new Date().toISOString() })
+    backup.annotations.push({ profileId: 'missing', pointId: 'p', status: 'complete', updatedAt: new Date().toISOString(), completedAt: undefined })
     await expect(restoreBackup(backup)).rejects.toThrow()
     expect(await db.profiles.count()).toBe(1)
   })
