@@ -1,5 +1,6 @@
 import type { GameSnapshot } from '@/domain/game'
 import murmur from 'murmurhash3js'
+import { progressLabels } from '@/domain/game'
 import groups from './completion-flags.json'
 
 const hash = (name: string) => murmur.x86.hash32(name) >>> 0
@@ -55,8 +56,8 @@ export async function readTotkSave(buffer: ArrayBuffer, filename: string): Promi
   const definitions = [
     ['SHRINES_STATUS', '神庙通关', 'Clear'],
     ['LIGHTROOTS_STATUS', '破魔之根', 'Open'],
-    ['KOROKS_HIDDEN', '呀哈哈 · 普通谜题', ''],
-    ['KOROKS_CARRY', '呀哈哈 · 运送朋友', 'Clear'],
+    ['KOROKS_HIDDEN', progressLabels.KOROKS_HIDDEN, ''],
+    ['KOROKS_CARRY', progressLabels.KOROKS_CARRY, 'Clear'],
     ['BUBBULS_DEFEATED', '魔犹伊', ''],
     ['LOCATION_CAVES_VISITED', '洞窟', ''],
     ['LOCATION_WELLS_VISITED', '井', ''],
@@ -69,7 +70,7 @@ export async function readTotkSave(buffer: ArrayBuffer, filename: string): Promi
     ['BOSSES_GLEEOKS_DEFEATED', '古栗欧克', ''],
     ['BOSSES_REMATCH_DEFEATED', '地底神殿 Boss 重战', ''],
     ['SAGE_WILLS_FOUND', '贤者的遗志', ''],
-    ['TREASURE_MAPS_FOUND', '古旧地图', ''],
+    ['TREASURE_MAPS_FOUND', progressLabels.TREASURE_MAPS_FOUND, ''],
     ['ADDISON_COMPLETED', '广告牌', ''],
   ]
   const progress = definitions.map(([id, label, expected]) => {

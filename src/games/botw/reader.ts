@@ -1,5 +1,6 @@
 import type { GameSnapshot } from '@/domain/game'
 import * as CRC32 from 'crc-32'
+import { masterCycleName, progressLabels } from '@/domain/game'
 import flags from './completion-flags.json'
 
 export type BotwSnapshot = GameSnapshot
@@ -30,7 +31,7 @@ export async function readBotwSave(buffer: ArrayBuffer, filename: string): Promi
   const progress = Object.entries(flags).map(([id, keys]) => {
     if (keys.some(key => value(key) === undefined))
       throw new Error('当前存档的收集标记不完整，请检查文件版本。')
-    const labels: Record<string, string> = { koroks: '呀哈哈', hinoxes: '西诺克斯', taluses: '岩石巨人', moldugas: '莫尔德拉吉克', compendium: '图鉴登记记录' }
+    const labels: Record<string, string> = { koroks: progressLabels.koroks, hinoxes: '西诺克斯', taluses: '岩石巨人', moldugas: '莫尔德拉吉克', compendium: progressLabels.compendium }
     return { id, label: labels[id]!, done: keys.filter(key => value(key) === 1).length, total: keys.length }
   })
   for (const [id, label, prefix] of [['shrines', '神庙通关', 'Clear_Dungeon'], ['shrine-chests', '宝箱全部领取的神庙', 'CompleteTreasure_Dungeon']]) {
@@ -52,7 +53,7 @@ export async function readBotwSave(buffer: ArrayBuffer, filename: string): Promi
     milestones: [
       { label: '剑之试炼', complete: number('100enemy_Finish') === 1 },
       { label: '英杰们的诗篇', complete: number('BalladOfHeroes_Finish') === 1 },
-      { label: '大师摩托 Zero', complete: number('IsGet_Obj_Motorcycle') === 1 },
+      { label: masterCycleName, complete: number('IsGet_Obj_Motorcycle') === 1 },
     ],
   }
 }

@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import type { ProgressRow } from '@/domain/exploration'
-import type { CatalogPoint, PointAnnotation } from '@/domain/game'
+import type { CatalogPoint, GameId, PointAnnotation } from '@/domain/game'
 import { DialogClose, DialogContent, DialogDescription, DialogPortal, DialogRoot, DialogTitle } from 'reka-ui'
 import { coordinateLabel } from '@/domain/coordinates'
-import { categoryLabels, statusLabels } from '@/games/catalog'
+import { categoryLabel, statusLabels } from '@/games/catalog'
 import { categoryIcon } from '@/games/category-icons'
 import { tr as t } from '@/modules/i18n'
 
-const props = defineProps<{ row?: ProgressRow, profileId?: string, children: ProgressRow[] }>()
+const props = defineProps<{ game: GameId, row?: ProgressRow, profileId?: string, children: ProgressRow[] }>()
 const emit = defineEmits<{ save: [annotation: PointAnnotation], locate: [point: CatalogPoint], select: [id: string], import: [] }>()
 const open = defineModel<boolean>('open', { required: true })
 function toggleComplete() {
@@ -22,7 +22,7 @@ function toggleComplete() {
     <DialogPortal>
       <DialogContent v-if="row" class="point-detail" @interact-outside="$event.preventDefault()">
         <div class="detail-category">
-          <span :class="categoryIcon(row.point.category)" aria-hidden="true" />{{ t(categoryLabels[row.point.category] ?? row.point.category) }}<span class="detail-status" :data-status="row.status">{{ profileId ? t(statusLabels[row.status]) : t('未导入存档') }}</span>
+          <span :class="categoryIcon(row.point.category)" aria-hidden="true" />{{ t(categoryLabel(game, row.point.category)) }}<span class="detail-status" :data-status="row.status">{{ profileId ? t(statusLabels[row.status]) : t('未导入存档') }}</span>
           <DialogClose class="dialog-close icon-button" :aria-label="t('关闭点位详情')">
             <span class="i-lucide:x" aria-hidden="true" />
           </DialogClose>

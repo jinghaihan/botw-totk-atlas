@@ -4,7 +4,7 @@ import type { ProfileView, SaveProfile } from '@/storage/profiles'
 import { CollapsibleContent, CollapsibleRoot, CollapsibleTrigger, PaginationEllipsis, PaginationList, PaginationListItem, PaginationNext, PaginationPrev, PaginationRoot, TabsContent, TabsList, TabsRoot, TabsTrigger, ToggleGroupItem, ToggleGroupRoot } from 'reka-ui'
 import { useGameLabels } from '@/composables/game-labels'
 import { filterRows, resolveRows } from '@/domain/exploration'
-import { categoryDisplayOrder, categoryLabels, loadCatalog } from '@/games/catalog'
+import { categoryDisplayOrder, categoryLabel, loadCatalog } from '@/games/catalog'
 import { categoryIcon } from '@/games/category-icons'
 import { currentLocale, tr as t } from '@/modules/i18n'
 import { db, listAnnotations, putAnnotation } from '@/storage/profiles'
@@ -36,7 +36,7 @@ const view = ref(defaultView(props.profile?.id ?? `browse:${props.game}`))
 const points = computed(() => catalog.value.map(gameLabels.localize))
 const rows = computed(() => resolveRows(props.profile?.snapshot, points.value, annotations.value))
 const explorationRows = computed(() => rows.value.filter(row => row.point.at && !row.point.interior))
-const categories = computed(() => [...new Set(explorationRows.value.map(row => row.point.category))].sort((a, b) => t(categoryLabels[a] ?? a).localeCompare(t(categoryLabels[b] ?? b), currentLocale.value)))
+const categories = computed(() => [...new Set(explorationRows.value.map(row => row.point.category))].sort((a, b) => categoryName(a).localeCompare(categoryName(b), currentLocale.value)))
 const regions = computed(() => [{ value: 'all', label: t('所有地区') }, ...[...new Set(explorationRows.value.map(row => row.point.region).filter((r): r is string => !!r))].sort().map(r => ({ value: r, label: gameLabels.text(r) }))])
 const filtered = computed(() => filterRows(explorationRows.value, view.value, true))
 const categoryProgress = computed(() => {
@@ -66,7 +66,7 @@ const children = computed(() => rows.value.filter(r => r.point.parentId === sele
 
 const categoryOrder = computed(() => [...categoryDisplayOrder.filter(id => categories.value.includes(id)), ...categories.value.filter(id => !categoryDisplayOrder.includes(id))])
 function categoryName(category: string) {
-  return t(category === 'camp' ? '营地' : categoryLabels[category] ?? category)
+  return t(category === 'camp' ? '营地' : categoryLabel(props.game, category))
 }
 
 let generation = 0
@@ -219,7 +219,7 @@ function locate(point: CatalogPoint) {
                 <div v-if="profile && !filtered.length" class="empty-results">
                   <h3>{{ t('当前筛选没有结果') }}</h3>
                 </div><button v-for="row in paged" :key="row.point.id" class="point-row" :class="[row.status, { selected: row.point.id === selected }]" @click="select(row.point.id)">
-                  <span class="point-symbol" :class="categoryIcon(row.point.category)" aria-hidden="true" /><span class="point-copy"><strong>{{ row.point.name }}</strong><small>{{ row.point.regionLabel ?? row.point.region ?? t(categoryLabels[row.point.category] ?? row.point.category) }}</small></span><span class="point-state"><span class="i-lucide:chevron-right" aria-hidden="true" /><small v-if="row.annotation?.status">{{ t('手动') }}</small></span>
+                  <span class="point-symbol" :class="categoryIcon(row.point.category)" aria-hidden="true" /><span class="point-copy"><strong>{{ row.point.name }}</strong><small>{{ row.point.regionLabel ?? row.point.region ?? t(categoryLabel(game, row.point.category)) }}</small></span><span class="point-state"><span class="i-lucide:chevron-right" aria-hidden="true" /><small v-if="row.annotation?.status">{{ t('手动') }}</small></span>
                 </button>
               </section>
               <PaginationRoot v-if="pageCount > 1" v-model:page="page" :total="filtered.length" :items-per-page="pageSize" :sibling-count="0" show-edges class="pagination">
@@ -242,6 +242,6 @@ function locate(point: CatalogPoint) {
         </template>
       </CollapsibleContent>
     </CollapsibleRoot>
-    <PointDetail v-model:open="detailOpen" :row="current" :profile-id="profile?.id" :children="children" @save="save" @locate="locate" @select="select" @import="emit('import')" />
+    <PointDetail v-model:open="detailOpen" :game="game" :row="current" :profile-id="profile?.id" :children="children" @save="save" @locate="locate" @select="select" @import="emit('import')" />
   </div>
 </template>

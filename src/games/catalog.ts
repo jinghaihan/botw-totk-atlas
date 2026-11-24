@@ -92,11 +92,10 @@ export const categoryDisplayOrder = [
   'weapon-unlock',
 ]
 
-export const categoryLabels: Record<string, string> = {
+const categoryLabels: Record<string, string> = {
   'shrine': '神庙',
-  'korok': '呀哈哈',
+  'korok': '克洛格',
   'chest': '宝箱',
-  'tower': '塔',
   'lightroot': '破魔之根',
   'cave': '洞窟入口',
   'well': '井',
@@ -108,7 +107,7 @@ export const categoryLabels: Record<string, string> = {
   'flux': '方块魔像',
   'frox': '巨霸迦马',
   'gleeok': '古栗欧克',
-  'lynel': '人马',
+  'lynel': '莱尼尔',
   'rematch': 'Boss 重战',
   'camp': '怪物营地 · 宝箱点位',
   'location': '探索地点',
@@ -116,8 +115,8 @@ export const categoryLabels: Record<string, string> = {
   'tear': '龙之泪',
   'temple': '神兽 / 神殿',
   'sage-will': '贤者的遗志',
-  'old-map': '古旧地图',
-  'schema': '蓝图石板',
+  'old-map': '残旧的地图',
+  'schema': '设计图石板',
   'yiga': '依盖队设计图',
   'addison': '广告牌',
   'tablet': '古代石碑',
@@ -125,22 +124,28 @@ export const categoryLabels: Record<string, string> = {
   'lab': '研究所',
   'fairy': '大妖精',
   'bargainer': '魔人像',
-  'dispenser': '装置制造机',
+  'dispenser': '左纳乌装置制造机',
   'shop': '商店',
-  'main-quest': '主线挑战',
+  'main-quest': '主剧情挑战',
   'adventure': '情节挑战',
   'shrine-quest': '神庙挑战',
   'quest': '迷你挑战',
   'dlc-quest': 'DLC 挑战',
-  'compendium': '图鉴',
+  'compendium': '海拉鲁图鉴',
   'armor': '服装获取记录',
   'recipe': '食谱',
-  'fabric': '滑翔伞布料',
+  'fabric': '滑翔帆布料',
   'weapon-unlock': '无腐朽武器解锁',
   'minigame': '小游戏',
   'voice': '语音回忆',
   'gloom': '瘴气之手',
   'blossom': '樱花树',
+}
+
+export function categoryLabel(game: GameId, category: string) {
+  if (category === 'tower')
+    return game === 'botw' ? '希卡塔' : '鸟望台'
+  return categoryLabels[category] ?? category
 }
 
 export const statusLabels = { complete: '已完成', incomplete: '未完成', unknown: '未知 / 手动记录' }

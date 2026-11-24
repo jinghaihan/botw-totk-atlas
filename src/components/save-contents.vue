@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import type { GameSnapshot } from '@/domain/game'
 import { TabsContent } from 'reka-ui'
+import { masterCycleName, progressLabels } from '@/domain/game'
 import { currentLocale, tr as t } from '@/modules/i18n'
 
 defineProps<{ snapshot: GameSnapshot }>()
+const milestoneName = (label: string) => label === '大师摩托 Zero' ? masterCycleName : label
 const number = (n: number) => n.toLocaleString(currentLocale.value)
 </script>
 
@@ -15,7 +17,7 @@ const number = (n: number) => n.toLocaleString(currentLocale.value)
     <section class="progress-grid">
       <article v-for="p in snapshot.progress" :key="p.id" class="progress-card">
         <div class="card-heading">
-          <span>{{ t(p.label) }}</span><span class="complete-mark">{{ p.done === p.total ? t('已完成') : t('未完成') }}</span>
+          <span>{{ t(Object.hasOwn(progressLabels, p.id) ? progressLabels[p.id] : p.label) }}</span><span class="complete-mark">{{ p.done === p.total ? t('已完成') : t('未完成') }}</span>
         </div><div class="progress-number">
           {{ number(p.done) }}<span>/ {{ number(p.total) }}</span>
         </div><div class="progress-track">
@@ -30,7 +32,7 @@ const number = (n: number) => n.toLocaleString(currentLocale.value)
     </div>
     <section class="milestones">
       <div v-for="m in snapshot.milestones" :key="m.label">
-        <strong>{{ t(m.label) }}</strong><span class="milestone-state" :data-complete="m.complete">{{ m.label === '大师摩托 Zero' ? (m.complete ? t('已解锁') : t('未解锁')) : (m.complete ? t('已完成') : t('尚未完成')) }}</span>
+        <strong>{{ t(milestoneName(m.label)) }}</strong><span class="milestone-state" :data-complete="m.complete">{{ milestoneName(m.label) === masterCycleName ? (m.complete ? t('已解锁') : t('未解锁')) : (m.complete ? t('已完成') : t('尚未完成')) }}</span>
       </div>
     </section>
   </TabsContent>
