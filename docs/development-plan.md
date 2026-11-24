@@ -55,7 +55,7 @@ src/
 
 先确认页面布局和双游戏主题，让用户尽早看到效果。演示数据明确标识，与真实导入结果区分。
 
-- `chore: bootstrap zelda-wilds-notes from starter-vue`
+- `chore: bootstrap botw-totk-atlas from starter-vue`
 - `refactor: remove unused routing and state management`
 - `docs: define development milestones and visual direction`
 - `feat: define game and collection contracts`

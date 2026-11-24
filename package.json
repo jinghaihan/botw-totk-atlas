@@ -1,18 +1,18 @@
 {
-  "name": "zelda-wilds-notes",
+  "name": "botw-totk-atlas",
   "type": "module",
   "version": "0.0.0",
   "packageManager": "pnpm@11.9.0",
   "description": "A local-first exploration and collection tracker for Breath of the Wild and Tears of the Kingdom.",
   "author": "jinghaihan",
   "license": "MIT",
-  "homepage": "https://github.com/jinghaihan/zelda-wilds-notes#readme",
+  "homepage": "https://github.com/jinghaihan/botw-totk-atlas#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jinghaihan/zelda-wilds-notes.git"
+    "url": "git+https://github.com/jinghaihan/botw-totk-atlas.git"
   },
   "bugs": {
-    "url": "https://github.com/jinghaihan/zelda-wilds-notes/issues"
+    "url": "https://github.com/jinghaihan/botw-totk-atlas/issues"
   },
   "keywords": [
     "zelda",
