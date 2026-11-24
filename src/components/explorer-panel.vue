@@ -5,7 +5,7 @@ import { CollapsibleContent, CollapsibleRoot, CollapsibleTrigger, PaginationElli
 import { useGameLabels } from '@/composables/game-labels'
 import { coordinateLabel } from '@/domain/coordinates'
 import { filterRows, resolveRows } from '@/domain/exploration'
-import { categoryLabels, loadCatalog, statusLabels } from '@/games/catalog'
+import { categoryDisplayOrder, categoryLabels, loadCatalog, statusLabels } from '@/games/catalog'
 import { categoryIcon } from '@/games/category-icons'
 import { currentLocale, tr as t } from '@/modules/i18n'
 import { db, listAnnotations, putAnnotation } from '@/storage/profiles'
@@ -50,8 +50,7 @@ const current = computed(() => rows.value.find(r => r.point.id === selected.valu
 const children = computed(() => rows.value.filter(r => r.point.parentId === selected.value || r.point.id === current.value?.point.relatedChestId))
 const statuses = computed(() => [{ value: 'all', label: t('全部状态') }, { value: 'incomplete', label: t('未完成') }, { value: 'complete', label: t('已完成') }, { value: 'unknown', label: t('未知 / 手动记录') }, { value: 'found-unfinished', label: t('已发现 · 未完成') }, { value: 'shrine-chests', label: t('已通关 · 宝箱未领完') }])
 
-const highlights = computed(() => ['shrine', 'korok', 'chest', 'tower', 'lightroot', 'cave', 'well', 'camp', 'hinox'].filter(id => categories.value.includes(id)))
-const categoryOrder = computed(() => [...highlights.value, ...categories.value.filter(id => !highlights.value.includes(id))])
+const categoryOrder = computed(() => [...categoryDisplayOrder.filter(id => categories.value.includes(id)), ...categories.value.filter(id => !categoryDisplayOrder.includes(id))])
 const categoryCounts = computed(() => {
   const counts: Record<string, { remaining: number, complete: number, unknown: number, total: number }> = {}
   for (const row of rows.value) {

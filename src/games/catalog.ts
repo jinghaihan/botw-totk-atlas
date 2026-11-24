@@ -36,6 +36,62 @@ export function loadCatalog(game: GameId) {
   return cache.get(game)!
 }
 
+export const categoryDisplayOrder = [
+  // Locations and facilities.
+  'shrine',
+  'tower',
+  'lightroot',
+  'cave',
+  'well',
+  'chasm',
+  'location',
+  'temple',
+  'stable',
+  'lab',
+  'shop',
+  'fairy',
+  'bargainer',
+  'dispenser',
+  'blossom',
+  // Monsters and camps.
+  'hinox',
+  'talus',
+  'molduga',
+  'lynel',
+  'frox',
+  'flux',
+  'gleeok',
+  'gloom',
+  'bubbul',
+  'rematch',
+  'camp',
+  // Collectibles.
+  'korok',
+  'chest',
+  'memory',
+  'tear',
+  'sage-will',
+  'old-map',
+  'schema',
+  'yiga',
+  'tablet',
+  'addison',
+  'voice',
+  // Quests and challenges.
+  'main-quest',
+  'adventure',
+  'quest',
+  'shrine-quest',
+  'dlc-quest',
+  'minigame',
+  // Completion records.
+  'compendium',
+  'armor',
+  'recipe',
+  'fabric',
+  'weapon-unlock',
+]
+
 export const categoryLabels: Record<string, string> = {
   'shrine': '神庙',
   'korok': '呀哈哈',
