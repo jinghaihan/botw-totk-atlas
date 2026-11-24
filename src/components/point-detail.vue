@@ -4,7 +4,7 @@ import type { GameId, PointAnnotation } from '@/domain/game'
 import { DialogClose, DialogContent, DialogDescription, DialogPortal, DialogRoot, DialogTitle } from 'reka-ui'
 import { coordinateLabel } from '@/domain/coordinates'
 import { categoryLabel, statusLabels } from '@/games/catalog'
-import { categoryIcon } from '@/games/category-icons'
+import { categoryIcon, pointIcon } from '@/games/category-icons'
 import { tr as t } from '@/modules/i18n'
 
 const props = defineProps<{ game: GameId, row?: ProgressRow, profileId?: string, children: ProgressRow[], showCompletion: boolean }>()
@@ -24,7 +24,7 @@ function toggleComplete() {
     <DialogPortal>
       <DialogContent v-if="row" class="point-detail" @interact-outside="$event.preventDefault()">
         <div class="detail-category">
-          <span class="detail-type"><span :class="categoryIcon(game, row.point.category)" aria-hidden="true" />{{ category }}</span>
+          <span class="detail-type"><span :class="pointIcon(game, row.point)" aria-hidden="true" />{{ category }}</span>
           <span class="detail-status" :data-status="row.status">{{ profileId ? t(statusLabels[row.status]) : t('status.no-save') }}</span>
           <DialogClose class="dialog-close icon-button" :aria-label="t('point.close')">
             <span class="i-lucide:x" aria-hidden="true" />

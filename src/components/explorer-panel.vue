@@ -7,7 +7,7 @@ import { useGameLabels } from '@/composables/game-labels'
 import { AppError } from '@/domain/errors'
 import { filterRows, resolveRows } from '@/domain/exploration'
 import { categoryDisplayOrder, categoryLabel, loadCatalog } from '@/games/catalog'
-import { categoryIcon } from '@/games/category-icons'
+import { categoryIcon, pointIcon } from '@/games/category-icons'
 import { currentLocale, tr as t } from '@/modules/i18n'
 import { db, listAnnotations, putAnnotation } from '@/storage/profiles'
 import PointDetail from './point-detail.vue'
@@ -270,7 +270,7 @@ async function toggleChecklistCompletion(row: ProgressRow) {
                 </div>
                 <div v-for="row in paged" :key="row.point.id" class="point-row" :class="{ selected: row.point.id === selected, complete: row.status === 'complete' }">
                   <button type="button" class="point-row-details" @click="select(row.point.id, true)">
-                    <span class="point-symbol" :class="categoryIcon(game, row.point.category)" aria-hidden="true" />
+                    <span class="point-symbol" :class="pointIcon(game, row.point)" aria-hidden="true" />
                     <span class="point-copy"><strong>{{ row.point.name }}</strong><small>{{ row.point.regionLabel ?? row.point.region ?? categoryLabel(game, row.point.category) }}</small></span>
                     <span v-if="row.status === 'complete'" class="sr-only">{{ t('status.complete') }}</span>
                     <span v-if="!profile || row.annotation?.status" class="point-state">

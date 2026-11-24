@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import type { ProgressRow } from '@/domain/exploration'
-import type { GameId, MapLayer, PointStatus } from '@/domain/game'
+import type { CatalogPoint, GameId, MapLayer, PointStatus } from '@/domain/game'
 import * as L from 'leaflet'
 import { coordinateLabel, mapToWorld, tileUrl, worldToMap } from '@/domain/coordinates'
-import { categoryIconName, explorationIcons } from '@/games/category-icons'
+import { explorationIcons, pointIconName } from '@/games/category-icons'
 import { tr as t } from '@/modules/i18n'
 import 'leaflet/dist/leaflet.css'
 import 'leaflet.markercluster/dist/MarkerCluster.css'
@@ -22,9 +22,9 @@ let observer: ResizeObserver | undefined
 let mounted = false
 let alive = true
 let focusMarker: L.CircleMarker | undefined
-function markerSvg(game: GameId, category: string, status: PointStatus) {
+function markerSvg(game: GameId, point: CatalogPoint, status: PointStatus) {
   const color = status === 'complete' ? '#a89e84' : '#d8bd7f'
-  const { body } = explorationIcons.icons[categoryIconName(game, category)]
+  const { body } = explorationIcons.icons[pointIconName(game, point)]
   const badge = '<g class="atlas-marker-check" color="#d8bd7f" stroke="currentColor"><circle cx="24" cy="26" r="5.5" fill="#292b2c"/><path d="m21.5 26 1.5 1.5 3.5-3.5" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g>'
   return `<svg width="24" height="28" viewBox="0 0 30 34" aria-hidden="true" style="color:${color}"><g class="atlas-marker-body"><path d="M15 1 28 8v16l-13 8L2 24V8Z" fill="${status === 'complete' ? '#3e3b32' : '#292b2c'}" stroke="currentColor" stroke-width="1.5"/><g transform="translate(4.44 5.44) scale(.88)">${body}</g></g>${status === 'complete' ? badge : ''}</svg>`
 }
@@ -53,7 +53,7 @@ function markers() {
   for (const row of props.rows) {
     if (!row.point.at)
       continue
-    const marker = L.marker(worldToMap(row.point.at), { title: row.point.name, icon: L.divIcon({ className: `atlas-marker ${row.status}`, html: markerSvg(props.game, row.point.category, row.status), iconSize: [24, 28], iconAnchor: [12, 14], tooltipAnchor: [0, -15] }) })
+    const marker = L.marker(worldToMap(row.point.at), { title: row.point.name, icon: L.divIcon({ className: `atlas-marker ${row.status}`, html: markerSvg(props.game, row.point, row.status), iconSize: [24, 28], iconAnchor: [12, 14], tooltipAnchor: [0, -15] }) })
     const label = document.createElement('span')
     label.textContent = row.point.name
     marker.bindTooltip(label, { direction: 'top' }).on('click', (event) => {

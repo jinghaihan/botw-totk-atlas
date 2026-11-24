@@ -1,9 +1,7 @@
-import type { GameId } from '../domain/game'
+import type { CatalogPoint, GameId } from '../domain/game'
 import explorationIcons from '../assets/icons/hyrule.json'
 
 type ExplorationIcon = keyof typeof explorationIcons.icons
-
-const monsters = new Set(['bubbul', 'hinox', 'talus', 'molduga', 'flux', 'frox', 'gleeok', 'lynel', 'rematch', 'gloom'])
 
 const categoryIcons: Partial<Record<string, ExplorationIcon>> = {
   'lightroot': 'lightroot',
@@ -11,7 +9,6 @@ const categoryIcons: Partial<Record<string, ExplorationIcon>> = {
   'well': 'well',
   'chasm': 'chasm',
   'location': 'location',
-  'temple': 'temple',
   'stable': 'stable',
   'lab': 'lab',
   'shop': 'shop',
@@ -19,6 +16,16 @@ const categoryIcons: Partial<Record<string, ExplorationIcon>> = {
   'bargainer': 'bargainer',
   'dispenser': 'dispenser',
   'blossom': 'blossom',
+  'hinox': 'hinox',
+  'talus': 'talus',
+  'molduga': 'molduga',
+  'lynel': 'lynel',
+  'frox': 'frox',
+  'flux': 'flux',
+  'gleeok': 'gleeok',
+  'gloom': 'gloom',
+  'bubbul': 'bubbul',
+  'rematch': 'rematch',
   'korok': 'korok',
   'chest': 'chest',
   'memory': 'memory',
@@ -39,21 +46,42 @@ const categoryIcons: Partial<Record<string, ExplorationIcon>> = {
   'armor': 'armor',
 }
 
+const landmarkIcons: Partial<Record<string, ExplorationIcon>> = {
+  'temple:Wind_Relic': 'divine-bird',
+  'temple:Fire_Relic': 'divine-lizard',
+  'temple:Electric_Relic': 'divine-camel',
+  'temple:SageOfWind': 'wind-temple',
+  'temple:SageOfZora': 'water-temple',
+  'temple:SageOfFire': 'fire-temple',
+  'temple:SageOfSoul': 'spirit-temple',
+  'lab:Location_AncientLabo': 'akkala-lab',
+  'lab:IsVisitLocation.AncientLabo': 'akkala-lab',
+}
+
 export { explorationIcons }
 
 export const categoryIconClasses = Object.keys(explorationIcons.icons).map(name => `i-hyrule:${name}`)
 
-export function categoryIconName(game: GameId, category: string): ExplorationIcon {
+function categoryIconName(game: GameId, category: string): ExplorationIcon {
   if (category === 'shrine')
     return game === 'botw' ? 'sheikah-shrine' : 'zonai-shrine'
   if (category === 'tower')
     return game === 'botw' ? 'sheikah-tower' : 'skyview-tower'
-  if (monsters.has(category))
-    return 'monster'
+  if (category === 'temple')
+    return game === 'botw' ? 'divine-elephant' : 'temple'
   const name = Object.hasOwn(categoryIcons, category) ? categoryIcons[category] : undefined
   return name ?? 'location'
 }
 
 export function categoryIcon(game: GameId, category: string) {
   return `i-hyrule:${categoryIconName(game, category)}`
+}
+
+export function pointIconName(game: GameId, point: Pick<CatalogPoint, 'id' | 'category'>): ExplorationIcon {
+  const landmark = Object.hasOwn(landmarkIcons, point.id) ? landmarkIcons[point.id] : undefined
+  return landmark ?? categoryIconName(game, point.category)
+}
+
+export function pointIcon(game: GameId, point: Pick<CatalogPoint, 'id' | 'category'>) {
+  return `i-hyrule:${pointIconName(game, point)}`
 }
