@@ -454,28 +454,6 @@ button:hover:not(:disabled) {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 6px;
 }
-.exploration-panel.is-category-grid {
-  width: min(650px, calc(100vw - 40px));
-}
-.is-category-grid .category-tiles {
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-}
-@media (min-width: 761px) and (max-width: 1100px) {
-  .exploration-panel.is-category-grid {
-    width: 460px;
-  }
-  .is-category-grid .category-tiles {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-@media (max-width: 760px) {
-  .exploration-panel.is-category-grid {
-    width: min(420px, calc(100vw - 24px));
-  }
-  .is-category-grid .category-tiles {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
 .category-tiles button {
   min-width: 0;
   min-height: 88px;

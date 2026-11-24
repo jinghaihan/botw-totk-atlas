@@ -203,7 +203,7 @@ async function remove(id: string) {
 <template>
   <div class="explorer">
     <WorldMap :game="game" :layer="view.layer" :rows="mapRows" :focus="focus" :placing="placing" @select="select" @place="place" />
-    <CollapsibleRoot v-model:open="panelOpen" class="exploration-panel" :class="{ 'is-category-grid': panelOpen && panelTab === 'discover' && !loading }">
+    <CollapsibleRoot v-model:open="panelOpen" class="exploration-panel">
       <header class="exploration-heading">
         <div><span class="eyebrow">{{ game === 'botw' ? t('旷野之息') : t('王国之泪') }}</span><h1>{{ t('探索海拉鲁') }}</h1></div><CollapsibleTrigger class="icon-button panel-collapse" :aria-label="panelOpen ? t('收起探索面板') : t('展开探索面板')">
           <span :class="panelOpen ? 'i-lucide:panel-left-close' : 'i-lucide:panel-left-open'" aria-hidden="true" />
