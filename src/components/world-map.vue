@@ -13,6 +13,7 @@ import 'leaflet.markercluster/dist/MarkerCluster.css'
 const props = defineProps<{ game: GameId, layer: MapLayer, rows: ProgressRow[], focus?: [number, number] }>()
 const emit = defineEmits<{ select: [id: string] }>()
 const host = ref<HTMLElement>()
+const zoomHost = ref<HTMLElement>()
 const tileError = ref(false)
 const pointer = ref('')
 let map: L.Map | undefined
@@ -105,7 +106,9 @@ onMounted(async () => {
   map = L.map(host.value, { crs, center: [0, 0], zoom: 3.5, zoomSnap: 0.5, zoomDelta: 0.5, minZoom: 2, maxZoom: 9, preferCanvas: true, zoomControl: false, maxBounds: [[-5700, -6700], [5700, 6700]], maxBoundsViscosity: 0.8 })
   map.createPane('atlas-background').style.zIndex = '150'
   map.attributionControl.setPrefix('<a href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet</a>')
-  L.control.zoom({ position: 'bottomright' }).addTo(map)
+  const zoom = L.control.zoom({ position: 'bottomright' }).addTo(map).getContainer()
+  if (zoom)
+    zoomHost.value?.append(zoom)
   map.on('mousemove', (event) => {
     pointer.value = coordinateLabel(mapToWorld(event.latlng.lat, event.latlng.lng))
   })
@@ -142,11 +145,16 @@ onBeforeUnmount(() => {
         {{ t('重试底图') }}
       </button>
     </div>
-    <button class="map-reset icon-button" :aria-label="t('俯瞰海拉鲁')" @click="resetView">
-      <span class="i-lucide:scan" aria-hidden="true" />
-    </button>
-    <div v-if="pointer" class="map-coordinates" translate="no">
-      {{ pointer }}
+    <div class="map-controls" role="group" :aria-label="t('地图')">
+      <div class="map-control-stack">
+        <button class="map-reset icon-button" :aria-label="t('俯瞰海拉鲁')" :title="t('俯瞰海拉鲁')" @click="resetView">
+          <span class="i-lucide:scan" aria-hidden="true" />
+        </button>
+        <div ref="zoomHost" class="map-zoom" />
+      </div>
+      <div v-if="pointer" class="map-coordinates" translate="no">
+        {{ pointer }}
+      </div>
     </div>
   </div>
 </template>

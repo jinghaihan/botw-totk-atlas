@@ -182,21 +182,6 @@ html[data-game='botw'] .category-symbol {
 .pagination span {
   color: #818b98;
 }
-.map-reset {
-  background: #1f2125ed;
-  color: #b4bac2;
-  border-color: #b7b38a42;
-  box-shadow: 0 4px 16px #0f101235;
-}
-.leaflet-control-zoom {
-  border-color: #b6b08a4a !important;
-  box-shadow: 0 4px 16px #0f101235 !important;
-}
-.leaflet-control-zoom a {
-  color: #bdc9b6 !important;
-  background: #1f2125ed !important;
-  border-color: #9ca89133 !important;
-}
 .leaflet-tooltip {
   background: #25282ded !important;
   color: #d5dfcb !important;
@@ -205,10 +190,6 @@ html[data-game='botw'] .category-symbol {
 .map-banner {
   background: #1e2024ed;
   border-color: #acb08c4a;
-}
-.map-coordinates {
-  color: #afb5be;
-  background: #1e2024e8;
 }
 .detail-category {
   color: #9199a5;
