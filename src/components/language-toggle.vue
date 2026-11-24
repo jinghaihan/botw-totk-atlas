@@ -1,17 +1,8 @@
 <script setup lang="ts">
-import { availableLocales, loadLanguageAsync } from '@/modules/i18n'
-
-const { locale } = useI18n()
-
-async function toggleLocales() {
-  // change to some real logic
-  const locales = availableLocales
-  const newLocale = locales[(locales.indexOf(locale.value) + 1) % locales.length]
-  await loadLanguageAsync(newLocale)
-  locale.value = newLocale
-}
+import { currentLocale, loadLanguageAsync } from '@/modules/i18n'
+import AtlasSelect from './AtlasSelect.vue'
 </script>
 
 <template>
-  <div i-lucide:languages cursor-pointer @click="toggleLocales" />
+  <AtlasSelect class="language-select" :model-value="currentLocale" label="Language / 语言 / 語言" :options="[{ value: 'zh-CN', label: '简体中文' }, { value: 'zh-TW', label: '繁體中文' }, { value: 'en-US', label: 'English' }]" @update:model-value="loadLanguageAsync" />
 </template>

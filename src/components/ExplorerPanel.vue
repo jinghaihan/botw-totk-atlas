@@ -2,15 +2,18 @@
 import type { CatalogPoint, PointAnnotation } from '@/domain/game'
 import type { ProfileView, SaveProfile } from '@/storage/profiles'
 import { CheckboxIndicator, CheckboxRoot, PaginationEllipsis, PaginationList, PaginationListItem, PaginationNext, PaginationPrev, PaginationRoot, PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from 'reka-ui'
+import { useGameLabels } from '@/composables/game-labels'
 import { coordinateLabel } from '@/domain/coordinates'
 import { filterRows, resolveRows } from '@/domain/exploration'
 import { categoryLabels, loadCatalog, statusLabels } from '@/games/catalog'
+import { currentLocale, tr as t } from '@/modules/i18n'
 import { db, listAnnotations, putAnnotation } from '@/storage/profiles'
 import AtlasSelect from './AtlasSelect.vue'
 import PointDetail from './PointDetail.vue'
 import WorldMap from './WorldMap.vue'
 
 const props = defineProps<{ profile: SaveProfile }>()
+const gameLabels = useGameLabels(() => props.profile.game)
 const catalog = shallowRef<CatalogPoint[]>([])
 const annotations = shallowRef<PointAnnotation[]>([])
 const custom = shallowRef<CatalogPoint[]>([])
@@ -24,16 +27,16 @@ const placing = ref(false)
 const focus = ref<[number, number]>()
 const defaultView = (profileId: string): ProfileView => ({ profileId, categories: ['shrine', 'korok', 'chest'], status: 'incomplete', layer: 'surface', hideIgnored: true, search: '', region: 'all' })
 const view = ref(defaultView(props.profile.id))
-const points = computed(() => [...catalog.value, ...custom.value])
+const points = computed(() => [...catalog.value.map(gameLabels.localize), ...custom.value])
 const rows = computed(() => resolveRows(props.profile.snapshot, points.value, annotations.value))
-const categories = computed(() => [...new Set(points.value.map(p => p.category))].sort((a, b) => (categoryLabels[a] ?? a).localeCompare(categoryLabels[b] ?? b, 'zh-CN')))
-const regions = computed(() => [{ value: 'all', label: '所有地区' }, ...[...new Set(points.value.map(p => p.region).filter((r): r is string => !!r))].sort().map(r => ({ value: r, label: r }))])
+const categories = computed(() => [...new Set(points.value.map(p => p.category))].sort((a, b) => t(categoryLabels[a] ?? a).localeCompare(t(categoryLabels[b] ?? b), currentLocale.value)))
+const regions = computed(() => [{ value: 'all', label: t('所有地区') }, ...[...new Set(points.value.map(p => p.region).filter((r): r is string => !!r))].sort().map(r => ({ value: r, label: gameLabels.text(r) }))])
 const filtered = computed(() => filterRows(rows.value, view.value))
 const mapRows = computed(() => filterRows(rows.value, view.value, true))
 const paged = computed(() => filtered.value.slice((page.value - 1) * 40, page.value * 40))
 const current = computed(() => rows.value.find(r => r.point.id === selected.value))
-const children = computed(() => rows.value.filter(r => r.point.parentId === selected.value))
-const statuses = [{ value: 'all', label: '全部状态' }, { value: 'incomplete', label: '未完成' }, { value: 'complete', label: '已完成' }, { value: 'unknown', label: '未知 / 手动记录' }, { value: 'found-unfinished', label: '已发现 · 未完成' }, { value: 'shrine-chests', label: '已通关 · 宝箱未领完' }]
+const children = computed(() => rows.value.filter(r => r.point.parentId === selected.value || r.point.id === current.value?.point.relatedChestId))
+const statuses = computed(() => [{ value: 'all', label: t('全部状态') }, { value: 'incomplete', label: t('未完成') }, { value: 'complete', label: t('已完成') }, { value: 'unknown', label: t('未知 / 手动记录') }, { value: 'found-unfinished', label: t('已发现 · 未完成') }, { value: 'shrine-chests', label: t('已通关 · 宝箱未领完') }])
 let generation = 0
 async function load() {
   const revision = ++generation
@@ -55,7 +58,7 @@ async function load() {
   }
   catch (e) {
     if (revision === generation)
-      error.value = e instanceof Error ? e.message : '无法加载探索记录。'
+      error.value = e instanceof Error ? e.message : t('无法加载探索记录。')
   }
   finally {
     if (revision === generation)
@@ -77,7 +80,7 @@ watchDebounced(view, async (value) => {
     await db.views.put(toRaw(value))
   }
   catch {
-    error.value = '筛选条件未能保存，请检查此浏览器的存储空间。'
+    error.value = t('筛选条件未能保存，请检查此浏览器的存储空间。')
   }
 }, { deep: true, debounce: 250 })
 function select(id: string) {
@@ -94,7 +97,7 @@ async function save(annotation: PointAnnotation) {
     }
   }
   catch (e) {
-    error.value = e instanceof Error ? e.message : '记录保存失败。'
+    error.value = e instanceof Error ? e.message : t('记录保存失败。')
   }
 }
 function locate(point: CatalogPoint) {
@@ -111,14 +114,14 @@ async function place(at: [number, number]) {
   if (Math.abs(at[0]) > 6000 || Math.abs(at[1]) > 5000)
     return
   try {
-    const point = { id: `custom:${crypto.randomUUID()}`, profileId: props.profile.id, name: `营地 · ${coordinateLabel(at)}`, category: 'camp', at, layer: view.value.layer, rule: 'manual' as const }
+    const point = { id: `custom:${crypto.randomUUID()}`, profileId: props.profile.id, name: `${t('营地')} · ${coordinateLabel(at)}`, category: 'camp', at, layer: view.value.layer, rule: 'manual' as const }
     await db.pins.add(point)
     custom.value = [...custom.value, point]
     placing.value = false
     select(point.id)
   }
   catch {
-    error.value = '标记未能保存，请重试。'
+    error.value = t('标记未能保存，请重试。')
   }
 }
 async function remove(id: string) {
@@ -132,7 +135,7 @@ async function remove(id: string) {
     detailOpen.value = false
   }
   catch {
-    error.value = '无法删除标记，请重试。'
+    error.value = t('无法删除标记，请重试。')
   }
 }
 </script>
@@ -140,66 +143,66 @@ async function remove(id: string) {
 <template>
   <div class="explorer">
     <p class="coverage-note">
-      宝箱与收集点来自社区目录。未知字段保留为未知；营地只预置部分宝箱关联点，可自行补充。清单数量不等于游戏地图完成率。
+      {{ t('宝箱与收集点来自社区目录。未知字段保留为未知；营地只预置部分宝箱关联点，可自行补充。清单数量不等于游戏地图完成率。') }}
     </p>
     <div v-if="error" class="error-message" role="alert">
-      {{ error }} <button class="button secondary" @click="load">
-        重新加载
+      {{ t(error) }} <button class="button secondary" @click="load">
+        {{ t('重新加载') }}
       </button>
     </div>
     <div v-if="loading" class="empty-state" role="status">
-      正在读取探索目录…
+      {{ t('正在读取探索目录…') }}
     </div>
     <template v-else>
       <div class="explorer-toolbar">
-        <label class="search-box"><span class="i-lucide:search" /><input v-model="view.search" aria-label="搜索探索记录" placeholder="搜索地点、编号或笔记…"></label>
+        <label class="search-box"><span class="i-lucide:search" /><input v-model="view.search" :aria-label="t('搜索探索记录')" :placeholder="t('搜索地点、编号或笔记…')"></label>
         <PopoverRoot>
           <PopoverTrigger class="button secondary">
-            分类 · {{ view.categories.length || '全部' }} <span class="i-lucide:list-filter" />
+            {{ t('分类') }} · {{ view.categories.length || t('全部') }} <span class="i-lucide:list-filter" />
           </PopoverTrigger><PopoverPortal>
-            <PopoverContent class="category-popover" :side-offset="8" aria-label="筛选点位分类">
+            <PopoverContent class="category-popover" :side-offset="8" :aria-label="t('筛选点位分类')">
               <div class="popover-heading">
-                <strong>显示哪些项目</strong><button class="button secondary" @click="view.categories = []">
-                  全部
+                <strong>{{ t('显示哪些项目') }}</strong><button class="button secondary" @click="view.categories = []">
+                  {{ t('全部') }}
                 </button>
               </div><div class="category-checks">
-                <label v-for="c in categories" :key="c"><CheckboxRoot :model-value="view.categories.includes(c)" class="checkbox" @update:model-value="value => view.categories = value ? [...view.categories, c] : view.categories.filter(id => id !== c)"><CheckboxIndicator>✓</CheckboxIndicator></CheckboxRoot>{{ categoryLabels[c] ?? c }}</label>
+                <label v-for="c in categories" :key="c"><CheckboxRoot :model-value="view.categories.includes(c)" class="checkbox" @update:model-value="value => view.categories = value ? [...view.categories, c] : view.categories.filter(id => id !== c)"><CheckboxIndicator>✓</CheckboxIndicator></CheckboxRoot>{{ t(categoryLabels[c] ?? c) }}</label>
               </div>
             </PopoverContent>
           </PopoverPortal>
         </PopoverRoot>
-        <AtlasSelect v-model="view.status" label="进度筛选" :options="statuses" />
-        <AtlasSelect :model-value="view.region ?? 'all'" label="地区筛选" :options="regions" @update:model-value="view.region = $event" />
-        <label class="check-label"><input v-model="view.hideIgnored" type="checkbox">隐藏已忽略</label>
+        <AtlasSelect v-model="view.status" :label="t('进度筛选')" :options="statuses" />
+        <AtlasSelect :model-value="view.region ?? 'all'" :label="t('地区筛选')" :options="regions" @update:model-value="view.region = $event" />
+        <label class="check-label"><input v-model="view.hideIgnored" type="checkbox">{{ t('隐藏已忽略') }}</label>
         <button class="button secondary" :aria-pressed="showMap" @click="showMap = !showMap">
-          {{ showMap ? '收起地图' : '展开地图' }}
+          {{ showMap ? t('收起地图') : t('展开地图') }}
         </button>
       </div>
       <div class="explorer-meta">
-        <span>{{ filtered.length.toLocaleString() }} 项结果 <span v-if="showMap">· 当前地图 {{ mapRows.length.toLocaleString() }} 个点位</span></span><div v-if="showMap" class="layer-controls">
-          <AtlasSelect v-if="profile.game === 'totk'" v-model="view.layer" label="地图层级" :options="[{ value: 'sky', label: '天空' }, { value: 'surface', label: '地表' }, { value: 'depths', label: '地底' }]" /><button class="button secondary" :aria-pressed="placing" @click="placing = !placing">
-            {{ placing ? '取消放置' : '＋ 记录营地' }}
+        <span>{{ t('{count} 项结果', { count: filtered.length.toLocaleString() }) }} <span v-if="showMap">· {{ t('当前地图 {count} 个点位', { count: mapRows.length.toLocaleString() }) }}</span></span><div v-if="showMap" class="layer-controls">
+          <AtlasSelect v-if="profile.game === 'totk'" v-model="view.layer" :label="t('地图层级')" :options="[{ value: 'sky', label: t('天空') }, { value: 'surface', label: t('地表') }, { value: 'depths', label: t('地底') }]" /><button class="button secondary" :aria-pressed="placing" @click="placing = !placing">
+            {{ placing ? t('取消放置') : t('＋ 记录营地') }}
           </button>
         </div>
       </div>
       <div class="explorer-layout" :class="{ 'list-only': !showMap }">
         <WorldMap v-if="showMap" :game="profile.game" :layer="view.layer" :rows="mapRows" :focus="focus" :placing="placing" @select="select" @place="place" />
-        <section class="point-list" aria-label="探索点位列表">
+        <section class="point-list" :aria-label="t('探索点位列表')">
           <p class="list-hint">
-            列表包括所有地图层级及无坐标项目。
+            {{ t('列表包括所有地图层级及无坐标项目。') }}
           </p><div v-if="!filtered.length" class="empty-state compact">
-            <span class="i-lucide:circle-check" /><h3>当前筛选没有结果</h3><p>可以切换分类、状态，或恢复显示已忽略项目。</p><button class="button secondary" @click="view.status = 'all'; view.categories = []; view.search = ''; view.region = 'all'">
-              查看全部记录
+            <span class="i-lucide:circle-check" /><h3>{{ t('当前筛选没有结果') }}</h3><p>{{ t('可以切换分类、状态，或恢复显示已忽略项目。') }}</p><button class="button secondary" @click="view.status = 'all'; view.categories = []; view.search = ''; view.region = 'all'">
+              {{ t('查看全部记录') }}
             </button>
           </div>
           <button v-for="row in paged" :key="row.point.id" class="point-row" :class="[row.status, { ignored: row.annotation?.ignored }]" @click="select(row.point.id)">
-            <span class="point-symbol">{{ row.status === 'complete' ? '✓' : row.status === 'unknown' ? '?' : '◇' }}</span><span class="point-copy"><strong>{{ row.point.name }}</strong><small>{{ categoryLabels[row.point.category] ?? row.point.category }} · {{ row.point.region ?? (row.point.layer === 'depths' ? '地底' : row.point.layer === 'sky' ? '天空' : '海拉鲁') }}</small><small v-if="row.annotation?.note" class="note-excerpt">{{ row.annotation.note }}</small></span><span class="point-state">{{ statusLabels[row.status] }}<small v-if="row.annotation?.status">手动</small><small v-if="row.chests?.complete === false">宝箱未领完</small></span>
+            <span class="point-symbol">{{ row.status === 'complete' ? '✓' : row.status === 'unknown' ? '?' : '◇' }}</span><span class="point-copy"><strong>{{ row.point.name }}</strong><small>{{ t(categoryLabels[row.point.category] ?? row.point.category) }} · {{ row.point.regionLabel ?? row.point.region ?? (row.point.layer === 'depths' ? t('地底') : row.point.layer === 'sky' ? t('天空') : t('海拉鲁')) }}</small><small v-if="row.annotation?.note" class="note-excerpt">{{ row.annotation.note }}</small></span><span class="point-state">{{ t(statusLabels[row.status]) }}<small v-if="row.annotation?.status">{{ t('手动') }}</small><small v-if="row.chests?.complete === false">{{ t('宝箱未领完') }}</small></span>
           </button>
         </section>
       </div>
       <PaginationRoot v-if="filtered.length > 40" v-model:page="page" :total="filtered.length" :items-per-page="40" :sibling-count="1" show-edges class="pagination">
         <PaginationList v-slot="{ items }">
-          <PaginationPrev aria-label="上一页">
+          <PaginationPrev :aria-label="t('上一页')">
             ‹
           </PaginationPrev><template v-for="(item, index) in items" :key="index">
             <PaginationListItem v-if="item.type === 'page'" :value="item.value">
@@ -207,7 +210,7 @@ async function remove(id: string) {
             </PaginationListItem><PaginationEllipsis v-else :index="index">
               …
             </PaginationEllipsis>
-          </template><PaginationNext aria-label="下一页">
+          </template><PaginationNext :aria-label="t('下一页')">
             ›
           </PaginationNext>
         </PaginationList>

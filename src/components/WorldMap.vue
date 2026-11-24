@@ -3,6 +3,7 @@ import type { ProgressRow } from '@/domain/exploration'
 import type { GameId, MapLayer } from '@/domain/game'
 import * as L from 'leaflet'
 import { mapToWorld, tileUrl, worldToMap } from '@/domain/coordinates'
+import { tr as t } from '@/modules/i18n'
 import 'leaflet/dist/leaflet.css'
 
 const props = defineProps<{ game: GameId, layer: MapLayer, rows: ProgressRow[], focus?: [number, number], placing: boolean }>()
@@ -94,17 +95,17 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="map-shell" :class="{ placing }">
-    <div ref="host" class="world-map" role="region" aria-label="海拉鲁交互地图；也可在旁边的列表选择点位" />
+    <div ref="host" class="world-map" role="region" :aria-label="t('海拉鲁交互地图；也可在旁边的列表选择点位')" />
     <div v-if="placing" class="map-banner" role="status">
-      点击地图放置营地标记
+      {{ t('点击地图放置营地标记') }}
     </div>
     <div v-if="tileError" class="map-banner tile-warning" role="status">
-      底图暂时无法加载，点位列表仍可使用。<button @click="base">
-        重试底图
+      {{ t('底图暂时无法加载，点位列表仍可使用。') }}<button @click="base">
+        {{ t('重试底图') }}
       </button>
     </div>
     <div class="map-legend">
-      <span>● 未完成</span><span class="muted">○ 已完成</span><span>◌ 未知</span><span>底图需要联网</span>
+      <span>{{ t('● 未完成') }}</span><span class="muted">{{ t('○ 已完成') }}</span><span>{{ t('◌ 未知') }}</span><span>{{ t('底图需要联网') }}</span>
     </div>
   </div>
 </template>

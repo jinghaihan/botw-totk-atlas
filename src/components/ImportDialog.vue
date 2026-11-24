@@ -4,6 +4,7 @@ import type { SaveProfile } from '@/storage/profiles'
 import { DialogClose, DialogContent, DialogDescription, DialogOverlay, DialogPortal, DialogRoot, DialogTitle } from 'reka-ui'
 import { loadCatalog } from '@/games/catalog'
 import { readSave } from '@/games/read-save'
+import { tr as t } from '@/modules/i18n'
 import { saveProfile } from '@/storage/profiles'
 import AtlasSelect from './AtlasSelect.vue'
 
@@ -16,7 +17,7 @@ const target = ref('new')
 const mode = ref('normal')
 const error = ref('')
 const busy = ref(false)
-const targets = computed(() => [{ value: 'new', label: '创建新的 Profile' }, ...props.profiles.filter(p => p.game === preview.value?.game).map(p => ({ value: p.id, label: `更新：${p.name}` }))])
+const targets = computed(() => [{ value: 'new', label: t('创建新的 Profile') }, ...props.profiles.filter(p => p.game === preview.value?.game).map(p => ({ value: p.id, label: t('更新：{name}', { name: p.name }) }))])
 let revision = 0
 watch(open, () => {
   revision++
@@ -36,18 +37,18 @@ async function choose(event: Event) {
   busy.value = true
   try {
     if (file.size > 8_000_000)
-      throw new Error('存档超过支持的大小，请选择单独的 .sav 文件。')
+      throw new Error(t('存档超过支持的大小，请选择单独的 .sav 文件。'))
     const parsed = await readSave(await file.arrayBuffer(), file.name)
     if (request !== revision)
       return
     preview.value = parsed
     target.value = 'new'
     mode.value = 'normal'
-    name.value = `${parsed.game.toUpperCase()} · 新的冒险`
+    name.value = `${parsed.game.toUpperCase()} · ${t('新的冒险')}`
   }
   catch (e) {
     if (request === revision)
-      error.value = e instanceof Error ? e.message : '无法读取此存档。'
+      error.value = e instanceof Error ? e.message : t('无法读取此存档。')
   }
   finally {
     if (request === revision)
@@ -67,7 +68,7 @@ async function save() {
     open.value = false
   }
   catch (e) {
-    error.value = e instanceof Error ? e.message : '保存失败，请重试。'
+    error.value = e instanceof Error ? e.message : t('保存失败，请重试。')
   }
   finally {
     busy.value = false
@@ -79,34 +80,34 @@ async function save() {
   <DialogRoot v-model:open="open">
     <DialogPortal>
       <DialogOverlay class="dialog-overlay" /><DialogContent class="dialog-content" @interact-outside="busy && $event.preventDefault()" @escape-key-down="busy && $event.preventDefault()">
-        <DialogTitle>导入一段冒险</DialogTitle><DialogDescription>选择 BOTW 的 game_data.sav 或 TOTK 的 progress.sav，先预览，再保存到 Profile。</DialogDescription>
+        <DialogTitle>{{ t('导入一段冒险') }}</DialogTitle><DialogDescription>{{ t('选择 BOTW 的 game_data.sav 或 TOTK 的 progress.sav，先预览，再保存到 Profile。') }}</DialogDescription>
         <form @submit.prevent="save">
-          <label>存档文件<input type="file" accept=".sav" :disabled="busy" @change="choose"></label>
+          <label>{{ t('存档文件') }}<input type="file" accept=".sav" :disabled="busy" @change="choose"></label>
           <p v-if="busy" role="status">
-            正在处理…
+            {{ t('正在处理…') }}
           </p>
           <div v-if="preview" class="import-preview">
-            <strong>{{ preview.game.toUpperCase() }}</strong><span>{{ preview.hearts }} 颗心 · {{ preview.rupees.toLocaleString() }} 卢比</span><span>{{ preview.items.length }} 项背包记录 · {{ preview.horses.length }} 匹马</span><small>SHA-256 {{ preview.fingerprint.slice(0, 16) }}</small>
+            <strong>{{ preview.game.toUpperCase() }}</strong><span>{{ t('{hearts} 颗心 · {rupees} 卢比', { hearts: preview.hearts, rupees: preview.rupees.toLocaleString() }) }}</span><span>{{ t('{items} 项背包记录 · {horses} 匹马', { items: preview.items.length, horses: preview.horses.length }) }}</span><small>SHA-256 {{ preview.fingerprint.slice(0, 16) }}</small>
           </div>
           <template v-if="preview">
-            <AtlasSelect v-model="target" label="导入目标" :options="targets" :disabled="busy" />
+            <AtlasSelect v-model="target" :label="t('导入目标')" :options="targets" :disabled="busy" />
             <template v-if="target === 'new'">
-              <label>Profile 名称<input v-model="name" required maxlength="80" :disabled="busy"></label><AtlasSelect v-if="preview.game === 'botw'" v-model="mode" label="游戏模式" :options="[{ value: 'normal', label: '普通模式' }, { value: 'master', label: '大师模式' }]" :disabled="busy" /><p v-if="preview.game === 'botw'" class="muted">
-                模式由你指定；文件名无法可靠区分普通与大师模式。
+              <label>{{ t('Profile 名称') }}<input v-model="name" required maxlength="80" :disabled="busy"></label><AtlasSelect v-if="preview.game === 'botw'" v-model="mode" :label="t('游戏模式')" :options="[{ value: 'normal', label: t('普通模式') }, { value: 'master', label: t('大师模式') }]" :disabled="busy" /><p v-if="preview.game === 'botw'" class="muted">
+                {{ t('模式由你指定；文件名无法可靠区分普通与大师模式。') }}
               </p>
             </template>
             <p v-else class="muted">
-              将更新此 Profile 的自动进度，并保留手动标记、笔记和历史记录。
+              {{ t('将更新此 Profile 的自动进度，并保留手动标记、笔记和历史记录。') }}
             </p>
           </template>
           <p v-if="error" role="alert" class="error-message">
-            {{ error }}
+            {{ t(error) }}
           </p>
           <button class="button primary" type="submit" :disabled="busy || !preview">
-            {{ target === 'new' ? '创建 Profile' : '更新这个 Profile' }}
+            {{ target === 'new' ? t('创建 Profile') : t('更新这个 Profile') }}
           </button>
         </form>
-        <DialogClose class="dialog-close" :disabled="busy" aria-label="关闭导入窗口">
+        <DialogClose class="dialog-close" :disabled="busy" :aria-label="t('关闭导入窗口')">
           ×
         </DialogClose>
       </DialogContent>

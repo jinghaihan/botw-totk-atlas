@@ -1449,3 +1449,55 @@ td code {
     animation: none !important;
   }
 }
+:root {
+  font-family:
+    Inter, 'Noto Sans CJK SC', 'Noto Sans CJK TC', 'Noto Sans CJK JP', 'Noto Sans CJK KR', 'PingFang SC', 'PingFang TC',
+    'Hiragino Sans', 'Malgun Gothic', 'Microsoft YaHei', sans-serif;
+}
+.language-select {
+  min-width: 120px;
+  max-width: 150px;
+  font-size: 11px;
+}
+html[lang='en-US'] .brand small {
+  font-size: 8px;
+  letter-spacing: 1px;
+}
+html[lang='en-US'] .status-pill {
+  white-space: normal;
+}
+@media (max-width: 700px) {
+  .language-select {
+    min-width: 85px;
+    max-width: 100px;
+    padding: 9px;
+    font-size: 10px;
+  }
+  .topbar {
+    padding: 0 16px;
+  }
+  .top-actions {
+    gap: 6px;
+  }
+  .topbar .game-name {
+    font-size: 12px;
+    letter-spacing: 0;
+  }
+  .topbar .button {
+    padding: 10px;
+    font-size: 10px;
+  }
+  .topbar .eyebrow {
+    font-size: 7px;
+    letter-spacing: 1px;
+  }
+}
+:root[data-game='totk'] {
+  --accent: #8cddaf;
+  --line: #2c4a40;
+  --panel: #132b25;
+}
+html[data-game='totk'] .button.primary {
+  background: #9bdfb3;
+  border-color: #bce8c8;
+}
