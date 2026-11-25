@@ -1,6 +1,5 @@
 {
   "app": {
-    "name": "薩爾達筆記",
     "skip-to-content": "跳至主要內容",
     "title": "薩爾達筆記 · Zelda Notes"
   },
@@ -55,7 +54,6 @@
     "yiga": "依蓋隊設計圖"
   },
   "common": {
-    "all": "全部",
     "cancel": "取消",
     "delete": "刪除",
     "loading": "正在讀取…",
@@ -80,7 +78,6 @@
     "import-target-missing": "目標 Profile 已不存在，請重新選擇。",
     "missing-progress-group": "收集目錄缺少 {id}。",
     "operation-failed": "操作未完成，請重試。",
-    "preview-save-missing": "本地預覽存檔未找到。",
     "profile-invalid-name": "請輸入 1–80 個字元的名稱。",
     "profile-load": "檔案載入失敗，請檢查瀏覽器儲存是否可用。",
     "profile-missing": "Profile 已不存在。",
@@ -88,12 +85,10 @@
     "save-failed": "儲存失敗，請重試。",
     "save-incomplete": "存檔檔案不完整。",
     "save-incomplete-progress": "當前存檔的收集標記不完整，請檢查檔案版本。",
-    "save-over-size-limit": "存檔超過支援的大小，請選擇單獨的 .sav 檔案。",
     "save-read": "無法讀取此存檔。",
     "save-too-large": "存檔檔案過大，請選擇單個 game_data.sav 或 progress.sav。",
     "save-unrecognized": "無法識別存檔，請選擇 BOTW 的 game_data.sav 或 TOTK 的 progress.sav。",
     "select-botw-save": "請選擇 BOTW 的 game_data.sav。",
-    "select-save": "請選擇 BOTW 的 game_data.sav 或 TOTK 的 progress.sav。",
     "select-totk-save": "請選擇 TOTK 的 progress.sav。",
     "totk-duplicate-fields": "TOTK 存檔包含重複欄位，請確認格式。",
     "totk-incomplete-guids": "TOTK 存檔的收集記錄不完整。",
@@ -103,29 +98,19 @@
     "totk-missing-field": "目前的存檔缺少 {name}。"
   },
   "explore": {
-    "all-statuses": "全部狀態",
-    "back": "返回探索",
-    "category": "分類",
     "checklist": "清單",
     "clear-search": "清空搜尋",
     "collapse": "收起探索面板",
     "expand": "展開探索面板",
     "filter-categories": "篩選點位分類",
-    "find-next": "尋找下一站",
     "heading": "探索海拉魯",
     "loading-catalog": "正在讀取探索目錄…",
-    "more-filters": "更多篩選",
     "no-results": "當前篩選沒有結果",
-    "place-count": "{count} 個地點",
     "point-list": "探索點位列表",
-    "progress-filter": "進度篩選",
-    "remaining": "待探索",
-    "remaining-count": "{count} 待探索",
     "search": "搜尋探索記錄",
     "search-placeholder": "搜尋地點或物品…",
     "show-completed": "顯示已完成",
     "tab": "探索",
-    "try-another-category": "換個分類，繼續尋找下一站。",
     "views": "探索檢視"
   },
   "game": {
@@ -135,15 +120,13 @@
     "master-mode": "大師模式",
     "normal-mode": "普通模式",
     "select": "選擇遊戲",
-    "totk": "王國之淚",
-    "unknown-mode": "模式未知"
+    "totk": "王國之淚"
   },
   "import": {
     "close": "關閉匯入視窗",
     "create-profile": "建立新的 Profile",
     "file": "存檔檔案",
     "folder": "匯入存檔資料夾",
-    "history": "匯入歷史",
     "open-picker": "匯入",
     "reselect-file": "重新選擇檔案",
     "reselect-folder": "重新選擇資料夾",
@@ -173,9 +156,7 @@
     "white-maned-lynel": "白鬃萊尼爾"
   },
   "point": {
-    "chests-remaining": "寶箱未領完",
     "close": "關閉點位詳情",
-    "locate": "地圖定位",
     "mark-complete": "標為已完成",
     "mark-incomplete": "標為未完成",
     "shrine-chests": "神廟寶箱"
@@ -187,14 +168,11 @@
     "contents": "存檔內容",
     "create": "新增檔案",
     "delete-name": "刪除 {name}",
-    "delete-profile": "刪除 Profile",
     "empty": "目前沒有檔案",
     "export": "匯出",
     "export-one": "匯出此 Profile",
     "manage": "管理存檔",
     "name": "存檔名稱",
-    "preview-name": "BOTW · 普通模式",
-    "profile-name": "Profile 名稱",
     "rename": "重新命名",
     "rename-save": "重新命名存檔",
     "switch": "切換存檔 Profile",
@@ -213,7 +191,6 @@
     "map-locations": "地圖探索地點",
     "master-cycle": "達人摩托車Zero",
     "remaining-count": "還有 {count} 項待完成",
-    "shrine-chests-opened": "神廟寶箱已領完",
     "shrines-cleared": "神廟通關",
     "shrines-with-all-chests": "已領完所有寶箱的神廟",
     "tab": "收集",
@@ -223,14 +200,11 @@
     "chests-all-opened": "已領完",
     "chests-not-all-opened": "尚未領完",
     "complete": "已完成",
-    "found-incomplete": "已發現 · 未完成",
     "incomplete": "未完成",
     "locked": "未解鎖",
     "manual": "手動",
-    "manual-record": "手動記錄",
     "no-save": "未匯入存檔",
     "not-yet-complete": "尚未完成",
-    "shrine-chests-remaining": "已通關 · 寶箱未領完",
     "unlocked": "已解鎖"
   }
 }

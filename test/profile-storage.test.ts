@@ -1,13 +1,13 @@
 import type { CatalogPoint } from '@/domain/game'
 import { afterEach, describe, expect, it } from 'vitest'
-import { createProfile, db, deleteProfile, listAnnotations, listImports, listProfiles, putAnnotation, renameProfile, saveProfile } from '../src/storage/profiles'
+import { resolveRows } from '@/domain/exploration'
+import { createProfile, db, deleteProfile, listAnnotations, listProfiles, putAnnotation, renameProfile, saveProfile } from '../src/storage/profiles'
 import { snapshot } from './helpers/snapshot'
 
 afterEach(async () => {
-  await db.transaction('rw', [db.profiles, db.annotations, db.imports, db.views], async () => {
+  await db.transaction('rw', [db.profiles, db.annotations, db.views], async () => {
     await db.profiles.clear()
     await db.annotations.clear()
-    await db.imports.clear()
     await db.views.clear()
   })
 })
@@ -30,23 +30,33 @@ describe('profile isolation', () => {
     await putAnnotation(annotation)
     expect(profile.name).toBe('Manual playthrough')
     expect(profile.snapshot).toBeUndefined()
-    expect(await listImports(profile.id)).toEqual([])
 
-    await saveProfile(snapshot(), profile.name, profile.id, 'master')
+    const catalog: CatalogPoint[] = [{ id: annotation.pointId, name: 'Chest', category: 'chest', key: 42 }]
+    await saveProfile(snapshot(), profile.name, profile.id, 'master', catalog)
     expect(await listAnnotations(profile.id)).toEqual([{ ...annotation, completedAt: annotation.updatedAt }])
     expect(await db.profiles.get(profile.id)).toMatchObject({ mode: 'master', snapshot: expect.any(Object) })
-    expect(await listImports(profile.id)).toMatchObject([{ initial: true, changes: [], regressions: [] }])
   })
 
-  it('uses the observed import time for each newly completed point', async () => {
-    const catalog: CatalogPoint[] = [{ id: 'chest:1', name: 'Chest', category: 'chest', key: 'guid:1', rule: 'guid' }]
-    const first = snapshot({ guids: ['1'] })
-    const later = snapshot({ guids: ['1'], importedAt: '2026-01-02T00:00:00.000Z' })
-    const profile = await saveProfile(first, 'normal', undefined, 'normal', catalog)
-    expect(profile.completionTimes).toEqual({ 'chest:1': first.importedAt })
-    expect((await saveProfile(later, profile.name, profile.id, 'normal', catalog)).completionTimes).toEqual(profile.completionTimes)
-    expect((await saveProfile({ ...later, guids: [] }, profile.name, profile.id, 'normal', catalog)).completionTimes).toEqual({})
-    expect((await saveProfile(later, profile.name, profile.id, 'normal', catalog)).completionTimes).toEqual({ 'chest:1': later.importedAt })
+  it('replaces both readable manual states and preserves marks without save evidence', async () => {
+    const catalog: CatalogPoint[] = [
+      { id: 'korok:1', name: 'Korok', category: 'korok', key: 41 },
+      { id: 'chest:1', name: 'Chest', category: 'chest', key: 42 },
+      { id: 'lynel:1', name: 'Lynel', category: 'lynel', rule: 'manual', key: 43 },
+      { id: 'shrine:1', name: 'Shrine', category: 'shrine', key: 44 },
+    ]
+    const profile = await saveProfile(snapshot({ scalars: { 41: 0, 42: 1 } }), 'normal')
+    for (const point of catalog)
+      await putAnnotation({ profileId: profile.id, pointId: point.id, status: 'complete', updatedAt: profile.updatedAt })
+
+    const later = snapshot({ scalars: { 41: 1, 42: 0, 43: 0 }, importedAt: '2026-01-02T00:00:00.000Z' })
+    const updated = await saveProfile(later, profile.name, profile.id, 'normal', catalog)
+    const annotations = await listAnnotations(profile.id)
+    expect(annotations).toMatchObject([
+      { pointId: 'lynel:1', completedAt: profile.updatedAt },
+      { pointId: 'shrine:1', completedAt: profile.updatedAt },
+    ])
+    expect(resolveRows(updated.snapshot, catalog, annotations).map(row => row.status)).toEqual(['complete', 'incomplete', 'complete', 'complete'])
+    expect(await db.profiles.get(profile.id)).not.toHaveProperty('completionTimes')
   })
 
   it('removes a manual completion timestamp when undoing the mark', async () => {

@@ -123,17 +123,22 @@ async function save() {
       const imports = await Promise.all(groups.value.filter(group => enabled.value[group.id]).map(async (group) => {
         const candidate = group.candidates.find(item => item.path === selected.value[group.id])!
         const snapshot = singleSave.value ?? await parseSave(candidate.file, candidate.path)
-        const catalog = await loadCatalog(snapshot.game)
+        const selectedTarget = targets.value[group.id] ?? 'new'
+        if (selectedTarget !== 'new') {
+          const target = props.profiles.find(profile => profile.id === selectedTarget)
+          const catalog = await loadCatalog(snapshot.game)
+          return { group, snapshot, catalog, targetId: selectedTarget, name: target?.name }
+        }
         const matches = props.profiles.filter(profile => profile.game === snapshot.game && profile.snapshot?.fingerprint === snapshot.fingerprint
           && (profile.mode === group.mode || profile.mode === 'unknown' || group.mode === 'unknown'))
-        const target = targets.value[group.id] === 'new' ? (matches.length === 1 ? matches[0] : undefined) : props.profiles.find(profile => profile.id === targets.value[group.id])
-        return { group, snapshot, catalog, target }
+        const target = matches.length === 1 ? matches[0] : undefined
+        return { group, snapshot, targetId: target?.id, name: target?.name }
       }))
-      const id = await db.transaction('rw', db.profiles, db.imports, async () => {
+      const id = await db.transaction('rw', [db.profiles, db.annotations], async () => {
         let last: SaveProfile | undefined
-        for (const { group, snapshot, catalog, target } of imports) {
-          const name = group.mode === 'unknown' ? gameLabel(group) : [gameLabel(group), modeLabel(group)].join(' · ')
-          last = await saveProfile(snapshot, target?.name ?? name, target?.id, group.mode, catalog)
+        for (const { group, snapshot, catalog, targetId, name } of imports) {
+          const defaultName = group.mode === 'unknown' ? gameLabel(group) : [gameLabel(group), modeLabel(group)].join(' · ')
+          last = await saveProfile(snapshot, name ?? defaultName, targetId, group.mode, catalog)
         }
         return last?.id
       })

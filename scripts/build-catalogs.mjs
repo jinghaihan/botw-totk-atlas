@@ -41,6 +41,7 @@ for (const game of ['botw', 'totk']) {
       continue
     const p = { ...original }
     delete p.guide
+    delete p.found
     if (p.region)
       p.region = regionNames.get(p.region) ?? p.region
     if (p.edition === 'switch2')

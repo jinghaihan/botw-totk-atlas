@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ProgressRow } from '@/domain/exploration'
-import type { CatalogPoint, GameId, PointAnnotation, PointStatus } from '@/domain/game'
+import type { CatalogPoint, GameId, PointAnnotation } from '@/domain/game'
 import type { ProfileView, SaveProfile } from '@/storage/profiles'
 import { CollapsibleContent, CollapsibleRoot, CollapsibleTrigger, PaginationEllipsis, PaginationList, PaginationListItem, PaginationNext, PaginationPrev, PaginationRoot, SwitchRoot, SwitchThumb, TabsContent, TabsList, TabsRoot, TabsTrigger, ToggleGroupItem, ToggleGroupRoot } from 'reka-ui'
 import { useGameLabels } from '@/composables/game-labels'
@@ -29,7 +29,6 @@ onMounted(() => {
 })
 const pointList = ref<HTMLElement>()
 const panelTab = ref('discover')
-const completionUndo = shallowRef(new Map<string, PointStatus | undefined>())
 const saving = reactive(new Set<string>())
 const pageSize = 40
 const selected = ref('')
@@ -45,12 +44,12 @@ const explorationRows = computed(() => rows.value.filter(({ point, automatic }) 
 ))
 const categories = computed(() => [...new Set(explorationRows.value.map(row => row.point.category))].sort((a, b) => categoryName(a).localeCompare(categoryName(b), currentLocale.value)))
 const activeView = computed(() => ({ ...view.value, search: panelTab.value === 'results' ? view.value.search : '' }))
-const filtered = computed(() => filterRows(explorationRows.value, activeView.value, true))
+const filtered = computed(() => filterRows(explorationRows.value, activeView.value))
 const categoryProgress = computed(() => {
   const counts = new Map<string, { done: number, total: number }>()
   if (!props.profile)
     return counts
-  const matching = filterRows(explorationRows.value, { ...view.value, categories: null, status: 'all', search: '' }, true)
+  const matching = filterRows(explorationRows.value, { ...view.value, categories: null, status: 'all', search: '' })
   for (const row of matching) {
     const count = counts.get(row.point.category) ?? { done: 0, total: 0 }
     count.total++
@@ -64,12 +63,8 @@ function formatCategoryProgress(category: string) {
   const count = categoryProgress.value.get(category)
   return count ? `${count.done.toLocaleString(currentLocale.value)} / ${count.total.toLocaleString(currentLocale.value)}` : ''
 }
-const checklistRows = computed(() => view.value.status === 'incomplete' && completionUndo.value.size
-  ? filterRows(explorationRows.value, { ...activeView.value, status: 'all' }, true)
-      .filter(row => row.status === 'incomplete' || completionUndo.value.has(row.point.id))
-  : filtered.value)
-const pageCount = computed(() => Math.ceil(checklistRows.value.length / pageSize))
-const paged = computed(() => checklistRows.value.slice((page.value - 1) * pageSize, page.value * pageSize))
+const pageCount = computed(() => Math.ceil(filtered.value.length / pageSize))
+const paged = computed(() => filtered.value.slice((page.value - 1) * pageSize, page.value * pageSize))
 const current = computed(() => rows.value.find(r => r.point.id === selected.value))
 const children = computed(() => rows.value.filter(r => r.point.parentId === selected.value))
 
@@ -115,9 +110,8 @@ async function load() {
       loading.value = false
   }
 }
-watch(() => [props.profile?.id, props.game], load, { immediate: true })
+watch(() => [props.profile?.id, props.profile?.updatedAt, props.game], load, { immediate: true })
 watch(() => [view.value.search, view.value.categories?.join(), view.value.layer, view.value.status], () => {
-  completionUndo.value = new Map()
   page.value = 1
 })
 watch(() => view.value.status, (status) => {
@@ -126,9 +120,6 @@ watch(() => view.value.status, (status) => {
     focus.value = undefined
     detailOpen.value = false
   }
-})
-watch(panelTab, () => {
-  completionUndo.value = new Map()
 })
 watch(pageCount, count => page.value = Math.min(page.value, Math.max(1, count)))
 watch(page, () => {
@@ -159,7 +150,7 @@ function select(id: string, fromChecklist = false) {
     focus.value = [...target.at]
   }
 }
-async function save(annotation: PointAnnotation, fromChecklist = false) {
+async function save(annotation: PointAnnotation) {
   const { pointId, profileId } = annotation
   if (props.profile?.id !== profileId || saving.has(pointId))
     return
@@ -169,14 +160,6 @@ async function save(annotation: PointAnnotation, fromChecklist = false) {
     const record = await putAnnotation(annotation)
     if (props.profile?.id !== profileId)
       return
-    if (fromChecklist) {
-      const next = new Map(completionUndo.value)
-      if (next.has(pointId))
-        next.delete(pointId)
-      else if (annotation.status === 'complete' && panelTab.value === 'results')
-        next.set(pointId, annotations.value.find(record => record.pointId === pointId)?.status)
-      completionUndo.value = next
-    }
     const others = annotations.value.filter(record => record.pointId !== pointId)
     annotations.value = record ? [...others, record] : others
     if (selected.value === pointId) {
@@ -197,12 +180,8 @@ async function toggleChecklistCompletion(row: ProgressRow) {
   const pointId = row.point.id
   if (!profileId)
     return
-  let status: PointStatus | undefined = 'complete'
-  if (completionUndo.value.has(pointId))
-    status = completionUndo.value.get(pointId)
-  else if (row.status === 'complete')
-    status = row.automatic === 'complete' ? 'incomplete' : undefined
-  await save({ profileId, pointId, status, updatedAt: new Date().toISOString() }, true)
+  const status = row.status === 'incomplete' ? 'complete' : row.automatic === 'complete' ? 'incomplete' : undefined
+  await save({ profileId, pointId, status, updatedAt: new Date().toISOString() })
 }
 </script>
 
@@ -243,7 +222,7 @@ async function toggleChecklistCompletion(row: ProgressRow) {
                   {{ t('explore.tab') }}
                 </TabsTrigger>
                 <TabsTrigger value="results">
-                  {{ t('explore.checklist') }}<span>{{ checklistRows.length.toLocaleString(currentLocale) }}</span>
+                  {{ t('explore.checklist') }}<span>{{ filtered.length.toLocaleString(currentLocale) }}</span>
                 </TabsTrigger>
               </TabsList>
               <label v-if="profile" class="filter-completed">
@@ -265,7 +244,7 @@ async function toggleChecklistCompletion(row: ProgressRow) {
             <TabsContent value="results" class="checklist-content">
               <label class="atlas-search"><span class="i-lucide:search" aria-hidden="true" /><input v-model="view.search" name="places" autocomplete="off" :aria-label="t('explore.search')" :placeholder="t('explore.search-placeholder')"><button v-if="view.search" class="icon-button" :aria-label="t('explore.clear-search')" @click="view.search = ''"><span class="i-lucide:x" aria-hidden="true" /></button></label>
               <section ref="pointList" class="point-list" :aria-label="t('explore.point-list')">
-                <div v-if="profile && !checklistRows.length" class="empty-results">
+                <div v-if="profile && !filtered.length" class="empty-results">
                   <h3>{{ t('explore.no-results') }}</h3>
                 </div>
                 <div v-for="row in paged" :key="row.point.id" class="point-row" :class="{ selected: row.point.id === selected, complete: row.status === 'complete' }">

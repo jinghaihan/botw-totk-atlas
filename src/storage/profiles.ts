@@ -1,7 +1,7 @@
 import type { EntityTable, Table } from 'dexie'
 import type { CatalogPoint, GameId, GameMode, GameSnapshot, PointAnnotation } from '@/domain/game'
 import { Dexie } from 'dexie'
-import { compareProgress } from '@/domain/completion'
+import { createProgressReader } from '@/domain/completion'
 import { AppError } from '@/domain/errors'
 import { collectionSnapshot } from '@/domain/game'
 
@@ -12,22 +12,11 @@ export interface SaveProfile {
   mode: GameMode
   updatedAt: string
   snapshot?: GameSnapshot
-  completionTimes?: Record<string, string>
-}
-export interface ImportRecord {
-  id?: number
-  profileId: string
-  importedAt: string
-  filename: string
-  fingerprint: string
-  initial: boolean
-  changes: { id: string, name: string }[]
-  regressions?: { id: string, name: string }[]
 }
 export interface ProfileView {
   profileId: string
   categories: string[] | null
-  status: 'all' | 'incomplete' | 'complete' | 'found-unfinished' | 'shrine-chests'
+  status: 'all' | 'incomplete'
   layer: 'surface' | 'sky' | 'depths'
   search: string
 }
@@ -35,7 +24,6 @@ export interface ProfileView {
 export const db = new Dexie('wilds-atlas') as Dexie & {
   profiles: EntityTable<SaveProfile, 'id'>
   annotations: Table<PointAnnotation, [string, string]>
-  imports: EntityTable<ImportRecord, 'id'>
   views: EntityTable<ProfileView, 'profileId'>
 }
 db.version(1).stores({ profiles: '&id, name, game, updatedAt' })
@@ -46,7 +34,7 @@ db.version(2).stores({
   views: '&profileId',
 })
 
-// Keep the old table definition so existing databases retain their stored data.
+// Historical schema for existing IndexedDB databases.
 db.version(3).stores({ pins: '&id, profileId' })
 db.version(4).stores({}).upgrade((transaction) => {
   return transaction.table('profiles').toCollection().modify((profile) => {
@@ -71,8 +59,9 @@ db.version(6).stores({}).upgrade(async (transaction) => {
   })
 })
 
-export function listProfiles() {
-  return db.profiles.orderBy('updatedAt').reverse().toArray()
+export async function listProfiles() {
+  const profiles = await db.profiles.orderBy('updatedAt').reverse().toArray()
+  return profiles.map(profile => profile.snapshot ? { ...profile, snapshot: collectionSnapshot(profile.snapshot) } : profile)
 }
 
 function validateProfileName(name: string) {
@@ -94,8 +83,8 @@ export async function createProfile(game: GameId, name: string) {
   return profile
 }
 
-export function saveProfile(snapshot: GameSnapshot, name: string, id?: string, mode: GameMode = 'unknown', catalog: CatalogPoint[] = []) {
-  return db.transaction('rw', db.profiles, db.imports, async () => {
+export function saveProfile(snapshot: GameSnapshot, name: string, id?: string, mode: GameMode = 'unknown', updateCatalog?: CatalogPoint[]) {
+  return db.transaction('rw', [db.profiles, db.annotations], async () => {
     const existing = id ? await db.profiles.get(id) : undefined
     if (id && !existing)
       throw new AppError('error.import-target-missing')
@@ -106,14 +95,14 @@ export function saveProfile(snapshot: GameSnapshot, name: string, id?: string, m
     const normalizedName = name.trim() || `${snapshot.game.toUpperCase()} · ${mode === 'master' ? '大师模式' : mode === 'normal' ? '普通模式' : '存档'}`
     if (normalizedName.length > 80)
       throw new AppError('error.profile-name-too-long')
-    const previous = existing?.snapshot
-    const changes = previous ? compareProgress(previous, snapshot, catalog) : []
-    const regressions = previous ? compareProgress(snapshot, previous, catalog) : []
-    const changedIds = new Set(changes.map(({ id }) => id))
-    const completionTimes = Object.fromEntries(compareProgress(undefined, snapshot, catalog).map(({ id }) => [
-      id,
-      previous && !changedIds.has(id) ? existing?.completionTimes?.[id] ?? previous.importedAt : snapshot.importedAt,
-    ]))
+    if (existing && updateCatalog) {
+      const points = new Map(updateCatalog.map(point => [point.id, point]))
+      const { status } = createProgressReader(snapshot)
+      await db.annotations.where('profileId').equals(existing.id).and(({ pointId }) => {
+        const point = points.get(pointId)
+        return point !== undefined && status(point) !== undefined
+      }).delete()
+    }
     const profile = {
       id: id ?? crypto.randomUUID(),
       name: normalizedName,
@@ -121,10 +110,8 @@ export function saveProfile(snapshot: GameSnapshot, name: string, id?: string, m
       mode: snapshot.game === 'totk' ? 'normal' : mode === 'unknown' ? existing?.mode ?? 'unknown' : mode,
       updatedAt: new Date().toISOString(),
       snapshot: collectionSnapshot(snapshot),
-      completionTimes,
     } satisfies SaveProfile
     await db.profiles.put(profile)
-    await db.imports.add({ profileId: profile.id, importedAt: profile.updatedAt, filename: snapshot.filename, fingerprint: snapshot.fingerprint, initial: !previous, changes, regressions })
     return profile
   })
 }
@@ -135,9 +122,10 @@ export async function renameProfile(id: string, name: string) {
 }
 
 export function deleteProfile(id: string) {
-  return db.transaction('rw', [db.profiles, db.annotations, db.imports, db.views], async () => {
+  const legacyImports = db.table('imports')
+  return db.transaction('rw', [db.profiles, db.annotations, legacyImports, db.views], async () => {
     await db.annotations.where('profileId').equals(id).delete()
-    await db.imports.where('profileId').equals(id).delete()
+    await legacyImports.where('profileId').equals(id).delete()
     await db.views.delete(id)
     await db.profiles.delete(id)
   })
@@ -162,8 +150,4 @@ export function putAnnotation(annotation: PointAnnotation) {
     await db.annotations.put(record)
     return record
   })
-}
-
-export function listImports(profileId: string) {
-  return db.imports.where('profileId').equals(profileId).reverse().toArray()
 }

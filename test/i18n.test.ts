@@ -1,5 +1,7 @@
+import type { CatalogPoint } from '@/domain/game'
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
+import { catalogPointName } from '@/composables/game-labels'
 import { AppError } from '@/domain/errors'
 import { i18n, resolveLocale, tr } from '@/modules/i18n'
 import en from '../i18n/en-US.json'
@@ -21,7 +23,7 @@ describe('interface languages', () => {
   it('changes prose and formats parameterized messages', () => {
     i18n.global.locale.value = 'en-US'
     expect(tr('category.shrine')).toBe('Shrines')
-    expect(tr('explore.place-count', { count: 3 })).toBe('3 places')
+    expect(tr('import.save-count', { count: 3 })).toBe('Import 3 saves')
     const error = new AppError('error.totk-missing-field', { name: 'IsGameClear' })
     expect(tr(error.key, error.values)).toBe('This TOTK save is missing IsGameClear.')
     expect(tr('error.totk-duplicate-fields')).toBe('Duplicate fields in the TOTK save. Check its format.')
@@ -45,6 +47,19 @@ describe('interface languages', () => {
 })
 
 describe('official localized names', () => {
+  it('uses the boss, temple and full quest titles for catalog IDs shared with other text', () => {
+    const botw = JSON.parse(readFileSync('public/catalogs/botw.json', 'utf8')) as CatalogPoint[]
+    const totk = JSON.parse(readFileSync('public/catalogs/totk.json', 'utf8')) as CatalogPoint[]
+    const botwLabels = JSON.parse(readFileSync('public/labels/botw-zh-CN.json', 'utf8'))
+    const totkLabels = JSON.parse(readFileSync('public/labels/totk-zh-CN.json', 'utf8'))
+    expect(botw.filter(point => point.category === 'rematch').map(point => catalogPointName('botw', point, botwLabels)))
+      .toEqual(['水咒盖侬', '风咒盖侬', '火咒盖侬', '雷咒盖侬'])
+    expect(totk.filter(point => point.category === 'temple').map(point => catalogPointName('totk', point, totkLabels)))
+      .toEqual(['风之神殿', '水之神殿', '火之神殿', '雷之神殿', '魂之神殿'])
+    const race = totk.find(point => point.id === 'quest:Circuit_Ichikara')!
+    expect(catalogPointName('totk', race, totkLabels)).toBe('征服一始拉力赛')
+  })
+
   for (const game of ['botw', 'totk']) {
     it(`uses independent CNzh, TWzh and USen text for ${game}`, () => {
       const labels = ['zh-CN', 'zh-TW', 'en-US'].map(locale => JSON.parse(readFileSync(`public/labels/${game}-${locale}.json`, 'utf8')))

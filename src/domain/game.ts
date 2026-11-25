@@ -24,7 +24,6 @@ export interface CatalogPoint {
   at?: [number, number]
   key?: string | number
   values?: string[]
-  found?: string
   detail?: string
   region?: string
   regionLabel?: string
@@ -51,7 +50,21 @@ export const progressLabels: Record<string, string> = {
 
 export const masterCycleName = '大师摩托Zero'
 
+const duplicateTotkLocationFlags = [3937767332, 2777140739]
+
 export function collectionSnapshot(snapshot: GameSnapshot): GameSnapshot {
   const { game, filename, fingerprint, importedAt, size, progress, milestones, scalars, guids } = snapshot
-  return { game, filename, fingerprint, importedAt, size, progress, milestones, scalars, guids }
+  const normalizedProgress = game === 'totk'
+    ? progress.map((record) => {
+        if (record.id !== 'LOCATIONS_VISITED' || record.total !== 362)
+          return record
+        const duplicateCompletions = duplicateTotkLocationFlags.filter(key => scalars[key] === 1).length
+        return {
+          ...record,
+          done: Math.max(0, record.done - duplicateCompletions),
+          total: record.total - duplicateTotkLocationFlags.length,
+        }
+      })
+    : progress
+  return { game, filename, fingerprint, importedAt, size, progress: normalizedProgress, milestones, scalars, guids }
 }

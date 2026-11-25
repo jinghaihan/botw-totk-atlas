@@ -1,14 +1,32 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { exportBackup, restoreBackup } from '@/storage/backup'
-import { createProfile, db, listAnnotations, putAnnotation, saveProfile } from '@/storage/profiles'
+import { createProfile, db, listAnnotations, listProfiles, putAnnotation, saveProfile } from '@/storage/profiles'
 import { snapshot } from './helpers/snapshot'
 
 beforeEach(async () => {
-  await db.transaction('rw', [db.profiles, db.annotations, db.imports, db.views], async () => {
-    for (const table of [db.profiles, db.annotations, db.imports, db.views]) await table.clear()
+  await db.transaction('rw', [db.profiles, db.annotations, db.views], async () => {
+    for (const table of [db.profiles, db.annotations, db.views]) await table.clear()
   })
 })
 describe('portable backups', () => {
+  it('normalizes duplicated TOTK location flags in existing profiles and backups', async () => {
+    const profile = await saveProfile(snapshot({ game: 'totk' }), 'TOTK')
+    const legacy = {
+      ...profile,
+      snapshot: snapshot({
+        game: 'totk',
+        progress: [{ id: 'LOCATIONS_VISITED', label: 'Visited locations', done: 2, total: 362 }],
+        scalars: { 3937767332: 1 },
+      }),
+    }
+    await db.profiles.put(legacy)
+    expect((await listProfiles())[0]?.snapshot?.progress).toMatchObject([{ done: 1, total: 360 }])
+    const backup = await exportBackup(profile.id)
+    expect(backup.profiles[0]?.snapshot?.progress).toMatchObject([{ done: 1, total: 360 }])
+    const [restoredId] = await restoreBackup({ ...backup, profiles: [legacy] })
+    expect((await db.profiles.get(restoredId!))?.snapshot?.progress).toMatchObject([{ done: 1, total: 360 }])
+  })
+
   it('round-trips a manual profile and its completions without a game save', async () => {
     const profile = await createProfile('totk', 'Manual playthrough')
     await putAnnotation({ profileId: profile.id, pointId: 'chest:1', status: 'complete', updatedAt: profile.updatedAt })
@@ -41,6 +59,8 @@ describe('portable backups', () => {
     const backup = await exportBackup()
     const legacy = {
       ...backup,
+      imports: [{ profileId: original.id, importedAt: original.updatedAt, filename: 'game_data.sav', fingerprint: original.snapshot?.fingerprint, initial: true, changes: [] }],
+      views: [{ profileId: original.id, categories: ['chest'], status: 'shrine-chests', layer: 'surface', search: '' }],
       pins: [{ id: 'custom:old', profileId: original.id }],
       annotations: [
         { ...backup.annotations[0], ignored: true, note: '旧备注' },
@@ -57,7 +77,8 @@ describe('portable backups', () => {
     expect(annotation).not.toHaveProperty('note')
     expect(annotation).not.toHaveProperty('ignored')
     expect(await db.annotations.get([ids[0]!, 'chest:2'])).toBeUndefined()
-    expect(await db.imports.where('profileId').equals(ids[0]!).count()).toBe(1)
+    expect(await db.views.get(ids[0]!)).toMatchObject({ categories: ['chest'], status: 'incomplete' })
+    expect((await exportBackup(ids[0]!)).imports).toEqual([])
     expect(await db.profiles.get(original.id)).toEqual(original)
   })
   it('rejects invalid references before changing the database', async () => {
@@ -80,10 +101,11 @@ describe('portable backups', () => {
 
 it('exports one profile without leaking another playthrough', async () => {
   const first = await saveProfile(snapshot(), 'first')
-  await saveProfile(snapshot(), 'second')
+  const second = await saveProfile(snapshot(), 'second')
+  await putAnnotation({ profileId: second.id, pointId: 'chest:1', status: 'complete', updatedAt: second.updatedAt })
   const backup = await exportBackup(first.id)
   expect(backup.profiles.map(p => p.id)).toEqual([first.id])
-  expect(backup.imports.every(r => r.profileId === first.id)).toBe(true)
+  expect(backup.annotations).toEqual([])
 })
 
 it('drops obsolete inventory and horse payloads when exporting older profiles', async () => {

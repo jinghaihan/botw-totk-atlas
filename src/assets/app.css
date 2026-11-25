@@ -267,12 +267,6 @@ button:hover:not(:disabled) {
 .icon-button:hover {
   background: #798b6912;
 }
-.text-button {
-  background: transparent;
-  color: var(--accent);
-  padding: 5px;
-  font-size: 12px;
-}
 .eyebrow {
   display: block;
   margin: 0 0 7px;
@@ -483,22 +477,6 @@ button:hover:not(:disabled) {
   overscroll-behavior: contain;
   scrollbar-width: thin;
 }
-.panel-section-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-.panel-section-heading h2 {
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  margin: 0;
-}
-.panel-section-heading > span {
-  font-size: 10px;
-  color: #939681;
-}
 .category-tiles {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -542,50 +520,6 @@ button:hover:not(:disabled) {
 }
 .category-tiles .category-progress {
   margin-block-start: auto;
-}
-.routes-heading {
-  margin-top: 8px;
-  padding-top: 15px;
-  border-top: 1px solid var(--line);
-}
-.journey-links button {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 13px 1px;
-  border-bottom: 1px solid #e7e7db;
-  color: #5c7254;
-  background: transparent;
-  text-align: left;
-}
-.journey-links button:last-child {
-  border-bottom: 0;
-}
-.journey-links button > span:first-child {
-  font-size: 20px;
-  flex-shrink: 0;
-}
-.journey-links button > span:nth-child(2) {
-  flex: 1;
-  min-width: 0;
-}
-.journey-links strong {
-  display: block;
-  font-size: 12px;
-  font-weight: 500;
-  color: #48523e;
-}
-.journey-links small {
-  display: block;
-  font-size: 10px;
-  color: #929783;
-  margin-top: 5px;
-  line-height: 1.5;
-}
-.journey-links button > span:last-child {
-  font-size: 14px;
-  color: #a1a88e;
 }
 .panel-loading {
   padding: 25px 20px;
@@ -1110,86 +1044,6 @@ button:hover:not(:disabled) {
 .milestone-state[data-complete='true'] {
   color: var(--accent);
 }
-.coverage-note {
-  display: flex;
-  align-items: start;
-  gap: 8px;
-  font-size: 11px;
-  color: #979f89;
-  line-height: 1.9;
-  margin: 22px 0;
-}
-.coverage-note > span {
-  flex-shrink: 0;
-  margin-top: 3px;
-}
-.search-box {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  border: 1px solid #d1dbc0;
-  border-radius: 5px;
-  background: #f7f6ed;
-  padding: 11px 14px;
-  color: #93a17e;
-}
-.search-box:focus-within {
-  border-color: #8caa70;
-}
-.search-box input {
-  background: transparent;
-  border: 0;
-  outline: none;
-  min-width: 0;
-  color: #637c51;
-  font-size: 12px;
-}
-.muted {
-  color: #96a184;
-}
-.save-provenance {
-  margin-top: 35px;
-  border-top: 1px solid #d6dec5;
-  padding-top: 21px;
-  color: #98a486;
-  font-size: 11px;
-  line-height: 1.8;
-}
-.save-provenance summary {
-  cursor: pointer;
-}
-.save-provenance > code {
-  overflow-wrap: anywhere;
-}
-.history-card {
-  padding: 23px 0;
-  border-bottom: 1px solid #dce3ce;
-  font-size: 12px;
-  color: #8a9b74;
-}
-.history-card .card-heading {
-  gap: 15px;
-}
-.history-card time {
-  color: #a0ad89;
-  font-size: 10px;
-}
-.history-card details {
-  line-height: 1.9;
-}
-.history-card details ul {
-  max-height: 250px;
-  overflow: auto;
-}
-.history-card code {
-  color: #b3bc9e;
-  font-size: 10px;
-}
-.loading-page {
-  color: #c9cfb5;
-  justify-content: center;
-  font-size: 14px;
-}
 .dialog-overlay {
   position: fixed;
   inset: 0;
@@ -1254,23 +1108,6 @@ button:hover:not(:disabled) {
   color: #a2ac8e;
   padding: 3px;
   font-size: 24px;
-}
-.import-preview {
-  display: grid;
-  gap: 10px;
-  border: 1px solid #dce3ca;
-  background: #eff2e2;
-  border-radius: 6px;
-  padding: 18px;
-  font-size: 12px;
-  color: #7f9469;
-}
-.import-preview strong {
-  color: #687f50;
-  letter-spacing: 2px;
-}
-.import-preview small {
-  color: #a6b38f;
 }
 .error-message {
   font-size: 12px;
@@ -1575,31 +1412,6 @@ button:hover:not(:disabled) {
   .category-symbol {
     font-size: 18px;
   }
-  .journey-links button {
-    padding: 10px 0;
-  }
-  .journey-links strong {
-    font-size: 11px;
-  }
-  .journey-links small {
-    font-size: 9px;
-  }
-  .journey-links button > span:first-child {
-    font-size: 18px;
-  }
-  .panel-section-heading {
-    margin-bottom: 10px;
-  }
-  .panel-section-heading h2 {
-    font-size: 11px;
-  }
-  .panel-section-heading > span {
-    font-size: 9px;
-  }
-  .routes-heading {
-    margin-top: 3px;
-    padding-top: 13px;
-  }
   .map-banner {
     top: auto;
     bottom: 92px;
@@ -1668,11 +1480,6 @@ button:hover:not(:disabled) {
   }
   .section-heading h2 {
     font-size: 13px;
-  }
-  .history-card .card-heading {
-    flex-direction: column;
-    align-items: start;
-    gap: 8px;
   }
   .dialog-content {
     padding: 28px 23px;
@@ -1814,17 +1621,13 @@ html[data-game='botw'] .category-tiles button[aria-pressed='true'] {
   border-color: #afc5bc;
   color: #365b5c;
 }
-.panel-section-heading > span,
-.category-tiles small,
-.journey-links small {
+.category-tiles small {
   font-size: 11px;
 }
-.category-tiles strong,
-.journey-links strong {
+.category-tiles strong {
   font-size: 12px;
 }
-.category-tiles small,
-.journey-links small {
+.category-tiles small {
   color: #7d876f;
 }
 @media (max-width: 760px) {
@@ -1843,13 +1646,10 @@ html[data-game='botw'] .category-tiles button[aria-pressed='true'] {
   .exploration-panel[data-state='closed'] .exploration-heading h1 {
     font-size: 19px;
   }
-  .panel-section-heading > span,
-  .category-tiles small,
-  .journey-links small {
+  .category-tiles small {
     font-size: 10px;
   }
-  .category-tiles strong,
-  .journey-links strong {
+  .category-tiles strong {
     font-size: 11px;
   }
 }

@@ -8,14 +8,14 @@ import { snapshot } from './helpers/snapshot'
 const view = { categories: null, status: 'all' as const, layer: 'surface' as const, search: '' }
 describe('exploration filters', () => {
   it('distinguishes all categories, a subset and no categories', () => {
-    const rows = resolveRows(undefined, [{ id: 'a', name: 'a', category: 'shrine' }, { id: 'b', name: 'b', category: 'chest' }], [])
+    const rows = resolveRows(undefined, [{ id: 'a', name: 'a', category: 'shrine', at: [0, 0] }, { id: 'b', name: 'b', category: 'chest', at: [1, 1] }], [])
     expect(filterRows(rows, view)).toHaveLength(2)
     expect(filterRows(rows, { ...view, categories: ['chest'] }).map(row => row.point.id)).toEqual(['b'])
     expect(filterRows(rows, { ...view, categories: [] })).toHaveLength(0)
   })
   it('keeps a manual override distinct from automatic evidence', () => {
     const save = snapshot()
-    const point: CatalogPoint = { id: 'p', name: '点位', category: 'chest', key: 'flag' }
+    const point: CatalogPoint = { id: 'p', name: '点位', category: 'chest', at: [0, 0], key: 'flag' }
     save.scalars[String(createProgressReader(save).hash('flag'))] = 1
     const rows = resolveRows(save, [point], [{ profileId: 'a', pointId: 'p', status: 'incomplete', updatedAt: new Date().toISOString() }])
     expect(rows[0]).toMatchObject({ automatic: 'complete', status: 'incomplete' })
@@ -27,25 +27,20 @@ describe('exploration filters', () => {
     const unfinished = { ...view, status: 'incomplete' as const }
     const save = snapshot()
     const rows = resolveRows(save, [lynel, shop], [])
-    expect(filterRows(rows, unfinished, true)).toMatchObject([{ point: lynel, status: 'incomplete' }, { point: shop, status: 'incomplete' }])
+    expect(filterRows(rows, unfinished)).toMatchObject([{ point: lynel, status: 'incomplete' }, { point: shop, status: 'incomplete' }])
     const marked = resolveRows(save, [lynel, shop], [{ profileId: 'a', pointId: lynel.id, status: 'complete', updatedAt: new Date().toISOString() }])
-    expect(filterRows(marked, unfinished, true)).toMatchObject([{ point: shop, status: 'incomplete' }])
+    expect(filterRows(marked, unfinished)).toMatchObject([{ point: shop, status: 'incomplete' }])
   })
-  it('finds cleared shrines with unclaimed chests without treating unknown as missing', () => {
-    const save = snapshot()
-    const reader = createProgressReader(save)
-    save.scalars[String(reader.hash('Clear_Dungeon000'))] = 1
-    save.scalars[String(reader.hash('CompleteTreasure_Dungeon000'))] = 0
-    save.scalars[String(reader.hash('Clear_Dungeon001'))] = 1
-    const points: CatalogPoint[] = [0, 1].map(i => ({ id: `shrine:${i}`, name: '神庙', category: 'shrine', key: `Clear_Dungeon00${i}` }))
-    const filtered = filterRows(resolveRows(save, points, []), { ...view, status: 'shrine-chests' })
-    expect(filtered.map(r => r.point.id)).toEqual(['shrine:0'])
-  })
-  it('excludes interior and other-layer points from the map but preserves them in the list', () => {
-    const points: CatalogPoint[] = [{ id: 'a', name: 'a', category: 'chest', at: [0, 0], layer: 'depths' }, { id: 'b', name: 'b', category: 'chest', at: [0, 0], interior: true }]
+  it('only returns exterior points from the selected layer', () => {
+    const points: CatalogPoint[] = [
+      { id: 'a', name: 'Depths chest', category: 'chest', at: [0, 0], layer: 'depths' },
+      { id: 'b', name: 'Interior chest', category: 'chest', at: [0, 0], interior: true },
+      { id: 'c', name: 'Surface chest', category: 'chest', at: [0, 0] },
+    ]
     const rows = resolveRows(snapshot(), points, [])
-    expect(filterRows(rows, view)).toHaveLength(2)
-    expect(filterRows(rows, view, true)).toHaveLength(0)
+    expect(filterRows(rows, view).map(row => row.point.id)).toEqual(['c'])
+    expect(filterRows(rows, { ...view, layer: 'depths' }).map(row => row.point.id)).toEqual(['a'])
+    expect(rows).toHaveLength(3)
   })
   it('round trips world X/Z coordinates without mirroring the map', () => {
     expect(worldToMap([123, -456])).toEqual([456, 123])
@@ -55,5 +50,5 @@ describe('exploration filters', () => {
 
 it('shows points as unfinished when browsing without a save', () => {
   const points: CatalogPoint[] = [{ id: 'chest:1', name: 'Chest', category: 'chest', key: 'guid:123', rule: 'guid' }]
-  expect(resolveRows(undefined, points, [])).toEqual([{ point: points[0], status: 'incomplete', found: false }])
+  expect(resolveRows(undefined, points, [])).toEqual([{ point: points[0], status: 'incomplete' }])
 })

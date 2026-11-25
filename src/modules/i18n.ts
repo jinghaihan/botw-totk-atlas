@@ -6,8 +6,8 @@ import ko from '../../i18n/ko-KR.json'
 import cn from '../../i18n/zh-CN.json'
 import tw from '../../i18n/zh-TW.json'
 
-export const availableLocales = ['zh-CN', 'zh-TW', 'ja-JP', 'ko-KR', 'en-US'] as const
-export type AtlasLocale = typeof availableLocales[number]
+const messages = { 'zh-CN': cn, 'zh-TW': tw, 'ja-JP': ja, 'ko-KR': ko, 'en-US': en }
+export type AtlasLocale = keyof typeof messages
 type Messages = typeof cn
 export type MessageKey = { [Group in keyof Messages]: `${Group}.${keyof Messages[Group] & string}` }[keyof Messages]
 export function resolveLocale(locale: string): AtlasLocale {
@@ -36,13 +36,13 @@ export const i18n = createI18n({
   fallbackLocale: 'zh-CN',
   missingWarn: false,
   fallbackWarn: false,
-  messages: { 'zh-CN': cn, 'zh-TW': tw, 'ja-JP': ja, 'ko-KR': ko, 'en-US': en },
+  messages,
 })
 export function tr(key: MessageKey, values: Record<string, string | number> = {}) {
   return i18n.global.t(key, values)
 }
 export const currentLocale = i18n.global.locale
-export function loadLanguageAsync(lang: string) {
+export function setLocale(lang: string) {
   const locale = resolveLocale(lang)
   i18n.global.locale.value = locale
   if (typeof document !== 'undefined')
@@ -51,7 +51,6 @@ export function loadLanguageAsync(lang: string) {
     localStorage.setItem('wilds-atlas:language', locale)
   }
   catch { /* Preferences still work for the current session. */ }
-  return Promise.resolve(locale)
 }
 export const install: UserModule = ({ app }) => {
   app.use(i18n)

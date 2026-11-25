@@ -1,6 +1,5 @@
 {
   "app": {
-    "name": "ゼルダノート",
     "skip-to-content": "メインコンテンツへ移動",
     "title": "ゼルダノート · Zelda Notes"
   },
@@ -55,7 +54,6 @@
     "yiga": "イーガ団の設計図"
   },
   "common": {
-    "all": "すべて",
     "cancel": "キャンセル",
     "delete": "削除",
     "loading": "読込中…",
@@ -80,7 +78,6 @@
     "import-target-missing": "対象のプロフィールが見つかりません。選び直してください。",
     "missing-progress-group": "収集データに {id} がありません。",
     "operation-failed": "操作を完了できませんでした。もう一度お試しください。",
-    "preview-save-missing": "ローカルのプレビュー用セーブが見つかりません。",
     "profile-invalid-name": "名前を1～80文字で入力してください。",
     "profile-load": "プロフィールを読み込めません。ブラウザーのストレージを確認してください。",
     "profile-missing": "このプロフィールは見つかりません。",
@@ -88,12 +85,10 @@
     "save-failed": "保存できませんでした。もう一度お試しください。",
     "save-incomplete": "セーブファイルが不完全です。",
     "save-incomplete-progress": "収集記録が不足しています。ファイルのバージョンを確認してください。",
-    "save-over-size-limit": "対応するサイズを超えています。.sav ファイルを1つ選んでください。",
     "save-read": "このセーブデータを読み込めません。",
     "save-too-large": "ファイルが大きすぎます。game_data.sav または progress.sav を1つ選んでください。",
     "save-unrecognized": "セーブを認識できません。BOTW の game_data.sav または TOTK の progress.sav を選んでください。",
     "select-botw-save": "BOTW の game_data.sav を選んでください。",
-    "select-save": "BOTW の game_data.sav または TOTK の progress.sav を選んでください。",
     "select-totk-save": "TOTK の progress.sav を選んでください。",
     "totk-duplicate-fields": "TOTK セーブデータに重複した項目があります。形式を確認してください。",
     "totk-incomplete-guids": "TOTK セーブデータの収集記録が不足しています。",
@@ -103,29 +98,19 @@
     "totk-missing-field": "セーブデータに {name} がありません。"
   },
   "explore": {
-    "all-statuses": "すべての状態",
-    "back": "探索に戻る",
-    "category": "カテゴリ",
     "checklist": "リスト",
     "clear-search": "検索をクリア",
     "collapse": "探索パネルを閉じる",
     "expand": "探索パネルを開く",
     "filter-categories": "表示するカテゴリ",
-    "find-next": "次の目的地を探す",
     "heading": "ハイラルを探索",
     "loading-catalog": "探索データを読込中…",
-    "more-filters": "その他のフィルター",
     "no-results": "該当する項目がありません",
-    "place-count": "{count} か所",
     "point-list": "探索地点のリスト",
-    "progress-filter": "進行状況で絞り込み",
-    "remaining": "未探索",
-    "remaining-count": "未探索 {count} 件",
     "search": "探索記録を検索",
     "search-placeholder": "場所やアイテムを検索…",
     "show-completed": "完了済みを表示",
     "tab": "探索",
-    "try-another-category": "カテゴリを変えて、次の目的地を探しましょう。",
     "views": "探索ビュー"
   },
   "game": {
@@ -135,15 +120,13 @@
     "master-mode": "マスターモード",
     "normal-mode": "通常モード",
     "select": "ゲームを選択",
-    "totk": "ティアーズ オブ ザ キングダム",
-    "unknown-mode": "モード不明"
+    "totk": "ティアーズ オブ ザ キングダム"
   },
   "import": {
     "close": "インポート画面を閉じる",
     "create-profile": "新しいプロフィールを作成",
     "file": "セーブファイル",
     "folder": "セーブフォルダーをインポート",
-    "history": "インポート履歴",
     "open-picker": "インポート",
     "reselect-file": "ファイルを選び直す",
     "reselect-folder": "フォルダーを選び直す",
@@ -173,9 +156,7 @@
     "white-maned-lynel": "白髪のライネル"
   },
   "point": {
-    "chests-remaining": "未開封の宝箱あり",
     "close": "場所の詳細を閉じる",
-    "locate": "地図で表示",
     "mark-complete": "クリア済みにする",
     "mark-incomplete": "未クリアにする",
     "shrine-chests": "祠の宝箱"
@@ -187,14 +168,11 @@
     "contents": "セーブデータの内容",
     "create": "新規プロフィール",
     "delete-name": "{name} を削除",
-    "delete-profile": "プロフィールを削除",
     "empty": "プロフィールがありません",
     "export": "エクスポート",
     "export-one": "このプロフィールをエクスポート",
     "manage": "セーブを管理",
     "name": "セーブ名",
-    "preview-name": "BOTW・通常モード",
-    "profile-name": "プロフィール名",
     "rename": "名前を変更",
     "rename-save": "セーブ名を変更",
     "switch": "プロフィールを切り替える",
@@ -213,7 +191,6 @@
     "map-locations": "地図の探索地点",
     "master-cycle": "マスターバイク零式",
     "remaining-count": "未クリア {count} 件",
-    "shrine-chests-opened": "祠の宝箱はすべて回収済みです",
     "shrines-cleared": "祠のクリア",
     "shrines-with-all-chests": "宝箱をすべて開けた祠",
     "tab": "収集",
@@ -223,14 +200,11 @@
     "chests-all-opened": "回収済み",
     "chests-not-all-opened": "未回収あり",
     "complete": "クリア済み",
-    "found-incomplete": "発見済み・未クリア",
     "incomplete": "未クリア",
     "locked": "未解放",
     "manual": "手動",
-    "manual-record": "手動の記録",
     "no-save": "セーブ未読込",
     "not-yet-complete": "未クリア",
-    "shrine-chests-remaining": "クリア済み・未開封の宝箱あり",
     "unlocked": "解放済み"
   }
 }

@@ -7,11 +7,9 @@ import LanguageToggle from '@/components/language-toggle.vue'
 import ProfileManager from '@/components/profile-manager.vue'
 import SaveContents from '@/components/save-contents.vue'
 import { AppError } from '@/domain/errors'
-import { loadCatalog } from '@/games/catalog'
-import { readSave } from '@/games/read-save'
 import { tr as t } from '@/modules/i18n'
 import { downloadBackup } from '@/storage/backup'
-import { listProfiles, saveProfile } from '@/storage/profiles'
+import { listProfiles } from '@/storage/profiles'
 import './assets/app.css'
 import './assets/slate-theme.css'
 
@@ -71,17 +69,6 @@ async function openProfile(profileId: string) {
 onMounted(async () => {
   try {
     await reload()
-    // Local developer fixture is ignored by Git and never copied to production output.
-    if (import.meta.env.DEV && new URLSearchParams(location.search).get('preview') === 'botw-normal') {
-      const response = await fetch('/.local/botw-normal.sav', { cache: 'no-store' })
-      if (!response.ok)
-        throw new AppError('error.preview-save-missing')
-      const parsed = await readSave(await response.arrayBuffer(), 'game_data.sav')
-      const existing = profiles.value.find(p => p.name === 'BOTW · 普通模式')
-      if (existing?.snapshot?.fingerprint === parsed.fingerprint)
-        activeId.value = existing.id
-      else await openProfile((await saveProfile(parsed, 'BOTW · 普通模式', existing?.id, 'normal', await loadCatalog('botw'))).id)
-    }
   }
   catch (e) {
     error.value = AppError.from(e, 'error.profile-load')

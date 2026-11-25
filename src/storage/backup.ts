@@ -1,3 +1,4 @@
+import type { ProfileView } from './profiles'
 import { z } from 'zod'
 import { collectionSnapshot } from '@/domain/game'
 import { db } from './profiles'
@@ -21,10 +22,10 @@ export const backupSchema = z.object({
   format: z.enum(['zelda-notes', 'wilds-atlas']),
   version: z.union([z.literal(1), z.literal(2), z.literal(3)]),
   exportedAt: z.iso.datetime(),
-  profiles: z.array(z.object({ id, name: z.string().min(1).max(80), game: z.enum(['botw', 'totk']), mode: z.enum(['normal', 'master', 'unknown']), updatedAt: z.iso.datetime(), snapshot: snapshot.optional(), completionTimes: z.record(id, z.iso.datetime()).optional() })).max(100),
+  profiles: z.array(z.object({ id, name: z.string().min(1).max(80), game: z.enum(['botw', 'totk']), mode: z.enum(['normal', 'master', 'unknown']), updatedAt: z.iso.datetime(), snapshot: snapshot.optional() })).max(100),
   annotations: z.array(z.object({ profileId: id, pointId: id, status: z.enum(['complete', 'incomplete', 'unknown']).optional().transform(status => status === 'unknown' ? undefined : status), updatedAt: z.iso.datetime(), completedAt: z.iso.datetime().optional() })).max(100000),
   imports: z.array(z.object({ profileId: id, importedAt: z.iso.datetime(), filename: text, fingerprint: text, initial: z.boolean(), changes: z.array(change), regressions: z.array(change).optional() })).max(10000),
-  views: z.array(z.object({ profileId: id, categories: z.array(id).nullable(), status: z.enum(['all', 'complete', 'incomplete', 'unknown', 'found-unfinished', 'shrine-chests']).transform(status => status === 'unknown' ? 'incomplete' : status), layer: z.enum(['surface', 'sky', 'depths']), search: text })).max(100),
+  views: z.array(z.object({ profileId: id, categories: z.array(id).nullable(), status: z.enum(['all', 'complete', 'incomplete', 'unknown', 'found-unfinished', 'shrine-chests']).transform((status): ProfileView['status'] => status === 'all' ? 'all' : 'incomplete'), layer: z.enum(['surface', 'sky', 'depths']), search: text })).max(100),
 }).superRefine((backup, ctx) => {
   const ids = new Set(backup.profiles.map(p => p.id))
   if (ids.size !== backup.profiles.length)
@@ -40,7 +41,7 @@ export const backupSchema = z.object({
 })
 
 export async function exportBackup(profileId?: string) {
-  return db.transaction('r', [db.profiles, db.annotations, db.imports, db.views], async () => {
+  return db.transaction('r', [db.profiles, db.annotations, db.views], async () => {
     const profiles = (profileId ? await db.profiles.where('id').equals(profileId).toArray() : await db.profiles.toArray()).map(profile => ({ ...profile, snapshot: profile.snapshot && collectionSnapshot(profile.snapshot) }))
     return {
       format: 'zelda-notes' as const,
@@ -48,7 +49,7 @@ export async function exportBackup(profileId?: string) {
       exportedAt: new Date().toISOString(),
       profiles,
       annotations: (profileId ? await db.annotations.where('profileId').equals(profileId).toArray() : await db.annotations.toArray()).filter(a => a.status && !a.pointId.startsWith('custom:')).map(({ profileId, pointId, status, updatedAt, completedAt }) => ({ profileId, pointId, status, updatedAt, completedAt: status === 'complete' ? completedAt ?? updatedAt : undefined })),
-      imports: profileId ? await db.imports.where('profileId').equals(profileId).toArray() : await db.imports.toArray(),
+      imports: [], // Reserved in the portable backup format.
       views: profileId ? await db.views.where('profileId').equals(profileId).toArray() : await db.views.toArray(),
     }
   })
@@ -57,10 +58,14 @@ export async function exportBackup(profileId?: string) {
 export async function restoreBackup(input: unknown) {
   const backup = backupSchema.parse(input)
   const ids = new Map(backup.profiles.map(p => [p.id, crypto.randomUUID()]))
-  await db.transaction('rw', [db.profiles, db.annotations, db.imports, db.views], async () => {
-    await db.profiles.bulkAdd(backup.profiles.map(p => ({ ...p, id: ids.get(p.id)!, name: `${p.name.slice(0, 74)} · 恢复` })))
+  await db.transaction('rw', [db.profiles, db.annotations, db.views], async () => {
+    await db.profiles.bulkAdd(backup.profiles.map(p => ({
+      ...p,
+      id: ids.get(p.id)!,
+      name: `${p.name.slice(0, 74)} · 恢复`,
+      snapshot: p.snapshot && collectionSnapshot(p.snapshot),
+    })))
     await db.annotations.bulkAdd(backup.annotations.filter(a => a.status && !a.pointId.startsWith('custom:')).map(a => ({ ...a, profileId: ids.get(a.profileId)!, completedAt: a.status === 'complete' ? a.completedAt ?? a.updatedAt : undefined })))
-    await db.imports.bulkAdd(backup.imports.map(r => ({ ...r, profileId: ids.get(r.profileId)! })))
     await db.views.bulkAdd(backup.views.map(v => ({ ...v, categories: backup.version === 1 && v.categories?.length === 0 ? null : v.categories, profileId: ids.get(v.profileId)! })))
   })
   return [...ids.values()]

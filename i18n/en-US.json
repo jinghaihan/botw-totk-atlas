@@ -1,6 +1,5 @@
 {
   "app": {
-    "name": "Hyrule journal",
     "skip-to-content": "Skip to main content",
     "title": "Zelda Notes"
   },
@@ -55,7 +54,6 @@
     "yiga": "Yiga Schematics"
   },
   "common": {
-    "all": "All",
     "cancel": "Cancel",
     "delete": "Delete",
     "loading": "Reading…",
@@ -80,7 +78,6 @@
     "import-target-missing": "The target profile no longer exists. Choose another profile.",
     "missing-progress-group": "The collection catalog is missing {id}.",
     "operation-failed": "Could not finish the operation. Please try again.",
-    "preview-save-missing": "Local preview save not found.",
     "profile-invalid-name": "Enter a name with 1–80 characters.",
     "profile-load": "Could not load profiles. Check whether browser storage is available.",
     "profile-missing": "This profile no longer exists.",
@@ -88,12 +85,10 @@
     "save-failed": "Could not save. Please try again.",
     "save-incomplete": "This save file is incomplete.",
     "save-incomplete-progress": "Collection records are incomplete. Check the save version.",
-    "save-over-size-limit": "This file is too large. Choose an individual .sav file.",
     "save-read": "Could not read this save.",
     "save-too-large": "This file is too large. Choose a single game_data.sav or progress.sav.",
     "save-unrecognized": "Unrecognized save. Choose BOTW’s game_data.sav or TOTK’s progress.sav.",
     "select-botw-save": "Choose BOTW's game_data.sav.",
-    "select-save": "Choose game_data.sav (BOTW) or progress.sav (TOTK).",
     "select-totk-save": "Choose TOTK's progress.sav.",
     "totk-duplicate-fields": "Duplicate fields in the TOTK save. Check its format.",
     "totk-incomplete-guids": "Incomplete TOTK collection records.",
@@ -103,29 +98,19 @@
     "totk-missing-field": "This TOTK save is missing {name}."
   },
   "explore": {
-    "all-statuses": "All statuses",
-    "back": "Back to exploring",
-    "category": "Categories",
     "checklist": "Checklist",
     "clear-search": "Clear search",
     "collapse": "Collapse exploration panel",
     "expand": "Expand exploration panel",
     "filter-categories": "Filter point categories",
-    "find-next": "Find your next stop",
     "heading": "Explore Hyrule",
     "loading-catalog": "Loading the exploration catalog…",
-    "more-filters": "More filters",
     "no-results": "No matching entries",
-    "place-count": "{count} places",
     "point-list": "Exploration checklist",
-    "progress-filter": "Progress filter",
-    "remaining": "remaining",
-    "remaining-count": "{count} remaining",
     "search": "Search exploration records",
     "search-placeholder": "Search places or items…",
     "show-completed": "Show completed",
     "tab": "Explore",
-    "try-another-category": "Try another category to find your next stop.",
     "views": "Exploration views"
   },
   "game": {
@@ -135,15 +120,13 @@
     "master-mode": "Master Mode",
     "normal-mode": "Normal Mode",
     "select": "Choose game",
-    "totk": "Tears of the Kingdom",
-    "unknown-mode": "Mode unknown"
+    "totk": "Tears of the Kingdom"
   },
   "import": {
     "close": "Close import dialog",
     "create-profile": "Create a new profile",
     "file": "Save file",
     "folder": "Import save folder",
-    "history": "Import history",
     "open-picker": "Import",
     "reselect-file": "Choose another file",
     "reselect-folder": "Choose another folder",
@@ -173,9 +156,7 @@
     "white-maned-lynel": "White-Maned Lynel"
   },
   "point": {
-    "chests-remaining": "Chests remaining",
     "close": "Close point details",
-    "locate": "Locate on map",
     "mark-complete": "Mark complete",
     "mark-incomplete": "Mark incomplete",
     "shrine-chests": "Shrine chests"
@@ -187,14 +168,11 @@
     "contents": "Save contents",
     "create": "New profile",
     "delete-name": "Delete {name}",
-    "delete-profile": "Delete profile",
     "empty": "No profiles yet",
     "export": "Export",
     "export-one": "Export this profile",
     "manage": "Manage saves",
     "name": "Save name",
-    "preview-name": "BOTW · Normal Mode",
-    "profile-name": "Profile name",
     "rename": "Rename",
     "rename-save": "Rename save",
     "switch": "Switch profile",
@@ -213,7 +191,6 @@
     "map-locations": "Map locations",
     "master-cycle": "Master Cycle Zero",
     "remaining-count": "{count} entries remaining",
-    "shrine-chests-opened": "All shrine chests collected",
     "shrines-cleared": "Shrines cleared",
     "shrines-with-all-chests": "Shrines with all chests collected",
     "tab": "Collection",
@@ -223,14 +200,11 @@
     "chests-all-opened": "All chests opened",
     "chests-not-all-opened": "Chests remaining",
     "complete": "Complete",
-    "found-incomplete": "Discovered, incomplete",
     "incomplete": "Incomplete",
     "locked": "Locked",
     "manual": "Manual",
-    "manual-record": "Manual records",
     "no-save": "No save imported",
     "not-yet-complete": "Not complete",
-    "shrine-chests-remaining": "Cleared shrines with chests remaining",
     "unlocked": "Unlocked"
   }
 }

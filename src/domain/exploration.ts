@@ -7,7 +7,6 @@ export interface ProgressRow {
   automatic?: PointStatus
   status: PointStatus
   annotation?: PointAnnotation
-  found: boolean
   chests?: { total: number | null, opened: number | null, complete: boolean | undefined }
 }
 export function resolveRows(snapshot: GameSnapshot | undefined, points: CatalogPoint[], annotations: PointAnnotation[]): ProgressRow[] {
@@ -23,25 +22,21 @@ export function resolveRows(snapshot: GameSnapshot | undefined, points: CatalogP
     const automatic = reader?.status(point)
     const annotation = annotationsByPoint.get(point.id)
     const status = annotation?.status ?? automatic ?? 'incomplete'
-    return { point, automatic, status, annotation, found: reader?.found(point) ?? status === 'complete', ...(reader && point.category === 'shrine' ? { chests: reader.shrineChests(point, children.get(point.id) ?? []) } : {}) }
+    return { point, automatic, status, annotation, ...(reader && point.category === 'shrine' ? { chests: reader.shrineChests(point, children.get(point.id) ?? []) } : {}) }
   })
 }
 
-export function filterRows(rows: ProgressRow[], view: Omit<ProfileView, 'profileId'>, spatial = false) {
+export function filterRows(rows: ProgressRow[], view: Omit<ProfileView, 'profileId'>) {
   const query = view.search.trim().toLocaleLowerCase()
   return rows.filter((row) => {
     const p = row.point
     if (view.categories !== null && !view.categories.includes(p.category))
       return false
-    if (spatial && (!p.at || p.interior || (p.layer ?? 'surface') !== view.layer))
+    if (!p.at || p.interior || (p.layer ?? 'surface') !== view.layer)
       return false
     if (query && !`${p.name} ${(p.aliases ?? []).join(' ')} ${p.id} ${p.detail ?? ''} ${p.region ?? ''}`.toLocaleLowerCase().includes(query))
       return false
-    if ((view.status === 'complete' || view.status === 'incomplete') && row.status !== view.status)
-      return false
-    if (view.status === 'found-unfinished' && (!row.found || row.status !== 'incomplete'))
-      return false
-    if (view.status === 'shrine-chests' && (p.category !== 'shrine' || row.automatic !== 'complete' || row.chests?.complete !== false))
+    if (view.status === 'incomplete' && row.status === 'complete')
       return false
     return true
   })

@@ -84,12 +84,6 @@ html[data-game='botw'] .header-tools {
 .panel-tabs button > span {
   color: #9ca4ae;
 }
-.panel-section-heading h2 {
-  color: #c5d0bc;
-}
-.panel-section-heading > span {
-  color: #747f8e;
-}
 .category-tiles {
   gap: 5px;
 }
@@ -114,25 +108,6 @@ html[data-game='botw'] .category-symbol {
 }
 .category-tiles small {
   color: #7a8492;
-}
-.routes-heading {
-  border-color: var(--line);
-}
-.journey-links button {
-  color: #959da8;
-  border-color: #9199a51d;
-}
-.journey-links button:hover {
-  background: #99a1ac08;
-}
-.journey-links strong {
-  color: #cfd4bc;
-}
-.journey-links small {
-  color: #818b98;
-}
-.journey-links button > span:last-child {
-  color: #838b97;
 }
 .panel-loading {
   color: #9ba3ae;
@@ -273,9 +248,6 @@ html[data-game='botw'] .category-symbol {
   background: #606975;
   border-color: #798391;
 }
-.text-button {
-  color: #a9bc97;
-}
 .dialog-overlay {
   background: #0d0f109c;
 }
@@ -293,17 +265,6 @@ html[data-game='botw'] .category-symbol {
 }
 .dialog-close {
   color: #9da4ae;
-}
-.import-preview {
-  color: #a6adb6;
-  background: #abc39d09;
-  border-color: #90a38736;
-}
-.import-preview strong {
-  color: #cbd5ad;
-}
-.import-preview small {
-  color: #7d8794;
 }
 .error-message {
   color: #d6ac88;
@@ -362,33 +323,12 @@ html[data-game='botw'] .category-symbol {
 .milestones strong {
   color: var(--ink);
 }
-.coverage-note {
-  color: #747e8d;
-}
-.search-box {
-  border-color: #818a9840;
-  background: #1e2024;
-  color: #8e97a3;
-}
-.search-box input {
-  color: #c4d3b7;
-}
-.save-provenance,
-.history-card {
-  border-color: var(--line);
-  color: #828b98;
-}
-.history-card time,
-.history-card code {
-  color: #6e7887;
-}
 @media (max-width: 760px) {
   .exploration-panel[data-state='closed'] .exploration-heading {
     margin: 0;
     border: 0;
   }
-  .category-tiles small,
-  .journey-links small {
+  .category-tiles small {
     color: #8d95a1;
   }
 }

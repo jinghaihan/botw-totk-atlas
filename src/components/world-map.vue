@@ -19,7 +19,6 @@ let tiles: L.TileLayer | undefined
 let backdrop: L.ImageOverlay | undefined
 let marks: L.MarkerClusterGroup | undefined
 let observer: ResizeObserver | undefined
-let mounted = false
 let alive = true
 let focusMarker: L.CircleMarker | undefined
 function markerSvg(game: GameId, point: CatalogPoint, status: PointStatus) {
@@ -110,14 +109,11 @@ onMounted(async () => {
   locate()
   observer = new ResizeObserver(() => map?.invalidateSize())
   observer.observe(host.value)
-  mounted = true
 })
 onBeforeUnmount(() => {
   alive = false
-  if (mounted) {
-    observer?.disconnect()
-    map?.remove()
-  }
+  observer?.disconnect()
+  map?.remove()
 })
 </script>
 

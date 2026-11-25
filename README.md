@@ -14,7 +14,7 @@ Import a save, keep separate profiles for each playthrough, and find what remain
 - Separate profiles for BOTW Normal Mode, BOTW Master Mode, and TOTK.
 - Import a save file or a folder. Folder imports can detect BOTW mode from companion metadata.
 - Browse both maps without a save, or create a profile and mark progress by hand.
-- Track shrines, treasure chests, Koroks, quests, and other collection records. Manual progress survives subsequent save imports.
+- Track shrines, treasure chests, Koroks, quests, and other collection records. Updating a profile from a save preserves manual marks for points whose progress cannot be read from that save.
 - Export and restore individual profiles or all profiles as JSON.
 - English, Simplified Chinese, Traditional Chinese, Japanese, and Korean interfaces, with official localized game names where available.
 

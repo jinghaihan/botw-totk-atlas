@@ -14,7 +14,6 @@ const point = z.object({
   at: z.tuple([z.number(), z.number()]).optional(),
   rule: z.enum(['positive', 'boolean', 'guid', 'enum', 'manual']).optional(),
   values: z.array(z.string()).optional(),
-  found: z.string().optional(),
   detail: z.string().optional(),
   interior: z.boolean().optional(),
   parentId: z.string().optional(),
@@ -55,7 +54,7 @@ export const categoryDisplayOrder = [
   'bargainer',
   'dispenser',
   'blossom',
-  // Monsters and camps.
+  // Monsters.
   'hinox',
   'talus',
   'molduga',

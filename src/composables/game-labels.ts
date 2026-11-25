@@ -35,29 +35,38 @@ export function loadGameLabels(game: GameId, locale: string) {
   }
   return cache.get(key)!
 }
+
+export function catalogPointName(game: GameId, point: CatalogPoint, labels: Labels) {
+  if (point.category === 'rematch') {
+    const boss = game === 'botw' ? point.name.replace(/^Illusory /, '') : point.name
+    const label = labels.english[boss]
+    return label && label !== boss ? label : point.name
+  }
+
+  // These catalog IDs identify the associated challenge in the game text.
+  if (game === 'totk' && (point.category === 'temple' || point.id === 'quest:Circuit_Ichikara'))
+    return labels.english[point.name] ?? point.name
+
+  const id = point.id.split(':').slice(1).join(':')
+  return labels.ids[id] ?? labels.english[point.name] ?? point.name
+}
+
 export function useGameLabels(game: MaybeRefOrGetter<GameId>) {
   const labels = shallowRef<Labels>({ ids: {}, english: {} })
-  const unavailable = ref(false)
   let generation = 0
   watch(() => [toValue(game), currentLocale.value] as const, async ([gameId, locale]) => {
     const revision = ++generation
     labels.value = { ids: {}, english: {} }
-    unavailable.value = false
     try {
       const data = await loadGameLabels(gameId, locale)
       if (revision === generation)
         labels.value = data
     }
-    catch {
-      if (revision === generation)
-        unavailable.value = true
-    }
+    catch { /* The catalog names serve as the fallback. */ }
   }, { immediate: true })
-  const name = (id: string, fallback = id) => labels.value.ids[id] ?? labels.value.english[fallback] ?? fallback
   const text = (fallback: string) => labels.value.english[fallback] ?? fallback
   function localize(point: CatalogPoint): CatalogPoint {
-    const id = point.id.split(':').slice(1).join(':')
-    let title = name(id, point.name)
+    let title = catalogPointName(toValue(game), point, labels.value)
     if (title === point.name && currentLocale.value.startsWith('zh')) {
       // The community catalog appends its own identifiers to generic point names.
       const term = point.name.replace(/ [A-Z]*\d+$/, '')
@@ -67,5 +76,5 @@ export function useGameLabels(game: MaybeRefOrGetter<GameId>) {
     }
     return { ...point, name: title, aliases: [point.name], regionLabel: point.region ? text(point.region) : undefined, detail: point.detail ? text(point.detail) : undefined }
   }
-  return { name, text, localize, unavailable }
+  return { localize }
 }

@@ -1,6 +1,5 @@
 {
   "app": {
-    "name": "젤다 노트",
     "skip-to-content": "본문으로 건너뛰기",
     "title": "젤다 노트 · Zelda Notes"
   },
@@ -55,7 +54,6 @@
     "yiga": "이가단 설계도"
   },
   "common": {
-    "all": "전체",
     "cancel": "취소",
     "delete": "삭제",
     "loading": "읽는 중…",
@@ -80,7 +78,6 @@
     "import-target-missing": "대상 프로필이 없습니다. 다시 선택해 주세요.",
     "missing-progress-group": "수집 데이터에 {id} 항목이 없습니다.",
     "operation-failed": "작업을 완료하지 못했습니다. 다시 시도해 주세요.",
-    "preview-save-missing": "로컬 미리 보기 저장 데이터를 찾을 수 없습니다.",
     "profile-invalid-name": "이름을 1~80자로 입력해 주세요.",
     "profile-load": "프로필을 불러오지 못했습니다. 브라우저 저장소를 확인해 주세요.",
     "profile-missing": "이 프로필을 찾을 수 없습니다.",
@@ -88,12 +85,10 @@
     "save-failed": "저장하지 못했습니다. 다시 시도해 주세요.",
     "save-incomplete": "저장 파일이 불완전합니다.",
     "save-incomplete-progress": "수집 기록이 불완전합니다. 파일 버전을 확인해 주세요.",
-    "save-over-size-limit": "지원하는 크기를 초과합니다. .sav 파일 하나를 선택해 주세요.",
     "save-read": "이 저장 데이터를 읽을 수 없습니다.",
     "save-too-large": "파일이 너무 큽니다. game_data.sav 또는 progress.sav 파일 하나를 선택해 주세요.",
     "save-unrecognized": "저장 데이터를 인식할 수 없습니다. BOTW의 game_data.sav 또는 TOTK의 progress.sav를 선택해 주세요.",
     "select-botw-save": "BOTW의 game_data.sav를 선택해 주세요.",
-    "select-save": "BOTW의 game_data.sav 또는 TOTK의 progress.sav를 선택해 주세요.",
     "select-totk-save": "TOTK의 progress.sav를 선택해 주세요.",
     "totk-duplicate-fields": "TOTK 저장 데이터에 중복 항목이 있습니다. 형식을 확인해 주세요.",
     "totk-incomplete-guids": "TOTK 저장 데이터의 수집 기록이 불완전합니다.",
@@ -103,29 +98,19 @@
     "totk-missing-field": "저장 데이터에 {name} 항목이 없습니다."
   },
   "explore": {
-    "all-statuses": "모든 상태",
-    "back": "탐색으로 돌아가기",
-    "category": "분류",
     "checklist": "목록",
     "clear-search": "검색 지우기",
     "collapse": "탐색 패널 접기",
     "expand": "탐색 패널 펼치기",
     "filter-categories": "표시할 분류",
-    "find-next": "다음 목적지 찾기",
     "heading": "하이랄 탐색",
     "loading-catalog": "탐색 데이터를 읽는 중…",
-    "more-filters": "추가 필터",
     "no-results": "필터에 맞는 항목이 없습니다",
-    "place-count": "{count}곳",
     "point-list": "탐색 장소 목록",
-    "progress-filter": "진행 상황 필터",
-    "remaining": "미탐색",
-    "remaining-count": "미탐색 {count}개",
     "search": "탐색 기록 검색",
     "search-placeholder": "장소 또는 아이템 검색…",
     "show-completed": "완료 항목 표시",
     "tab": "탐색",
-    "try-another-category": "분류를 바꾸어 다음 목적지를 찾아보세요.",
     "views": "탐색 보기"
   },
   "game": {
@@ -135,15 +120,13 @@
     "master-mode": "마스터 모드",
     "normal-mode": "일반 모드",
     "select": "게임 선택",
-    "totk": "티어스 오브 더 킹덤",
-    "unknown-mode": "알 수 없는 모드"
+    "totk": "티어스 오브 더 킹덤"
   },
   "import": {
     "close": "가져오기 창 닫기",
     "create-profile": "새 프로필 만들기",
     "file": "저장 파일",
     "folder": "저장 폴더 가져오기",
-    "history": "가져오기 기록",
     "open-picker": "가져오기",
     "reselect-file": "파일 다시 선택",
     "reselect-folder": "폴더 다시 선택",
@@ -173,9 +156,7 @@
     "white-maned-lynel": "White-Maned Lynel"
   },
   "point": {
-    "chests-remaining": "열지 않은 보물상자 있음",
     "close": "장소 상세 닫기",
-    "locate": "지도에서 보기",
     "mark-complete": "완료로 표시",
     "mark-incomplete": "미완료로 표시",
     "shrine-chests": "사당 보물상자"
@@ -187,14 +168,11 @@
     "contents": "저장 데이터 내용",
     "create": "새 프로필",
     "delete-name": "{name} 삭제",
-    "delete-profile": "프로필 삭제",
     "empty": "프로필이 없습니다",
     "export": "내보내기",
     "export-one": "이 프로필 내보내기",
     "manage": "저장 파일 관리",
     "name": "저장 이름",
-    "preview-name": "BOTW · 일반 모드",
-    "profile-name": "프로필 이름",
     "rename": "이름 변경",
     "rename-save": "저장 이름 변경",
     "switch": "저장 프로필 전환",
@@ -213,7 +191,6 @@
     "map-locations": "지도 탐색 장소",
     "master-cycle": "마스터바이크 제로",
     "remaining-count": "남은 항목 {count}개",
-    "shrine-chests-opened": "사당 보물상자를 모두 획득했습니다",
     "shrines-cleared": "사당 클리어",
     "shrines-with-all-chests": "보물상자를 모두 연 사당",
     "tab": "수집",
@@ -223,14 +200,11 @@
     "chests-all-opened": "모두 획득",
     "chests-not-all-opened": "아직 남아 있음",
     "complete": "완료",
-    "found-incomplete": "발견 · 미완료",
     "incomplete": "미완료",
     "locked": "미해금",
     "manual": "수동",
-    "manual-record": "수동 기록",
     "no-save": "저장 데이터 없음",
     "not-yet-complete": "아직 미완료",
-    "shrine-chests-remaining": "클리어 · 열지 않은 보물상자 있음",
     "unlocked": "해금됨"
   }
 }
