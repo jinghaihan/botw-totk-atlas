@@ -1,17 +1,18 @@
 <script setup lang="ts">
 import type { SaveProfile } from '@/storage/profiles'
-import { TabsContent, TabsList, TabsRoot, TabsTrigger } from 'reka-ui'
+import { DialogClose, DialogContent, DialogOverlay, DialogPortal, DialogRoot, DialogTitle, TabsContent, TabsList, TabsRoot, TabsTrigger } from 'reka-ui'
 import AtlasSelect from '@/components/atlas-select.vue'
 import ImportDialog from '@/components/import-dialog.vue'
 import LanguageToggle from '@/components/language-toggle.vue'
 import ProfileManager from '@/components/profile-manager.vue'
 import SaveContents from '@/components/save-contents.vue'
 import { AppError } from '@/domain/errors'
-import { tr as t } from '@/modules/i18n'
+import { currentLocale, setLocale, tr as t } from '@/modules/i18n'
 import { downloadBackup } from '@/storage/backup'
 import { listProfiles } from '@/storage/profiles'
 import './assets/app.css'
 import './assets/slate-theme.css'
+import './assets/mobile.css'
 
 const ExplorerPanel = defineAsyncComponent(() => import('@/components/explorer-panel.vue'))
 const profiles = shallowRef<SaveProfile[]>([])
@@ -46,8 +47,16 @@ useHead(() => ({ title: t('app.title'), htmlAttrs: { 'data-game': game.value } }
 
 const managerOpen = ref(false)
 const urlParams = useUrlSearchParams('history')
-const validTabs = ['atlas', 'progress']
+const compact = useMediaQuery('(max-width: 760px)')
+const explorer = ref<InstanceType<typeof ExplorerPanel>>()
+const moreOpen = ref(false)
+const validTabs = ['atlas', 'checklist', 'progress']
 const tab = ref(validTabs.includes(String(urlParams.view)) ? String(urlParams.view) : 'atlas')
+watch(compact, (mobile) => {
+  if (!mobile && tab.value === 'checklist')
+    tab.value = 'atlas'
+  moreOpen.value = false
+})
 watch(tab, (value) => {
   if (value === 'atlas')
     delete urlParams.view
@@ -80,13 +89,13 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="atlas-app" :class="{ 'is-map': tab === 'atlas' }" :data-game="game">
+  <div class="atlas-app" :class="{ 'is-map': tab !== 'progress' }" :data-game="game">
     <a class="skip-link" href="#atlas-main">{{ t('app.skip-to-content') }}</a>
     <TabsRoot v-model="tab" class="app-frame">
       <header class="atlas-header">
         <div class="header-main">
           <AtlasSelect v-if="profiles.length" v-model="activeId" class="header-profile" :label="t('profile.switch')" :options="options" /><AtlasSelect v-else v-model="browseGame" class="header-profile" :label="t('game.select')" :options="[{ value: 'botw', label: t('game.botw') }, { value: 'totk', label: t('game.totk') }]" />
-          <TabsList class="atlas-navigation" :aria-label="t('profile.contents')">
+          <TabsList v-if="!compact" class="atlas-navigation" :aria-label="t('profile.contents')">
             <TabsTrigger value="atlas" :aria-label="t('map.title')">
               <span class="i-lucide:map" aria-hidden="true" /><span>{{ t('map.title') }}</span>
             </TabsTrigger>
@@ -95,7 +104,7 @@ onMounted(async () => {
             </TabsTrigger>
           </TabsList>
         </div>
-        <div class="header-tools">
+        <div v-if="!compact" class="header-tools">
           <LanguageToggle class="toolbar-control" />
           <button class="toolbar-control" :aria-label="t('profile.manage')" :title="t('profile.manage')" @click="managerOpen = true">
             <span class="i-lucide:settings-2" aria-hidden="true" />
@@ -110,13 +119,21 @@ onMounted(async () => {
             <span class="i-lucide:folder-open" aria-hidden="true" />
           </button>
         </div>
+        <div v-if="compact" class="mobile-header-actions">
+          <button v-if="tab !== 'progress'" class="mobile-filter-button" @click="explorer?.openFilters()">
+            <span class="i-lucide:sliders-horizontal" aria-hidden="true" />{{ t('mobile.filters') }}
+          </button>
+          <button class="icon-button" :aria-label="t('mobile.more')" @click="moreOpen = true">
+            <span class="i-lucide:ellipsis" aria-hidden="true" />
+          </button>
+        </div>
       </header>
       <main id="atlas-main" class="atlas-main" tabindex="-1">
         <p v-if="error" class="error-message app-error" role="alert">
           {{ t(error.key, error.values) }}
         </p>
-        <TabsContent v-if="!busy || current" value="atlas" class="map-page" force-mount :hidden="tab !== 'atlas'">
-          <ExplorerPanel :key="current?.id ?? game" :profile="current" :game="game" @import="importer?.chooseFile()" />
+        <TabsContent v-if="!busy || current" value="atlas" class="map-page" force-mount :hidden="tab === 'progress'">
+          <ExplorerPanel ref="explorer" :key="current?.id ?? game" :mobile-page="tab" :active="tab !== 'progress'" :profile="current" :game="game" @navigate="tab = $event" @import="importer?.chooseFile()" />
         </TabsContent>
         <div v-if="tab === 'progress' && !busy" class="journal-page">
           <header class="journal-heading">
@@ -142,7 +159,49 @@ onMounted(async () => {
           {{ t('common.loading') }}
         </div>
       </main>
+      <nav v-if="compact" class="mobile-navigation" :aria-label="t('profile.contents')">
+        <button :aria-current="tab === 'atlas' ? 'page' : undefined" @click="tab = 'atlas'">
+          <span class="i-lucide:map" aria-hidden="true" />{{ t('map.title') }}
+        </button>
+        <button :aria-current="tab === 'checklist' ? 'page' : undefined" @click="tab = 'checklist'">
+          <span class="i-lucide:list-checks" aria-hidden="true" />{{ t('explore.checklist') }}
+        </button>
+        <button :aria-current="tab === 'progress' ? 'page' : undefined" @click="tab = 'progress'">
+          <span class="i-lucide:book-open" aria-hidden="true" />{{ t('progress.tab') }}
+        </button>
+      </nav>
     </TabsRoot>
+    <DialogRoot v-if="compact" v-model:open="moreOpen">
+      <DialogPortal>
+        <DialogOverlay class="dialog-overlay mobile-sheet-overlay" />
+        <DialogContent class="dialog-content mobile-sheet mobile-menu" :aria-describedby="undefined">
+          <header class="mobile-sheet-heading">
+            <DialogTitle>{{ t('mobile.more') }}</DialogTitle>
+            <DialogClose class="icon-button" :aria-label="t('point.close')">
+              <span class="i-lucide:x" aria-hidden="true" />
+            </DialogClose>
+          </header>
+          <div class="mobile-menu-actions">
+            <button @click="moreOpen = false; managerOpen = true">
+              <span class="i-lucide:settings-2" aria-hidden="true" />{{ t('profile.manage') }}
+            </button>
+            <button :disabled="exporting || !profiles.length" @click="moreOpen = false; download()">
+              <span class="i-lucide:save" aria-hidden="true" />{{ t('profile.export') }}
+            </button>
+            <button @click="moreOpen = false; importer?.chooseFile()">
+              <span class="i-lucide:upload" aria-hidden="true" />{{ t('import.open-picker') }}
+            </button>
+            <button @click="moreOpen = false; importer?.chooseFile('folder')">
+              <span class="i-lucide:folder-open" aria-hidden="true" />{{ t('import.folder') }}
+            </button>
+          </div>
+          <label class="mobile-language">
+            <span><span class="i-lucide:languages" aria-hidden="true" />{{ t('mobile.language') }}</span>
+            <AtlasSelect :model-value="currentLocale" :label="t('mobile.language')" :options="[{ value: 'zh-CN', label: '简体中文' }, { value: 'zh-TW', label: '繁體中文' }, { value: 'ja-JP', label: '日本語' }, { value: 'ko-KR', label: '한국어' }, { value: 'en-US', label: 'English' }]" @update:model-value="setLocale" />
+          </label>
+        </DialogContent>
+      </DialogPortal>
+    </DialogRoot>
     <ImportDialog ref="importer" v-model:open="importOpen" :profiles="profiles" @selected="managerOpen = false" @imported="openProfile" />
     <ProfileManager
       v-model:open="managerOpen"

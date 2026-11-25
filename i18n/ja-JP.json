@@ -206,5 +206,12 @@
     "no-save": "セーブ未読込",
     "not-yet-complete": "未クリア",
     "unlocked": "解放済み"
+  },
+  "mobile": {
+    "filters": "絞り込み",
+    "more": "その他",
+    "language": "言語",
+    "show-results": "{count} 件を表示",
+    "back-to-list": "リストに戻る"
   }
 }

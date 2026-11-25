@@ -206,5 +206,12 @@
     "no-save": "저장 데이터 없음",
     "not-yet-complete": "아직 미완료",
     "unlocked": "해금됨"
+  },
+  "mobile": {
+    "filters": "필터",
+    "more": "더 보기",
+    "language": "언어",
+    "show-results": "장소 {count}개 보기",
+    "back-to-list": "목록으로 돌아가기"
   }
 }

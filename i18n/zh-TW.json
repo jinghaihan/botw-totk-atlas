@@ -206,5 +206,12 @@
     "no-save": "未匯入存檔",
     "not-yet-complete": "尚未完成",
     "unlocked": "已解鎖"
+  },
+  "mobile": {
+    "filters": "篩選",
+    "more": "更多",
+    "language": "語言",
+    "show-results": "查看 {count} 個點位",
+    "back-to-list": "返回清單"
   }
 }

@@ -12,6 +12,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AtlasSelect: typeof import('./../components/atlas-select.vue')['default']
+    CategoryPicker: typeof import('./../components/category-picker.vue')['default']
     ExplorerPanel: typeof import('./../components/explorer-panel.vue')['default']
     ImportDialog: typeof import('./../components/import-dialog.vue')['default']
     LanguageToggle: typeof import('./../components/language-toggle.vue')['default']

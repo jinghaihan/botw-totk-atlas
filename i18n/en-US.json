@@ -206,5 +206,12 @@
     "no-save": "No save imported",
     "not-yet-complete": "Not complete",
     "unlocked": "Unlocked"
+  },
+  "mobile": {
+    "filters": "Filters",
+    "more": "More",
+    "language": "Language",
+    "show-results": "Show {count} places",
+    "back-to-list": "Back to checklist"
   }
 }

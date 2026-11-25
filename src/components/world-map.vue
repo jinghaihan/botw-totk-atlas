@@ -8,7 +8,7 @@ import { tr as t } from '@/modules/i18n'
 import 'leaflet/dist/leaflet.css'
 import 'leaflet.markercluster/dist/MarkerCluster.css'
 
-const props = defineProps<{ game: GameId, layer: MapLayer, rows: ProgressRow[], focus?: [number, number] }>()
+const props = defineProps<{ game: GameId, layer: MapLayer, rows: ProgressRow[], focus?: [number, number], focusOffset?: number }>()
 const emit = defineEmits<{ select: [id: string] }>()
 const host = ref<HTMLElement>()
 const zoomHost = ref<HTMLElement>()
@@ -71,11 +71,13 @@ function locate() {
   if (!map || !props.focus)
     return
   map.setView(worldToMap(props.focus), Math.max(map.getZoom(), 6))
+  if (props.focusOffset)
+    map.panBy([0, props.focusOffset], { animate: false })
   focusMarker = L.circleMarker(worldToMap(props.focus), { radius: 15, color: '#e2cb8e', fillOpacity: 0, weight: 2, interactive: false }).addTo(map)
 }
 watch(() => [props.game, props.layer], base)
 watch(() => props.rows, markers)
-watch(() => props.focus, locate)
+watch(() => [props.focus, props.focusOffset], () => nextTick(locate), { flush: 'post' })
 onMounted(async () => {
   if (!host.value)
     return

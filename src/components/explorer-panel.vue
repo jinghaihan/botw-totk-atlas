@@ -2,7 +2,7 @@
 import type { ProgressRow } from '@/domain/exploration'
 import type { CatalogPoint, GameId, PointAnnotation } from '@/domain/game'
 import type { ProfileView, SaveProfile } from '@/storage/profiles'
-import { CollapsibleContent, CollapsibleRoot, CollapsibleTrigger, PaginationEllipsis, PaginationList, PaginationListItem, PaginationNext, PaginationPrev, PaginationRoot, SwitchRoot, SwitchThumb, TabsContent, TabsList, TabsRoot, TabsTrigger, ToggleGroupItem, ToggleGroupRoot } from 'reka-ui'
+import { CollapsibleContent, CollapsibleRoot, CollapsibleTrigger, DialogClose, DialogContent, DialogOverlay, DialogPortal, DialogRoot, DialogTitle, PaginationEllipsis, PaginationList, PaginationListItem, PaginationNext, PaginationPrev, PaginationRoot, SwitchRoot, SwitchThumb, TabsContent, TabsList, TabsRoot, TabsTrigger, ToggleGroupItem, ToggleGroupRoot } from 'reka-ui'
 import { useGameLabels } from '@/composables/game-labels'
 import { AppError } from '@/domain/errors'
 import { filterRows, resolveRows } from '@/domain/exploration'
@@ -10,11 +10,12 @@ import { categoryDisplayOrder, categoryLabel, loadCatalog } from '@/games/catalo
 import { categoryIcon, pointIcon } from '@/games/category-icons'
 import { currentLocale, tr as t } from '@/modules/i18n'
 import { db, listAnnotations, putAnnotation } from '@/storage/profiles'
+import CategoryPicker from './category-picker.vue'
 import PointDetail from './point-detail.vue'
 import WorldMap from './world-map.vue'
 
-const props = defineProps<{ profile?: SaveProfile, game: GameId }>()
-const emit = defineEmits<{ import: [] }>()
+const props = defineProps<{ profile?: SaveProfile, game: GameId, mobilePage: string, active: boolean }>()
+const emit = defineEmits<{ import: [], navigate: [page: 'atlas' | 'checklist'] }>()
 const gameLabels = useGameLabels(() => props.game)
 const catalog = shallowRef<CatalogPoint[]>([])
 const annotations = shallowRef<PointAnnotation[]>([])
@@ -23,16 +24,37 @@ const error = shallowRef<AppError>()
 const page = ref(1)
 const panelOpen = ref(true)
 const compact = useMediaQuery('(max-width: 760px)')
-onMounted(() => {
-  if (compact.value)
-    panelOpen.value = false
-})
+const filtersOpen = ref(false)
 const pointList = ref<HTMLElement>()
-const panelTab = ref('discover')
+const desktopTab = ref('discover')
+const panelTab = computed({
+  get: () => compact.value ? 'results' : desktopTab.value,
+  set: (value) => { desktopTab.value = value },
+})
+const listOpen = computed({
+  get: () => compact.value || panelOpen.value,
+  set: (value) => { panelOpen.value = value },
+})
 const saving = reactive(new Set<string>())
 const pageSize = 40
 const selected = ref('')
 const detailOpen = ref(false)
+defineExpose({
+  openFilters() {
+    detailOpen.value = false
+    filtersOpen.value = true
+  },
+})
+watch(() => props.active, (active) => {
+  if (!active) {
+    detailOpen.value = false
+    filtersOpen.value = false
+  }
+})
+watch(() => props.mobilePage, (page) => {
+  if (page !== 'atlas')
+    detailOpen.value = false
+})
 const detailFromChecklist = ref(false)
 const focus = ref<[number, number]>()
 const defaultView = (profileId: string): ProfileView => ({ profileId, categories: props.profile ? ['shrine', 'korok', 'chest'] : ['shrine'], status: 'incomplete', layer: 'surface', search: '' })
@@ -69,6 +91,12 @@ const current = computed(() => rows.value.find(r => r.point.id === selected.valu
 const children = computed(() => rows.value.filter(r => r.point.parentId === selected.value))
 
 const categoryOrder = computed(() => [...categoryDisplayOrder.filter(id => categories.value.includes(id)), ...categories.value.filter(id => !categoryDisplayOrder.includes(id))])
+const categoryItems = computed(() => categoryOrder.value.map(id => ({
+  id,
+  label: categoryName(id),
+  icon: categoryIcon(props.game, id),
+  progress: categoryProgress.value.has(id) ? formatCategoryProgress(id) : '',
+})))
 function categoryName(category: string) {
   return categoryLabel(props.game, category)
 }
@@ -140,7 +168,7 @@ function select(id: string, fromChecklist = false) {
   selected.value = id
   detailFromChecklist.value = fromChecklist
   if (compact.value)
-    panelOpen.value = false
+    emit('navigate', 'atlas')
   detailOpen.value = true
   const point = points.value.find(p => p.id === id)
   const parent = point?.parentId ? points.value.find(p => p.id === point.parentId) : undefined
@@ -186,11 +214,11 @@ async function toggleChecklistCompletion(row: ProgressRow) {
 </script>
 
 <template>
-  <div class="explorer">
-    <WorldMap :game="game" :layer="view.layer" :rows="filtered" :focus="focus" @select="select" />
-    <CollapsibleRoot v-model:open="panelOpen" class="exploration-panel">
+  <div class="explorer" :class="{ 'mobile-list': compact && mobilePage === 'checklist' }">
+    <WorldMap :game="game" :layer="view.layer" :rows="filtered" :focus="focus" :focus-offset="compact && detailOpen ? 120 : 0" @select="select" />
+    <CollapsibleRoot v-show="!compact || mobilePage === 'checklist'" v-model:open="listOpen" class="exploration-panel">
       <header class="exploration-heading">
-        <div><span class="eyebrow">{{ game === 'botw' ? t('game.botw') : t('game.totk') }}</span><h1>{{ t('explore.heading') }}</h1></div><CollapsibleTrigger class="icon-button panel-collapse" :aria-label="panelOpen ? t('explore.collapse') : t('explore.expand')">
+        <div><span class="eyebrow">{{ game === 'botw' ? t('game.botw') : t('game.totk') }}</span><h1>{{ compact ? t('explore.checklist') : t('explore.heading') }}<span v-if="compact" class="mobile-list-count">{{ filtered.length.toLocaleString(currentLocale) }}</span></h1></div><CollapsibleTrigger v-if="!compact" class="icon-button panel-collapse" :aria-label="panelOpen ? t('explore.collapse') : t('explore.expand')">
           <span :class="panelOpen ? 'i-lucide:panel-left-close' : 'i-lucide:panel-left-open'" aria-hidden="true" />
         </CollapsibleTrigger>
       </header>
@@ -204,7 +232,7 @@ async function toggleChecklistCompletion(row: ProgressRow) {
           {{ t('explore.loading-catalog') }}
         </p>
         <template v-else-if="!error || catalog.length">
-          <ToggleGroupRoot v-if="game === 'totk'" :model-value="view.layer" type="single" class="filter-layers" :aria-label="t('map.layers')" @update:model-value="value => { if (value === 'sky' || value === 'surface' || value === 'depths') view.layer = value }">
+          <ToggleGroupRoot v-if="!compact && game === 'totk'" :model-value="view.layer" type="single" class="filter-layers" :aria-label="t('map.layers')" @update:model-value="value => { if (value === 'sky' || value === 'surface' || value === 'depths') view.layer = value }">
             <ToggleGroupItem value="sky">
               {{ t('map.sky') }}
             </ToggleGroupItem>
@@ -216,7 +244,7 @@ async function toggleChecklistCompletion(row: ProgressRow) {
             </ToggleGroupItem>
           </ToggleGroupRoot>
           <TabsRoot v-model="panelTab" class="exploration-tabs">
-            <div class="exploration-tab-bar">
+            <div v-if="!compact" class="exploration-tab-bar">
               <TabsList class="panel-tabs" :aria-label="t('explore.views')">
                 <TabsTrigger value="discover">
                   {{ t('explore.tab') }}
@@ -233,13 +261,7 @@ async function toggleChecklistCompletion(row: ProgressRow) {
               </label>
             </div>
             <TabsContent value="discover" class="discover-content">
-              <ToggleGroupRoot type="multiple" class="category-tiles" :aria-label="t('explore.filter-categories')" :model-value="view.categories ?? categories" @update:model-value="values => view.categories = Array.isArray(values) ? values.filter((value): value is string => typeof value === 'string') : []">
-                <ToggleGroupItem v-for="category in categoryOrder" :key="category" :value="category">
-                  <span class="category-symbol" :class="categoryIcon(game, category)" aria-hidden="true" />
-                  <strong>{{ categoryName(category) }}</strong>
-                  <small v-if="categoryProgress.has(category)" class="category-progress"><span class="sr-only">{{ t('status.complete') }} </span>{{ formatCategoryProgress(category) }}</small>
-                </ToggleGroupItem>
-              </ToggleGroupRoot>
+              <CategoryPicker v-model="view.categories" :items="categoryItems" />
             </TabsContent>
             <TabsContent value="results" class="checklist-content">
               <label class="atlas-search"><span class="i-lucide:search" aria-hidden="true" /><input v-model="view.search" name="places" autocomplete="off" :aria-label="t('explore.search')" :placeholder="t('explore.search-placeholder')"><button v-if="view.search" class="icon-button" :aria-label="t('explore.clear-search')" @click="view.search = ''"><span class="i-lucide:x" aria-hidden="true" /></button></label>
@@ -287,6 +309,44 @@ async function toggleChecklistCompletion(row: ProgressRow) {
         </template>
       </CollapsibleContent>
     </CollapsibleRoot>
-    <PointDetail v-model:open="detailOpen" :game="game" :row="current" :profile-id="profile?.id" :children="children" :show-completion="!detailFromChecklist || !panelOpen" @save="save" @select="select" @import="emit('import')" />
+    <ToggleGroupRoot v-if="compact && mobilePage === 'atlas' && game === 'totk'" :model-value="view.layer" type="single" class="mobile-map-layers filter-layers" :aria-label="t('map.layers')" @update:model-value="value => { if (value === 'sky' || value === 'surface' || value === 'depths') view.layer = value }">
+      <ToggleGroupItem value="sky">
+        {{ t('map.sky') }}
+      </ToggleGroupItem>
+      <ToggleGroupItem value="surface">
+        {{ t('map.surface') }}
+      </ToggleGroupItem>
+      <ToggleGroupItem value="depths">
+        {{ t('map.depths') }}
+      </ToggleGroupItem>
+    </ToggleGroupRoot>
+    <DialogRoot v-if="compact" v-model:open="filtersOpen">
+      <DialogPortal>
+        <DialogOverlay class="dialog-overlay mobile-sheet-overlay" />
+        <DialogContent class="dialog-content mobile-sheet mobile-filters" :aria-describedby="undefined">
+          <header class="mobile-sheet-heading">
+            <DialogTitle>{{ t('mobile.filters') }}</DialogTitle>
+            <DialogClose class="icon-button" :aria-label="t('point.close')">
+              <span class="i-lucide:x" aria-hidden="true" />
+            </DialogClose>
+          </header>
+          <label v-if="profile" class="filter-completed mobile-completed">
+            <span>{{ t('explore.show-completed') }}</span>
+            <SwitchRoot class="filter-completed-switch" :model-value="view.status === 'all'" @update:model-value="view.status = $event ? 'all' : 'incomplete'">
+              <SwitchThumb class="filter-completed-thumb" />
+            </SwitchRoot>
+          </label>
+          <div class="mobile-sheet-body">
+            <CategoryPicker v-model="view.categories" :items="categoryItems" />
+          </div>
+          <footer class="mobile-sheet-footer">
+            <DialogClose class="button primary">
+              {{ t('mobile.show-results', { count: filtered.length.toLocaleString(currentLocale) }) }}
+            </DialogClose>
+          </footer>
+        </DialogContent>
+      </DialogPortal>
+    </DialogRoot>
+    <PointDetail v-model:open="detailOpen" :return-to-list="compact && detailFromChecklist" :game="game" :row="current" :profile-id="profile?.id" :children="children" :show-completion="compact || !detailFromChecklist || !panelOpen" @back="detailOpen = false; emit('navigate', 'checklist')" @save="save" @select="select" @import="emit('import')" />
   </div>
 </template>

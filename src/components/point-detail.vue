@@ -7,8 +7,8 @@ import { categoryLabel, statusLabels } from '@/games/catalog'
 import { categoryIcon, pointIcon } from '@/games/category-icons'
 import { tr as t } from '@/modules/i18n'
 
-const props = defineProps<{ game: GameId, row?: ProgressRow, profileId?: string, children: ProgressRow[], showCompletion: boolean }>()
-const emit = defineEmits<{ save: [annotation: PointAnnotation], select: [id: string], import: [] }>()
+const props = defineProps<{ game: GameId, row?: ProgressRow, profileId?: string, children: ProgressRow[], showCompletion: boolean, returnToList?: boolean }>()
+const emit = defineEmits<{ save: [annotation: PointAnnotation], select: [id: string], import: [], back: [] }>()
 const open = defineModel<boolean>('open', { required: true })
 const category = computed(() => props.row ? categoryLabel(props.game, props.row.point.category) : '')
 const region = computed(() => props.row?.point.regionLabel ?? props.row?.point.region ?? t('game.hyrule'))
@@ -49,6 +49,9 @@ function toggleComplete() {
           </button>
         </div>
         <div v-if="showCompletion || !profileId" class="detail-main-actions">
+          <button v-if="returnToList" class="detail-back" @click="emit('back')">
+            <span class="i-lucide:arrow-left" aria-hidden="true" />{{ t('mobile.back-to-list') }}
+          </button>
           <button v-if="profileId" class="button primary" @click="toggleComplete">
             <span class="detail-action-icon" :class="row.status === 'complete' ? 'i-lucide:rotate-ccw' : 'i-lucide:check'" aria-hidden="true" />
             <span class="detail-action-label">{{ row.status === 'complete' ? t('point.mark-incomplete') : t('point.mark-complete') }}</span>

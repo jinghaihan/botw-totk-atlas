@@ -1,0 +1,461 @@
+/* Phone pages use full-width content and a persistent bottom navigation. */
+@media (max-width: 760px) {
+  :root {
+    --mobile-nav-height: calc(66px + env(safe-area-inset-bottom));
+  }
+  .atlas-app,
+  .app-frame {
+    min-height: 0;
+  }
+  .atlas-header {
+    inset: 0 0 auto;
+    height: calc(64px + env(safe-area-inset-top));
+    padding: calc(8px + env(safe-area-inset-top)) 16px 8px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: #1e2125f5;
+    border-bottom: 1px solid var(--line);
+    backdrop-filter: blur(16px);
+  }
+  .atlas-header .header-main,
+  html[data-game='botw'] .atlas-header .header-main {
+    min-width: 0;
+    flex: 1;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+  .atlas-header .header-profile.filter-trigger {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    min-height: 44px;
+    padding: 0;
+    gap: 8px;
+    justify-content: space-between;
+    font-size: 14px;
+  }
+  .header-profile > span:first-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .mobile-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    pointer-events: auto;
+  }
+  .mobile-header-actions .icon-button,
+  .mobile-filter-button {
+    height: 44px;
+    min-width: 44px;
+  }
+  .mobile-filter-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 12px;
+    color: var(--ink);
+    background: #ffffff08;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+  .mobile-filter-button > span {
+    font-size: 17px;
+  }
+  .mobile-navigation {
+    position: absolute;
+    z-index: 60;
+    inset: auto 0 0;
+    height: var(--mobile-nav-height);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    padding: 5px 12px calc(5px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--line);
+    background: #1e2125fa;
+    backdrop-filter: blur(16px);
+  }
+  .mobile-navigation button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    border-radius: 10px;
+    color: var(--muted);
+    background: transparent;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .mobile-navigation button > span {
+    font-size: 22px;
+  }
+  .mobile-navigation button[aria-current='page'] {
+    background: #d2bd8a12;
+    color: #e5d7b1;
+  }
+  .map-page {
+    top: calc(64px + env(safe-area-inset-top));
+    bottom: var(--mobile-nav-height);
+  }
+  .mobile-list .map-shell {
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .mobile-list .exploration-panel {
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: #1b1d21;
+    backdrop-filter: none;
+  }
+  .mobile-list .exploration-heading {
+    flex: none;
+    padding: 24px 20px 12px;
+    margin: 0;
+    border: 0;
+  }
+  .mobile-list .exploration-heading .eyebrow {
+    display: none;
+  }
+  .mobile-list .exploration-heading h1 {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    font-size: 30px;
+    text-wrap: nowrap;
+  }
+  .mobile-list-count {
+    color: var(--muted);
+    font:
+      14px Inter,
+      sans-serif;
+    font-variant-numeric: tabular-nums;
+  }
+  .mobile-list .exploration-body,
+  .mobile-list .exploration-tabs,
+  .mobile-list .checklist-content {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .mobile-list .atlas-search {
+    height: 46px;
+    margin: 8px 20px 16px;
+    flex: none;
+    padding: 0 12px;
+  }
+  .mobile-list .atlas-search input {
+    font-size: 16px;
+  }
+  .mobile-list .point-list {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
+  .mobile-list .point-row {
+    min-height: 84px;
+    padding: 12px 20px;
+    gap: 14px;
+  }
+  .mobile-list .point-row-details {
+    min-height: 56px;
+  }
+  .mobile-list .point-copy strong {
+    font-size: 15px;
+    line-height: 1.45;
+  }
+  .mobile-list .point-copy small {
+    font-size: 12px;
+  }
+  .mobile-list .point-symbol {
+    font-size: 26px;
+  }
+  .mobile-list .point-complete {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+  }
+  .mobile-list .pagination {
+    flex: none;
+    padding: 10px 12px;
+    min-height: 64px;
+  }
+  .mobile-list .pagination button {
+    min-width: 40px;
+    height: 40px;
+    font-size: 14px;
+  }
+  .mobile-map-layers {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    z-index: 20;
+    gap: 0;
+    padding: 4px;
+    background: #1e2125f5;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+  }
+  .mobile-map-layers button {
+    min-height: 40px;
+    padding: 0 14px;
+    border: 0;
+    font-size: 13px;
+  }
+  .map-controls {
+    right: 16px;
+    bottom: 32px;
+    --map-button-size: 44px;
+  }
+  .map-coordinates {
+    display: none;
+  }
+  .leaflet-control-attribution {
+    font-size: 8px;
+  }
+  .point-detail {
+    inset: auto 0 var(--mobile-nav-height);
+    width: 100%;
+    max-height: calc(65dvh - var(--mobile-nav-height));
+    padding: 20px;
+    border-radius: 20px 20px 0 0;
+    background: #222529;
+  }
+  .point-detail h2 {
+    margin: 14px 0 8px;
+    font-size: 27px;
+  }
+  .detail-category,
+  .detail-type,
+  .point-detail .detail-meta {
+    font-size: 13px;
+  }
+  .detail-category .icon-button {
+    width: 44px;
+    height: 44px;
+  }
+  .point-detail .detail-status {
+    font-size: 11px;
+    padding: 6px 9px;
+  }
+  .point-detail .detail-main-actions {
+    margin-top: 20px;
+    padding-top: 16px;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .point-detail .button {
+    min-height: 48px;
+    font-size: 14px;
+    margin-left: auto;
+  }
+  .detail-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 48px;
+    padding: 0;
+    background: transparent;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .mobile-sheet-overlay {
+    background: #080a0e80;
+    backdrop-filter: blur(3px);
+  }
+  .dialog-content.mobile-sheet {
+    inset: auto 0 0;
+    transform: none;
+    width: 100%;
+    max-height: calc(100dvh - 48px - env(safe-area-inset-top));
+    padding: 0 0 env(safe-area-inset-bottom);
+    border-radius: 22px 22px 0 0;
+    border-bottom: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #222529;
+  }
+  .mobile-sheet-heading {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px 8px;
+  }
+  .mobile-sheet-heading h2 {
+    margin: 0;
+    font-size: 25px;
+  }
+  .mobile-sheet-heading .icon-button {
+    width: 44px;
+    height: 44px;
+  }
+  .mobile-sheet-body {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 4px 16px 16px;
+  }
+  .mobile-sheet .category-tiles {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .mobile-sheet .category-tiles button {
+    min-height: 104px;
+    padding: 14px 6px 10px;
+    gap: 8px;
+    border-radius: 10px;
+  }
+  .mobile-sheet .category-symbol {
+    font-size: 29px;
+  }
+  .mobile-sheet .category-tiles strong {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .mobile-sheet .category-tiles small {
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .mobile-sheet .category-progress {
+    margin-top: auto;
+  }
+  .dialog-content .mobile-completed {
+    flex-direction: row;
+    align-items: center;
+    display: flex;
+    flex: none;
+    justify-content: space-between;
+    margin: 0 20px 12px;
+    padding: 12px 0 16px;
+    border-bottom: 1px solid var(--line);
+    font-size: 14px;
+  }
+  .mobile-completed .filter-completed-switch {
+    width: 42px;
+    height: 26px;
+    padding: 3px;
+  }
+  .mobile-completed .filter-completed-thumb {
+    width: 20px;
+    height: 20px;
+  }
+  .mobile-completed .filter-completed-switch[data-state='checked'] .filter-completed-thumb {
+    transform: translateX(16px);
+  }
+  .mobile-sheet-footer {
+    flex: none;
+    padding: 12px 20px 16px;
+    border-top: 1px solid var(--line);
+  }
+  .mobile-sheet-footer .button {
+    width: 100%;
+    min-height: 48px;
+    font-size: 14px;
+  }
+  .mobile-menu-actions {
+    padding: 4px 12px 12px;
+  }
+  .mobile-menu-actions button,
+  .mobile-language {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    min-height: 56px;
+    padding: 12px;
+    color: var(--ink);
+    background: transparent;
+    font-size: 15px;
+    text-align: left;
+  }
+  .mobile-menu-actions button > span,
+  .mobile-language > span > span {
+    color: var(--accent-strong);
+    font-size: 21px;
+    flex: none;
+  }
+  .mobile-menu-actions button:hover {
+    background: #ffffff08;
+    border-radius: 8px;
+  }
+  .dialog-content .mobile-language {
+    display: flex;
+    color: var(--ink);
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 16px 24px 24px;
+    margin: 0;
+    border-top: 1px solid var(--line);
+    font-size: 15px;
+  }
+  .mobile-language > span {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .mobile-language .filter-trigger {
+    width: auto;
+    min-height: 44px;
+    max-width: 55%;
+    flex: none;
+    white-space: nowrap;
+    font-size: 14px;
+  }
+  .journal-page {
+    padding: calc(88px + env(safe-area-inset-top)) 20px calc(90px + env(safe-area-inset-bottom));
+  }
+  .journal-heading {
+    margin-bottom: 24px;
+  }
+  .journal-heading > .button,
+  .journal-heading .eyebrow {
+    display: none;
+  }
+  .journal-heading h1 {
+    font-size: 32px;
+  }
+  .journal-heading p {
+    font-size: 13px;
+  }
+  .progress-card {
+    padding: 20px 16px;
+  }
+  .progress-card .card-heading {
+    align-items: start;
+    min-height: 44px;
+    font-size: 12px;
+    gap: 8px;
+  }
+  .progress-card .complete-mark {
+    font-size: 10px;
+    white-space: nowrap;
+  }
+  .progress-card p {
+    font-size: 11px;
+    line-height: 1.7;
+  }
+  .app-error {
+    top: 72px;
+  }
+}
+@media (max-width: 359px) {
+  .progress-grid {
+    grid-template-columns: 1fr;
+  }
+  .mobile-filter-button {
+    padding-inline: 8px;
+  }
+}
