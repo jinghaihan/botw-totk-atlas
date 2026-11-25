@@ -19,7 +19,7 @@ export function createProgressReader(snapshot: GameSnapshot) {
     if (point.rule === 'guid') {
       if (!snapshot.guids)
         return undefined
-      return guids.has(String(point.key).replace('guid:', '')) ? 'complete' : 'incomplete'
+      return [String(point.key), ...point.alternateKeys ?? []].some(key => guids.has(key.replace('guid:', ''))) ? 'complete' : 'incomplete'
     }
     const actual = value(point.key)
     if (actual === undefined)

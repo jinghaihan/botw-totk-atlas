@@ -1,4 +1,4 @@
-import type { CatalogPoint, GameId } from '@/domain/game'
+import type { CatalogPoint, GameId, GameMode } from '@/domain/game'
 import type { MessageKey } from '@/modules/i18n'
 import { z } from 'zod'
 import { AppError } from '@/domain/errors'
@@ -7,6 +7,9 @@ import { readJsonResource } from './data-resource'
 
 const point = z.object({
   id: z.string(),
+  alternateIds: z.array(z.string()).optional(),
+  alternateKeys: z.array(z.string()).optional(),
+  mode: z.enum(['normal', 'master']).optional(),
   name: z.string(),
   category: z.string(),
   key: z.union([z.string(), z.number()]).optional(),
@@ -21,7 +24,7 @@ const point = z.object({
 })
 const cache = new Map<GameId, Promise<CatalogPoint[]>>()
 
-export function loadCatalog(game: GameId) {
+export function loadCatalog(game: GameId, mode: GameMode = 'unknown') {
   if (!cache.has(game)) {
     const request = readJsonResource(`catalogs/${game}.json`, 'error.catalog-load').then((data) => {
       const parsed = z.array(point).safeParse(data)
@@ -34,7 +37,7 @@ export function loadCatalog(game: GameId) {
     })
     cache.set(game, request)
   }
-  return cache.get(game)!
+  return cache.get(game)!.then(points => points.filter(point => !point.mode || point.mode === mode))
 }
 
 export const categoryDisplayOrder = [

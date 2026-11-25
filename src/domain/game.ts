@@ -17,6 +17,9 @@ export interface GameSnapshot {
 
 export interface CatalogPoint {
   id: string
+  alternateIds?: string[]
+  alternateKeys?: string[]
+  mode?: 'normal' | 'master'
   category: string
   name: string
   aliases?: string[]

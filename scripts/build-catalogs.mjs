@@ -21,6 +21,27 @@ const botwQuestFlagOverrides = new Map([
   ['shrine-quest:the-ancient-rito-song', 'RitoSongMystery_Finished'],
 ])
 
+// Alternative actors at a single encounter site, selected by game flags.
+// Coliseum: BattleArena_Level1–4. Ploymus Mountain: Water_Relic_Step1_1.
+// https://radar.zeldamods.org/obj/MainField/D-6/4200912374/gen_group
+// https://radar.zeldamods.org/obj/MainField/I-4/1396251553/gen_group
+const botwLynelGroups = [
+  ['lynel:4200912374', 'lynel:237760997', 'lynel:1544805954', 'lynel:1578404536'],
+  ['lynel:1396251553', 'lynel:2291678401'],
+]
+
+// Rito Village uses alternate buried/snow-free actors for the same chests.
+// https://radar-totk.zeldamods.org/obj/MainField/B-3/0x2926f12da31ed609/ai_groups
+const totkChestGroups = [
+  ['chest:2965322582982579721', 'chest:14206830692871046248'],
+  ['chest:7002424106020750548', 'chest:2254980747752752286'],
+  ['chest:2771758154124150084', 'chest:4600689941932319976'],
+]
+const actorGroups = { botw: botwLynelGroups, totk: totkChestGroups }
+// TBox_Field_Stone_CanNotOpen actors have no obtainable contents.
+// https://radar-totk.zeldamods.org/obj/MainField/B-7/0x4603f0f14049c6cf
+const unobtainableChests = new Set(['chest:5045140926541448911', 'chest:16602421995595943199'])
+
 const upstream = 'https://raw.githubusercontent.com/jv-prado/hyrule-tracker/master/'
 const local = process.argv.indexOf('--source-dir')
 const sourceDir = local >= 0 ? process.argv[local + 1] : undefined
@@ -39,7 +60,17 @@ for (const game of ['botw', 'totk']) {
   for (const original of source) {
     if (game === 'totk' && original.category === 'recipe')
       continue
+    if (game === 'totk' && unobtainableChests.has(original.id))
+      continue
+    const group = actorGroups[game].find(ids => ids.includes(original.id))
+    if (group && original.id !== group[0])
+      continue
     const p = { ...original }
+    if (group) {
+      p.alternateIds = group.slice(1)
+      if (p.category === 'chest')
+        p.alternateKeys = group.slice(1).map(id => `guid:${id.slice('chest:'.length)}`)
+    }
     delete p.guide
     delete p.found
     if (p.region)
@@ -54,6 +85,10 @@ for (const game of ['botw', 'totk']) {
     if (p.key === undefined)
       p.rule = 'manual'
     if (game === 'botw') {
+      if (p.category === 'lynel' && p.detail === 'Master Mode') {
+        p.mode = 'master'
+        delete p.detail
+      }
       const questFlag = botwQuestFlagOverrides.get(p.id)
       if (questFlag) {
         p.key = questFlag

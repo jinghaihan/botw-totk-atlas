@@ -40,13 +40,14 @@ describe('profile isolation', () => {
   it('replaces both readable manual states and preserves marks without save evidence', async () => {
     const catalog: CatalogPoint[] = [
       { id: 'korok:1', name: 'Korok', category: 'korok', key: 41 },
-      { id: 'chest:1', name: 'Chest', category: 'chest', key: 42 },
+      { id: 'chest:1', alternateIds: ['chest:buried'], name: 'Chest', category: 'chest', key: 42 },
       { id: 'lynel:1', name: 'Lynel', category: 'lynel', rule: 'manual', key: 43 },
       { id: 'shrine:1', name: 'Shrine', category: 'shrine', key: 44 },
     ]
     const profile = await saveProfile(snapshot({ scalars: { 41: 0, 42: 1 } }), 'normal')
     for (const point of catalog)
       await putAnnotation({ profileId: profile.id, pointId: point.id, status: 'complete', updatedAt: profile.updatedAt })
+    await putAnnotation({ profileId: profile.id, pointId: 'chest:buried', status: 'complete', updatedAt: profile.updatedAt })
 
     const later = snapshot({ scalars: { 41: 1, 42: 0, 43: 0 }, importedAt: '2026-01-02T00:00:00.000Z' })
     const updated = await saveProfile(later, profile.name, profile.id, 'normal', catalog)

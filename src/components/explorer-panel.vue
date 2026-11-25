@@ -110,7 +110,7 @@ async function load() {
   detailOpen.value = false
   error.value = undefined
   try {
-    const [data, records, savedView] = await Promise.all([loadCatalog(props.game), profileId ? listAnnotations(profileId) : [], profileId ? db.views.get(profileId) : undefined])
+    const [data, records, savedView] = await Promise.all([loadCatalog(props.game, props.profile?.mode), profileId ? listAnnotations(profileId) : [], profileId ? db.views.get(profileId) : undefined])
     if (revision !== generation)
       return
     catalog.value = data

@@ -42,6 +42,14 @@ describe('exploration filters', () => {
     expect(filterRows(rows, { ...view, layer: 'depths' }).map(row => row.point.id)).toEqual(['a'])
     expect(rows).toHaveLength(3)
   })
+  it('uses the latest manual record across alternative actors of one encounter', () => {
+    const point: CatalogPoint = { id: 'lynel:site', alternateIds: ['lynel:variant'], category: 'lynel', name: 'Lynel', at: [0, 0], rule: 'manual' }
+    const records = [{ profileId: 'a', pointId: 'lynel:variant', status: 'complete' as const, updatedAt: '2026-11-24T12:00:00Z', completedAt: '2026-11-24T12:00:00Z' }]
+    const [completed] = resolveRows(undefined, [point], records)
+    expect(completed).toMatchObject({ point: { id: 'lynel:site' }, status: 'complete', annotation: { completedAt: '2026-11-24T12:00:00Z' } })
+    const [reverted] = resolveRows(undefined, [point], [...records, { profileId: 'a', pointId: 'lynel:site', status: 'incomplete', updatedAt: '2026-11-25T12:00:00Z' }])
+    expect(reverted?.status).toBe('incomplete')
+  })
   it('round trips world X/Z coordinates without mirroring the map', () => {
     expect(worldToMap([123, -456])).toEqual([456, 123])
     expect(mapToWorld(...worldToMap([123, -456]))).toEqual([123, -456])

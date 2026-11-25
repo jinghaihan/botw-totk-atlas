@@ -2,6 +2,7 @@
 import type { MessageKey } from '@/modules/i18n'
 import type { SaveProfile } from '@/storage/profiles'
 import { TabsContent } from 'reka-ui'
+import { resolveRows } from '@/domain/exploration'
 import { masterCycleName } from '@/domain/game'
 import { categoryDisplayOrder, categoryLabel, loadCatalog } from '@/games/catalog'
 import { currentLocale, tr as t } from '@/modules/i18n'
@@ -19,15 +20,14 @@ onMounted(async () => {
     return
   loading.value = true
   try {
-    const [catalog, annotations] = await Promise.all([loadCatalog(game), listAnnotations(id)])
-    const completed = new Set(annotations.filter(annotation => annotation.status === 'complete').map(annotation => annotation.pointId))
+    const [catalog, annotations] = await Promise.all([loadCatalog(game, props.profile.mode), listAnnotations(id)])
     const counts = new Map<string, { done: number, total: number }>()
-    for (const point of catalog) {
+    for (const { point, status } of resolveRows(undefined, catalog, annotations)) {
       if (!point.at || point.interior)
         continue
       const count = counts.get(point.category) ?? { done: 0, total: 0 }
       count.total += 1
-      count.done += Number(completed.has(point.id))
+      count.done += Number(status === 'complete')
       counts.set(point.category, count)
     }
     manualProgress.value = categoryDisplayOrder.flatMap((category) => {

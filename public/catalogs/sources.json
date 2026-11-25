@@ -6,14 +6,14 @@
       "game": "botw",
       "source": "https://raw.githubusercontent.com/jv-prado/hyrule-tracker/master/data/botw-world.json",
       "sha256": "2110bf326fcffe8465e2437b4675cd739f667621fd25c211e4318d62b62c70fe",
-      "points": 3743,
+      "points": 3739,
       "note": "Normalized flag semantics and shrine/chest relationships. Catalog coverage differs from official map percentage."
     },
     {
       "game": "totk",
       "source": "https://raw.githubusercontent.com/jv-prado/hyrule-tracker/master/data/totk-world.json",
       "sha256": "88d50a6d8102f05a798380fdc6aed44bcc1adcf60f335c30c7163c11053d945e",
-      "points": 6015,
+      "points": 6010,
       "note": "Normalized flag semantics and shrine/chest relationships. Catalog coverage differs from official map percentage."
     }
   ]

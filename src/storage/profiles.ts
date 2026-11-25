@@ -96,7 +96,9 @@ export function saveProfile(snapshot: GameSnapshot, name: string, id?: string, m
     if (normalizedName.length > 80)
       throw new AppError('error.profile-name-too-long')
     if (existing && updateCatalog) {
-      const points = new Map(updateCatalog.map(point => [point.id, point]))
+      const points = new Map(updateCatalog.flatMap(point =>
+        [point.id, ...point.alternateIds ?? []].map(id => [id, point] as const),
+      ))
       const { status } = createProgressReader(snapshot)
       await db.annotations.where('profileId').equals(existing.id).and(({ pointId }) => {
         const point = points.get(pointId)

@@ -20,7 +20,12 @@ export function resolveRows(snapshot: GameSnapshot | undefined, points: CatalogP
   }
   return points.map((point) => {
     const automatic = reader?.status(point)
-    const annotation = annotationsByPoint.get(point.id)
+    let annotation = annotationsByPoint.get(point.id)
+    for (const id of point.alternateIds ?? []) {
+      const alternate = annotationsByPoint.get(id)
+      if (alternate && (!annotation || alternate.updatedAt > annotation.updatedAt))
+        annotation = alternate
+    }
     const status = annotation?.status ?? automatic ?? 'incomplete'
     return { point, automatic, status, annotation, ...(reader && point.category === 'shrine' ? { chests: reader.shrineChests(point, children.get(point.id) ?? []) } : {}) }
   })
