@@ -4,7 +4,7 @@ import type { GameId, PointAnnotation } from '@/domain/game'
 import { DialogClose, DialogContent, DialogDescription, DialogPortal, DialogRoot, DialogTitle } from 'reka-ui'
 import { coordinateLabel } from '@/domain/coordinates'
 import { categoryLabel, statusLabels } from '@/games/catalog'
-import { categoryIcon, pointIcon } from '@/games/category-icons'
+import { categoryIcon } from '@/games/category-icons'
 import { tr as t } from '@/modules/i18n'
 
 const props = defineProps<{ game: GameId, row?: ProgressRow, profileId?: string, children: ProgressRow[], showCompletion: boolean, returnToList?: boolean }>()
@@ -23,16 +23,15 @@ function toggleComplete() {
   <DialogRoot v-model:open="open" :modal="false">
     <DialogPortal>
       <DialogContent v-if="row" class="point-detail" @interact-outside="$event.preventDefault()">
-        <div class="detail-category">
-          <span class="detail-type"><span :class="pointIcon(game, row.point)" aria-hidden="true" />{{ category }}</span>
+        <div class="detail-header">
+          <DialogTitle>{{ row.point.name }}</DialogTitle>
           <span class="detail-status" :data-status="row.status">{{ profileId ? t(statusLabels[row.status]) : t('status.no-save') }}</span>
           <DialogClose class="dialog-close icon-button" :aria-label="t('point.close')">
             <span class="i-lucide:x" aria-hidden="true" />
           </DialogClose>
         </div>
-        <DialogTitle>{{ row.point.name }}</DialogTitle>
         <DialogDescription class="detail-meta">
-          <span>{{ region }}</span>
+          <span><template v-if="row.point.name !== category">{{ category }} · </template>{{ region }}</span>
           <span v-if="row.point.at" class="detail-coordinates" translate="no">
             <span class="i-lucide:crosshair" aria-hidden="true" />{{ coordinateLabel(row.point.at) }}
           </span>

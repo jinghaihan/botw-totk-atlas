@@ -215,7 +215,7 @@ async function toggleChecklistCompletion(row: ProgressRow) {
 
 <template>
   <div class="explorer" :class="{ 'mobile-list': compact && mobilePage === 'checklist' }">
-    <WorldMap :game="game" :layer="view.layer" :rows="filtered" :focus="focus" :focus-offset="compact && detailOpen ? 120 : 0" @select="select" />
+    <WorldMap :game="game" :layer="view.layer" :rows="filtered" :focus="focus" :preserve-zoom="compact" :focus-offset="compact && detailOpen ? 120 : 0" @select="select" />
     <CollapsibleRoot v-show="!compact || mobilePage === 'checklist'" v-model:open="listOpen" class="exploration-panel">
       <header class="exploration-heading">
         <div><span class="eyebrow">{{ game === 'botw' ? t('game.botw') : t('game.totk') }}</span><h1>{{ compact ? t('explore.checklist') : t('explore.heading') }}<span v-if="compact" class="mobile-list-count">{{ filtered.length.toLocaleString(currentLocale) }}</span></h1></div><CollapsibleTrigger v-if="!compact" class="icon-button panel-collapse" :aria-label="panelOpen ? t('explore.collapse') : t('explore.expand')">

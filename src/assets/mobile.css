@@ -237,12 +237,11 @@
     margin: 14px 0 8px;
     font-size: 27px;
   }
-  .detail-category,
-  .detail-type,
+  .detail-header,
   .point-detail .detail-meta {
     font-size: 13px;
   }
-  .detail-category .icon-button {
+  .detail-header .icon-button {
     width: 44px;
     height: 44px;
   }

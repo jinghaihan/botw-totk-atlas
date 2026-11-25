@@ -8,7 +8,7 @@ import { tr as t } from '@/modules/i18n'
 import 'leaflet/dist/leaflet.css'
 import 'leaflet.markercluster/dist/MarkerCluster.css'
 
-const props = defineProps<{ game: GameId, layer: MapLayer, rows: ProgressRow[], focus?: [number, number], focusOffset?: number }>()
+const props = defineProps<{ game: GameId, layer: MapLayer, rows: ProgressRow[], focus?: [number, number], focusOffset?: number, preserveZoom?: boolean }>()
 const emit = defineEmits<{ select: [id: string] }>()
 const host = ref<HTMLElement>()
 const zoomHost = ref<HTMLElement>()
@@ -70,7 +70,7 @@ function locate() {
   focusMarker?.remove()
   if (!map || !props.focus)
     return
-  map.setView(worldToMap(props.focus), Math.max(map.getZoom(), 6))
+  map.setView(worldToMap(props.focus), props.preserveZoom ? map.getZoom() : Math.max(map.getZoom(), 6))
   if (props.focusOffset)
     map.panBy([0, props.focusOffset], { animate: false })
   focusMarker = L.circleMarker(worldToMap(props.focus), { radius: 15, color: '#e2cb8e', fillOpacity: 0, weight: 2, interactive: false }).addTo(map)

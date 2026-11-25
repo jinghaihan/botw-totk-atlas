@@ -726,20 +726,16 @@ button:hover:not(:disabled) {
   border-radius: 10px;
   backdrop-filter: blur(16px);
 }
-.detail-category,
-.detail-type {
+.detail-header {
   display: flex;
   align-items: center;
   gap: 7px;
   font-size: 11px;
 }
-.detail-category {
+.detail-header {
   color: var(--muted);
 }
-.detail-type > span {
-  font-size: 15px;
-}
-.detail-category .dialog-close {
+.detail-header .dialog-close {
   position: static;
   flex-shrink: 0;
   margin-left: 4px;
@@ -764,6 +760,11 @@ button:hover:not(:disabled) {
   margin: 9px 0 5px;
   line-height: 1.3;
   overflow-wrap: anywhere;
+}
+.point-detail .detail-header h2 {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
 }
 .detail-meta {
   display: flex;
