@@ -9,6 +9,16 @@ beforeEach(async () => {
   })
 })
 describe('portable backups', () => {
+  it('round-trips Hero’s Path and replaces it when a different save is imported', async () => {
+    const path = { segments: [{ layer: 'surface' as const, points: [[1, 2], [3, 4]] as [number, number][] }] }
+    const profile = await saveProfile(snapshot(), 'path', undefined, 'normal', undefined, path)
+    await db.views.put({ profileId: profile.id, categories: [], status: 'incomplete', layer: 'surface', search: '', heroPathVisible: true })
+    const [restoredId] = await restoreBackup(JSON.parse(JSON.stringify(await exportBackup(profile.id))))
+    expect((await db.profiles.get(restoredId!))?.heroPath).toEqual(path)
+    expect((await db.views.get(restoredId!))?.heroPathVisible).toBe(true)
+    await saveProfile(snapshot(), 'new save', profile.id, 'normal')
+    expect((await db.profiles.get(profile.id))?.heroPath).toBeUndefined()
+  })
   it('normalizes duplicated TOTK location flags in existing profiles and backups', async () => {
     const profile = await saveProfile(snapshot({ game: 'totk' }), 'TOTK')
     const legacy = {

@@ -95,7 +95,8 @@
     "totk-invalid-data-boundary": "TOTK セーブデータのデータ範囲が不正です。",
     "totk-master-mode": "TOTK にはマスターモードがありません。",
     "totk-missing-data-boundary": "TOTK セーブデータの範囲を特定できません。",
-    "totk-missing-field": "セーブデータに {name} がありません。"
+    "totk-missing-field": "セーブデータに {name} がありません。",
+    "hero-path-invalid": "足跡データが無効です。セーブデータのフォルダーを選び直してください。"
   },
   "explore": {
     "checklist": "リスト",
@@ -148,7 +149,8 @@
     "sky": "空",
     "surface": "地上",
     "tiles-unavailable": "背景地図を読み込めません。リストは引き続き使えます。",
-    "title": "地図"
+    "title": "地図",
+    "hero-path": "足跡モード"
   },
   "monster": {
     "blue-maned-lynel": "青髪のライネル",
@@ -213,5 +215,20 @@
     "language": "言語",
     "show-results": "{count} 件を表示",
     "back-to-list": "リストに戻る"
+  },
+  "path": {
+    "fast": "速い",
+    "forward": "順再生",
+    "hide-points": "マップアイコンを隠す",
+    "medium": "標準",
+    "pause": "一時停止",
+    "play": "再生",
+    "rewind": "逆再生",
+    "show-points": "マップアイコンを表示",
+    "slow": "遅い",
+    "speed": "再生速度：{speed}",
+    "timeline": "足跡の再生位置",
+    "open-controls": "再生コントロールを開く",
+    "hide-controls": "再生コントロールを閉じる"
   }
 }

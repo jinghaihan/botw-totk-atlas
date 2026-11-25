@@ -13,6 +13,7 @@ Import a save, keep separate profiles for each playthrough, and find what remain
 - Interactive maps for BOTW and TOTK's Sky, Surface, and Depths, with category and text filters.
 - Separate profiles for BOTW Normal Mode, BOTW Master Mode, and TOTK.
 - Import a save file or a folder. Folder imports can detect BOTW mode from companion metadata.
+- Replay Hero’s Path from complete save folders, with forward and reverse playback, seeking, three speeds, and warp and death effects.
 - Browse both maps without a save, or create a profile and mark progress by hand.
 - Track shrines, treasure chests, Koroks, quests, and other collection records. Updating a profile from a save preserves manual marks for points whose progress cannot be read from that save.
 - Export and restore individual profiles or all profiles as JSON.
@@ -23,6 +24,7 @@ Import a save, keep separate profiles for each playthrough, and find what remain
 - [jv-prado/hyrule-tracker](https://github.com/jv-prado/hyrule-tracker) and [LucieTheFool/boomerang-tracker](https://github.com/LucieTheFool/boomerang-tracker) contributors — community map metadata, adapted under the MIT license.
 - [ZeldaMods BOTW Object Map](https://objmap.zeldamods.org/) and [TOTK Object Map](https://objmap-totk.zeldamods.org/) — map imagery and game-data research.
 - [marcrobledo/savegame-editors](https://github.com/marcrobledo/savegame-editors), MrCheeze and McSpazzy — save-format and completion-flag research.
+- [zephenryus](https://gist.github.com/zephenryus/e46c797ccecf6134d4245bb9f2e5e2a5) and [Peter Marheine](https://www.taricorp.net/2023/totk-footprints/) — BOTW and TOTK Hero’s Path format research.
 - [sh0wer1ee/BotwText](https://github.com/sh0wer1ee/BotwText) and [sh0wer1ee/TotkText](https://github.com/sh0wer1ee/TotkText) — localized game-name indexes.
 - Favicon vector from [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Triforce.svg).
 

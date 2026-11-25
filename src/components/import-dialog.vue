@@ -5,6 +5,7 @@ import type { SaveProfile } from '@/storage/profiles'
 import { CheckboxIndicator, CheckboxRoot, DialogClose, DialogContent, DialogOverlay, DialogPortal, DialogRoot, DialogTitle } from 'reka-ui'
 import { AppError } from '@/domain/errors'
 import { loadCatalog } from '@/games/catalog'
+import { readBotwHeroPath, readTotkHeroPath } from '@/games/hero-path'
 import { inspectSaveFolder } from '@/games/import-folder'
 import { readSave } from '@/games/read-save'
 import { currentLocale, tr as t } from '@/modules/i18n'
@@ -123,22 +124,24 @@ async function save() {
       const imports = await Promise.all(groups.value.filter(group => enabled.value[group.id]).map(async (group) => {
         const candidate = group.candidates.find(item => item.path === selected.value[group.id])!
         const snapshot = singleSave.value ?? await parseSave(candidate.file, candidate.path)
+        const pathBuffers = await Promise.all((candidate.pathFiles ?? []).map(file => file.arrayBuffer()))
+        const heroPath = pathBuffers.length ? snapshot.game === 'botw' ? readBotwHeroPath(pathBuffers) : readTotkHeroPath(pathBuffers[0]!) : undefined
         const selectedTarget = targets.value[group.id] ?? 'new'
         if (selectedTarget !== 'new') {
           const target = props.profiles.find(profile => profile.id === selectedTarget)
           const catalog = await loadCatalog(snapshot.game)
-          return { group, snapshot, catalog, targetId: selectedTarget, name: target?.name }
+          return { group, snapshot, heroPath, catalog, targetId: selectedTarget, name: target?.name }
         }
         const matches = props.profiles.filter(profile => profile.game === snapshot.game && profile.snapshot?.fingerprint === snapshot.fingerprint
           && (profile.mode === group.mode || profile.mode === 'unknown' || group.mode === 'unknown'))
         const target = matches.length === 1 ? matches[0] : undefined
-        return { group, snapshot, targetId: target?.id, name: target?.name }
+        return { group, snapshot, heroPath, targetId: target?.id, name: target?.name }
       }))
       const id = await db.transaction('rw', [db.profiles, db.annotations], async () => {
         let last: SaveProfile | undefined
-        for (const { group, snapshot, catalog, targetId, name } of imports) {
+        for (const { group, snapshot, heroPath, catalog, targetId, name } of imports) {
           const defaultName = group.mode === 'unknown' ? gameLabel(group) : [gameLabel(group), modeLabel(group)].join(' · ')
-          last = await saveProfile(snapshot, name ?? defaultName, targetId, group.mode, catalog)
+          last = await saveProfile(snapshot, name ?? defaultName, targetId, group.mode, catalog, heroPath)
         }
         return last?.id
       })

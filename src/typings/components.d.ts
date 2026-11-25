@@ -14,6 +14,7 @@ declare module 'vue' {
     AtlasSelect: typeof import('./../components/atlas-select.vue')['default']
     CategoryPicker: typeof import('./../components/category-picker.vue')['default']
     ExplorerPanel: typeof import('./../components/explorer-panel.vue')['default']
+    HeroPathPlayer: typeof import('./../components/hero-path-player.vue')['default']
     ImportDialog: typeof import('./../components/import-dialog.vue')['default']
     LanguageToggle: typeof import('./../components/language-toggle.vue')['default']
     PointDetail: typeof import('./../components/point-detail.vue')['default']

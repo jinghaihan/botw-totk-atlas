@@ -95,7 +95,8 @@
     "totk-invalid-data-boundary": "TOTK 存檔的資料邊界無效。",
     "totk-master-mode": "TOTK 沒有大師模式。",
     "totk-missing-data-boundary": "無法找到 TOTK 存檔資料邊界。",
-    "totk-missing-field": "目前的存檔缺少 {name}。"
+    "totk-missing-field": "目前的存檔缺少 {name}。",
+    "hero-path-invalid": "足跡檔案格式無效，請重新選擇完整的存檔資料夾。"
   },
   "explore": {
     "checklist": "清單",
@@ -148,7 +149,8 @@
     "sky": "天空",
     "surface": "地表",
     "tiles-unavailable": "底圖暫時無法載入，點位列表仍可使用。",
-    "title": "地圖"
+    "title": "地圖",
+    "hero-path": "足跡模式"
   },
   "monster": {
     "blue-maned-lynel": "藍鬃萊尼爾",
@@ -213,5 +215,20 @@
     "language": "語言",
     "show-results": "查看 {count} 個點位",
     "back-to-list": "返回清單"
+  },
+  "path": {
+    "fast": "快速",
+    "forward": "正向播放",
+    "hide-points": "隱藏地點",
+    "medium": "中速",
+    "pause": "暫停",
+    "play": "播放",
+    "rewind": "倒放",
+    "show-points": "顯示地點",
+    "slow": "慢速",
+    "speed": "播放速度：{speed}",
+    "timeline": "足跡進度",
+    "open-controls": "展開回放控制",
+    "hide-controls": "收起回放控制"
   }
 }

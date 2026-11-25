@@ -133,7 +133,7 @@ onMounted(async () => {
           {{ t(error.key, error.values) }}
         </p>
         <TabsContent v-if="!busy || current" value="atlas" class="map-page" force-mount :hidden="tab === 'progress'">
-          <ExplorerPanel ref="explorer" :key="current?.id ?? game" :mobile-page="tab" :active="tab !== 'progress'" :profile="current" :game="game" @navigate="tab = $event" @import="importer?.chooseFile()" />
+          <ExplorerPanel ref="explorer" :key="current?.id ?? game" :mobile-page="tab" :active="tab !== 'progress' && !managerOpen && !importOpen && !moreOpen" :profile="current" :game="game" @navigate="tab = $event" @import="importer?.chooseFile()" />
         </TabsContent>
         <div v-if="tab === 'progress' && !busy" class="journal-page">
           <header class="journal-heading">

@@ -39,6 +39,7 @@ const saving = reactive(new Set<string>())
 const pageSize = 40
 const selected = ref('')
 const detailOpen = ref(false)
+const worldMap = ref<InstanceType<typeof WorldMap>>()
 defineExpose({
   openFilters() {
     detailOpen.value = false
@@ -59,6 +60,15 @@ const detailFromChecklist = ref(false)
 const focus = ref<[number, number]>()
 const defaultView = (profileId: string): ProfileView => ({ profileId, categories: props.profile ? ['shrine', 'korok', 'chest'] : ['shrine'], status: 'incomplete', layer: 'surface', search: '' })
 const view = ref(defaultView(props.profile?.id ?? `browse:${props.game}`))
+async function openPathControls() {
+  filtersOpen.value = false
+  detailOpen.value = false
+  view.value.heroPathVisible = true
+  if (compact.value)
+    emit('navigate', 'atlas')
+  await nextTick()
+  worldMap.value?.openControls()
+}
 const points = computed(() => catalog.value.map(gameLabels.localize))
 const rows = computed(() => resolveRows(props.profile?.snapshot, points.value, annotations.value))
 const explorationRows = computed(() => rows.value.filter(({ point, automatic }) =>
@@ -116,8 +126,8 @@ async function load() {
     catalog.value = data
     annotations.value = records
     if (savedView) {
-      const { profileId, categories, layer, search, status } = savedView
-      view.value = { profileId, categories, layer, search, status: status === 'all' ? 'all' : 'incomplete' }
+      const { profileId, categories, layer, search, status, heroPathVisible } = savedView
+      view.value = { profileId, categories, layer, search, heroPathVisible, status: status === 'all' ? 'all' : 'incomplete' }
     }
     else {
       view.value = defaultView(profileId ?? (`browse:${props.game}`))
@@ -215,7 +225,7 @@ async function toggleChecklistCompletion(row: ProgressRow) {
 
 <template>
   <div class="explorer" :class="{ 'mobile-list': compact && mobilePage === 'checklist' }">
-    <WorldMap :game="game" :layer="view.layer" :rows="filtered" :focus="focus" :preserve-zoom="compact" :focus-offset="compact && detailOpen ? 120 : 0" @select="select" />
+    <WorldMap ref="worldMap" :game="game" :layer="view.layer" :rows="filtered" :focus="focus" :preserve-zoom="compact" :focus-offset="compact && detailOpen ? 120 : 0" :hero-path="profile?.heroPath" :hero-path-visible="view.heroPathVisible" :active="active && (!compact || mobilePage === 'atlas') && !detailOpen && !filtersOpen" :panel-open="!compact && panelOpen" @select="select" @playback-layer="view.layer = $event" />
     <CollapsibleRoot v-show="!compact || mobilePage === 'checklist'" v-model:open="listOpen" class="exploration-panel">
       <header class="exploration-heading">
         <div><span class="eyebrow">{{ game === 'botw' ? t('game.botw') : t('game.totk') }}</span><h1>{{ compact ? t('explore.checklist') : t('explore.heading') }}<span v-if="compact" class="mobile-list-count">{{ filtered.length.toLocaleString(currentLocale) }}</span></h1></div><CollapsibleTrigger v-if="!compact" class="icon-button panel-collapse" :aria-label="panelOpen ? t('explore.collapse') : t('explore.expand')">
@@ -232,6 +242,17 @@ async function toggleChecklistCompletion(row: ProgressRow) {
           {{ t('explore.loading-catalog') }}
         </p>
         <template v-else-if="!error || catalog.length">
+          <div v-if="!compact && profile?.heroPath?.segments.length" class="filter-completed hero-path-toggle" role="group" :aria-label="t('map.hero-path')">
+            <span><span class="i-lucide:route" aria-hidden="true" />{{ t('map.hero-path') }}</span>
+            <div class="hero-path-actions">
+              <button class="icon-button" :aria-label="t('path.open-controls')" :title="t('path.open-controls')" @click="openPathControls">
+                <span class="i-lucide:play" aria-hidden="true" />
+              </button>
+              <SwitchRoot class="filter-completed-switch" :aria-label="t('map.hero-path')" :model-value="!!view.heroPathVisible" @update:model-value="view.heroPathVisible = $event">
+                <SwitchThumb class="filter-completed-thumb" />
+              </SwitchRoot>
+            </div>
+          </div>
           <ToggleGroupRoot v-if="!compact && game === 'totk'" :model-value="view.layer" type="single" class="filter-layers" :aria-label="t('map.layers')" @update:model-value="value => { if (value === 'sky' || value === 'surface' || value === 'depths') view.layer = value }">
             <ToggleGroupItem value="sky">
               {{ t('map.sky') }}
@@ -336,6 +357,17 @@ async function toggleChecklistCompletion(row: ProgressRow) {
               <SwitchThumb class="filter-completed-thumb" />
             </SwitchRoot>
           </label>
+          <div v-if="profile?.heroPath?.segments.length" class="filter-completed mobile-completed hero-path-toggle" role="group" :aria-label="t('map.hero-path')">
+            <span><span class="i-lucide:route" aria-hidden="true" />{{ t('map.hero-path') }}</span>
+            <div class="hero-path-actions">
+              <button class="icon-button" :aria-label="t('path.open-controls')" :title="t('path.open-controls')" @click="openPathControls">
+                <span class="i-lucide:play" aria-hidden="true" />
+              </button>
+              <SwitchRoot class="filter-completed-switch" :aria-label="t('map.hero-path')" :model-value="!!view.heroPathVisible" @update:model-value="view.heroPathVisible = $event">
+                <SwitchThumb class="filter-completed-thumb" />
+              </SwitchRoot>
+            </div>
+          </div>
           <div class="mobile-sheet-body">
             <CategoryPicker v-model="view.categories" :items="categoryItems" />
           </div>

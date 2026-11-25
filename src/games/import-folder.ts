@@ -7,6 +7,7 @@ export interface SaveCandidate {
   game: GameId
   mode: GameMode
   savedAt: number
+  pathFiles?: File[]
 }
 export interface FolderSaveGroup {
   id: string
@@ -45,6 +46,14 @@ export async function inspectSaveFolder(files: File[]): Promise<FolderSaveGroup[
     if (/^(?:\d+|slot_\d+)$/.test(parent.at(-1) ?? ''))
       parent.pop()
     const root = parent.join('/')
+    candidate.pathFiles = candidate.game === 'totk'
+      ? [byPath.get(candidate.path.replace(/progress\.sav$/, 'footprint.sav'))].filter((file): file is File => !!file)
+      : candidate.mode === 'unknown'
+        ? []
+        : files.filter(file =>
+            path(file).startsWith(`${root ? `${root}/` : ''}tracker/`)
+            && (candidate.mode === 'master' ? /^trackblock_hard\d{2}\.sav$/ : /^trackblock\d{2}\.sav$/).test(file.name),
+          )
     const id = `${root}:${candidate.game}:${candidate.mode}`
     if (!groups.has(id))
       groups.set(id, { id, root, game: candidate.game, mode: candidate.mode, candidates: [] })

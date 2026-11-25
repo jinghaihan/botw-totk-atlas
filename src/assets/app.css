@@ -395,6 +395,42 @@ button:hover:not(:disabled) {
   transform: translateX(14px);
   background: #292b2c;
 }
+.hero-path-toggle {
+  flex: none;
+  justify-content: space-between;
+  margin: 0 20px 12px;
+  min-height: 28px;
+  text-align: start;
+  font-size: 12px;
+}
+.hero-path-toggle > span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.hero-path-toggle [data-state='checked'] {
+  background: #7deda2;
+  border-color: #7deda2;
+}
+.hero-path-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.hero-path-actions .icon-button {
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  padding: 0;
+  font-size: 15px;
+}
+@media (max-width: 760px) {
+  .hero-path-actions .icon-button {
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
+  }
+}
 .atlas-search {
   display: flex;
   flex: none;

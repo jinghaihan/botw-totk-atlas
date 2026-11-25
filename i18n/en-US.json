@@ -95,7 +95,8 @@
     "totk-invalid-data-boundary": "Invalid TOTK save data boundary.",
     "totk-master-mode": "TOTK does not have Master Mode.",
     "totk-missing-data-boundary": "Could not locate the TOTK save data boundary.",
-    "totk-missing-field": "This TOTK save is missing {name}."
+    "totk-missing-field": "This TOTK save is missing {name}.",
+    "hero-path-invalid": "Invalid Hero’s Path data. Select the complete save folder again."
   },
   "explore": {
     "checklist": "Checklist",
@@ -148,7 +149,8 @@
     "sky": "Sky",
     "surface": "Surface",
     "tiles-unavailable": "Map imagery is unavailable. You can still use the checklist.",
-    "title": "Map"
+    "title": "Map",
+    "hero-path": "Hero’s Path"
   },
   "monster": {
     "blue-maned-lynel": "Blue-Maned Lynel",
@@ -213,5 +215,20 @@
     "language": "Language",
     "show-results": "Show {count} places",
     "back-to-list": "Back to checklist"
+  },
+  "path": {
+    "fast": "Fast",
+    "forward": "Play forward",
+    "hide-points": "Hide map icons",
+    "medium": "Medium",
+    "pause": "Pause",
+    "play": "Play",
+    "rewind": "Play backward",
+    "show-points": "Show map icons",
+    "slow": "Slow",
+    "speed": "Playback speed: {speed}",
+    "timeline": "Hero’s Path progress",
+    "open-controls": "Show playback controls",
+    "hide-controls": "Hide playback controls"
   }
 }

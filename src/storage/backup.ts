@@ -18,14 +18,24 @@ const snapshot = z.object({
   guids: z.array(z.string().regex(/^\d+$/)).max(20000),
 })
 const change = z.object({ id, name: text })
+const heroPath = z.object({
+  segments: z.array(z.object({
+    layer: z.enum(['surface', 'sky', 'depths']),
+    points: z.array(z.tuple([finite.min(-8192).max(8192), finite.min(-8192).max(8192)])).max(500000),
+    end: z.enum(['warp', 'death']).optional(),
+  })).max(100000),
+}).superRefine((path, ctx) => {
+  if (path.segments.reduce((count, segment) => count + segment.points.length, 0) > 500000)
+    ctx.addIssue({ code: 'custom', message: 'Too many Hero’s Path points.' })
+})
 export const backupSchema = z.object({
   format: z.enum(['zelda-notes', 'wilds-atlas']),
   version: z.union([z.literal(1), z.literal(2), z.literal(3)]),
   exportedAt: z.iso.datetime(),
-  profiles: z.array(z.object({ id, name: z.string().min(1).max(80), game: z.enum(['botw', 'totk']), mode: z.enum(['normal', 'master', 'unknown']), updatedAt: z.iso.datetime(), snapshot: snapshot.optional() })).max(100),
+  profiles: z.array(z.object({ id, name: z.string().min(1).max(80), game: z.enum(['botw', 'totk']), mode: z.enum(['normal', 'master', 'unknown']), updatedAt: z.iso.datetime(), snapshot: snapshot.optional(), heroPath: heroPath.optional() })).max(100),
   annotations: z.array(z.object({ profileId: id, pointId: id, status: z.enum(['complete', 'incomplete', 'unknown']).optional().transform(status => status === 'unknown' ? undefined : status), updatedAt: z.iso.datetime(), completedAt: z.iso.datetime().optional() })).max(100000),
   imports: z.array(z.object({ profileId: id, importedAt: z.iso.datetime(), filename: text, fingerprint: text, initial: z.boolean(), changes: z.array(change), regressions: z.array(change).optional() })).max(10000),
-  views: z.array(z.object({ profileId: id, categories: z.array(id).nullable(), status: z.enum(['all', 'complete', 'incomplete', 'unknown', 'found-unfinished', 'shrine-chests']).transform((status): ProfileView['status'] => status === 'all' ? 'all' : 'incomplete'), layer: z.enum(['surface', 'sky', 'depths']), search: text })).max(100),
+  views: z.array(z.object({ profileId: id, categories: z.array(id).nullable(), status: z.enum(['all', 'complete', 'incomplete', 'unknown', 'found-unfinished', 'shrine-chests']).transform((status): ProfileView['status'] => status === 'all' ? 'all' : 'incomplete'), layer: z.enum(['surface', 'sky', 'depths']), search: text, heroPathVisible: z.boolean().optional() })).max(100),
 }).superRefine((backup, ctx) => {
   const ids = new Set(backup.profiles.map(p => p.id))
   if (ids.size !== backup.profiles.length)

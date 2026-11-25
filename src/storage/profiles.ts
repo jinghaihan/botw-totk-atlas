@@ -1,5 +1,6 @@
 import type { EntityTable, Table } from 'dexie'
 import type { CatalogPoint, GameId, GameMode, GameSnapshot, PointAnnotation } from '@/domain/game'
+import type { HeroPath } from '@/games/hero-path'
 import { Dexie } from 'dexie'
 import { createProgressReader } from '@/domain/completion'
 import { AppError } from '@/domain/errors'
@@ -12,6 +13,7 @@ export interface SaveProfile {
   mode: GameMode
   updatedAt: string
   snapshot?: GameSnapshot
+  heroPath?: HeroPath
 }
 export interface ProfileView {
   profileId: string
@@ -19,6 +21,7 @@ export interface ProfileView {
   status: 'all' | 'incomplete'
   layer: 'surface' | 'sky' | 'depths'
   search: string
+  heroPathVisible?: boolean
 }
 
 export const db = new Dexie('wilds-atlas') as Dexie & {
@@ -83,7 +86,7 @@ export async function createProfile(game: GameId, name: string) {
   return profile
 }
 
-export function saveProfile(snapshot: GameSnapshot, name: string, id?: string, mode: GameMode = 'unknown', updateCatalog?: CatalogPoint[]) {
+export function saveProfile(snapshot: GameSnapshot, name: string, id?: string, mode: GameMode = 'unknown', updateCatalog?: CatalogPoint[], heroPath?: HeroPath) {
   return db.transaction('rw', [db.profiles, db.annotations], async () => {
     const existing = id ? await db.profiles.get(id) : undefined
     if (id && !existing)
@@ -112,6 +115,7 @@ export function saveProfile(snapshot: GameSnapshot, name: string, id?: string, m
       mode: snapshot.game === 'totk' ? 'normal' : mode === 'unknown' ? existing?.mode ?? 'unknown' : mode,
       updatedAt: new Date().toISOString(),
       snapshot: collectionSnapshot(snapshot),
+      heroPath,
     } satisfies SaveProfile
     await db.profiles.put(profile)
     return profile
