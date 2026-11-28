@@ -8,14 +8,15 @@ import { AppError } from '@/domain/errors'
 import { filterRows, resolveRows } from '@/domain/exploration'
 import { categoryDisplayOrder, categoryLabel, loadCatalog } from '@/games/catalog'
 import { categoryIcon, pointIcon } from '@/games/category-icons'
+import { isExChest } from '@/games/chests'
 import { currentLocale, tr as t } from '@/modules/i18n'
-import { db, listAnnotations, putAnnotation } from '@/storage/profiles'
+import { createProfile, db, listAnnotations, putAnnotation } from '@/storage/profiles'
 import CategoryPicker from './category-picker.vue'
 import PointDetail from './point-detail.vue'
 import WorldMap from './world-map.vue'
 
 const props = defineProps<{ profile?: SaveProfile, game: GameId, mobilePage: string, active: boolean }>()
-const emit = defineEmits<{ import: [], navigate: [page: 'atlas' | 'checklist'] }>()
+const emit = defineEmits<{ navigate: [page: 'atlas' | 'checklist'], profileCreated: [profile: SaveProfile] }>()
 const gameLabels = useGameLabels(() => props.game)
 const catalog = shallowRef<CatalogPoint[]>([])
 const annotations = shallowRef<PointAnnotation[]>([])
@@ -36,6 +37,7 @@ const listOpen = computed({
   set: (value) => { panelOpen.value = value },
 })
 const saving = reactive(new Set<string>())
+const creatingProfile = ref(false)
 const pageSize = 40
 const selected = ref('')
 const detailOpen = ref(false)
@@ -216,8 +218,33 @@ async function save(annotation: PointAnnotation) {
 async function toggleChecklistCompletion(row: ProgressRow) {
   const profileId = props.profile?.id
   const pointId = row.point.id
-  if (!profileId)
+  if (creatingProfile.value)
     return
+  if (!profileId) {
+    creatingProfile.value = true
+    error.value = undefined
+    const revision = generation
+    const game = props.game
+    const savedView = structuredClone(toRaw(view.value))
+    try {
+      const profile = await db.transaction('rw', [db.profiles, db.annotations, db.views], async () => {
+        const profile = await createProfile(game, t(game === 'botw' ? 'game.botw' : 'game.totk'))
+        await putAnnotation({ profileId: profile.id, pointId, status: 'complete', updatedAt: new Date().toISOString() })
+        await db.views.put({ ...savedView, profileId: profile.id })
+        return profile
+      })
+      if (revision === generation)
+        emit('profileCreated', profile)
+      await nextTick()
+    }
+    catch (e) {
+      error.value = AppError.from(e, 'error.annotation-save')
+    }
+    finally {
+      creatingProfile.value = false
+    }
+    return
+  }
   const status = row.status === 'incomplete' ? 'complete' : row.automatic === 'complete' ? 'incomplete' : undefined
   await save({ profileId, pointId, status, updatedAt: new Date().toISOString() })
 }
@@ -293,17 +320,17 @@ async function toggleChecklistCompletion(row: ProgressRow) {
                 <div v-for="row in paged" :key="row.point.id" class="point-row" :class="{ selected: row.point.id === selected, complete: row.status === 'complete' }">
                   <button type="button" class="point-row-details" @click="select(row.point.id, true)">
                     <span class="point-symbol" :class="pointIcon(game, row.point)" aria-hidden="true" />
-                    <span class="point-copy"><strong>{{ row.point.name }}</strong><small>{{ row.point.regionLabel ?? row.point.region ?? categoryLabel(game, row.point.category) }}</small></span>
+                    <span class="point-copy"><strong><span v-if="isExChest(game, row.point)" class="point-chest-type" :aria-label="t('category.ex-chest')" translate="no">EX</span>{{ row.point.name }}</strong><small>{{ row.point.regionLabel ?? row.point.region ?? categoryLabel(game, row.point.category) }}</small></span>
                     <span v-if="row.status === 'complete'" class="sr-only">{{ t('status.complete') }}</span>
-                    <span v-if="!profile || row.annotation?.status" class="point-state">
-                      <span v-if="!profile" class="i-lucide:chevron-right" aria-hidden="true" /><small v-if="row.annotation?.status">{{ t('status.manual') }}</small>
+                    <span v-if="row.annotation?.status" class="point-state">
+                      <small>{{ t('status.manual') }}</small>
                     </span>
                   </button>
                   <button
-                    v-if="profile" type="button" class="icon-button point-complete"
+                    type="button" class="icon-button point-complete"
                     :aria-label="`${t(row.status === 'complete' ? 'point.mark-incomplete' : 'point.mark-complete')} · ${row.point.name}`"
                     :title="t(row.status === 'complete' ? 'point.mark-incomplete' : 'point.mark-complete')"
-                    :disabled="saving.has(row.point.id)"
+                    :disabled="creatingProfile || saving.has(row.point.id)"
                     @click="toggleChecklistCompletion(row)"
                   >
                     <span :class="row.status === 'complete' ? 'i-lucide:undo-2' : 'i-lucide:check'" aria-hidden="true" />
@@ -379,6 +406,6 @@ async function toggleChecklistCompletion(row: ProgressRow) {
         </DialogContent>
       </DialogPortal>
     </DialogRoot>
-    <PointDetail v-model:open="detailOpen" :return-to-list="compact && detailFromChecklist" :game="game" :row="current" :profile-id="profile?.id" :children="children" :show-completion="compact || !detailFromChecklist || !panelOpen" @back="detailOpen = false; emit('navigate', 'checklist')" @save="save" @select="select" @import="emit('import')" />
+    <PointDetail v-model:open="detailOpen" :return-to-list="compact && detailFromChecklist" :game="game" :row="current" :profile-id="profile?.id" :children="children" :show-completion="compact || !detailFromChecklist || !panelOpen" :busy="creatingProfile || (current && saving.has(current.point.id))" @back="detailOpen = false; emit('navigate', 'checklist')" @toggle-complete="toggleChecklistCompletion" @select="select" />
   </div>
 </template>

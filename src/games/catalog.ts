@@ -3,6 +3,7 @@ import type { MessageKey } from '@/modules/i18n'
 import { z } from 'zod'
 import { AppError } from '@/domain/errors'
 import { tr } from '@/modules/i18n'
+import { isExChest } from './chests'
 import { readJsonResource } from './data-resource'
 
 const point = z.object({
@@ -149,6 +150,10 @@ export function categoryLabel(game: GameId, category: string) {
     return tr(game === 'botw' ? 'category.sheikah-tower' : 'category.skyview-tower')
   const key = Object.hasOwn(categoryLabels, category) ? categoryLabels[category] : undefined
   return key ? tr(key) : category
+}
+
+export function pointCategoryLabel(game: GameId, point: CatalogPoint) {
+  return isExChest(game, point) ? tr('category.ex-chest') : categoryLabel(game, point.category)
 }
 
 export const statusLabels = { complete: 'status.complete', incomplete: 'status.incomplete' } as const

@@ -2,6 +2,7 @@ import type { MaybeRefOrGetter } from 'vue'
 import type { CatalogPoint, GameId } from '@/domain/game'
 import type { MessageKey } from '@/modules/i18n'
 import { z } from 'zod'
+import { isExChest } from '@/games/chests'
 import { readJsonResource } from '@/games/data-resource'
 import { currentLocale, tr } from '@/modules/i18n'
 
@@ -74,7 +75,7 @@ export function useGameLabels(game: MaybeRefOrGetter<GameId>) {
       if (sourceLabel)
         title = tr(sourceLabel) + point.name.slice(term.length)
     }
-    return { ...point, name: title, aliases: [point.name], regionLabel: point.region ? text(point.region) : undefined, detail: point.detail ? text(point.detail) : undefined }
+    return { ...point, name: title, aliases: [point.name, ...isExChest(toValue(game), point) ? [tr('category.ex-chest')] : []], regionLabel: point.region ? text(point.region) : undefined, detail: point.detail ? text(point.detail) : undefined }
   }
   return { localize }
 }

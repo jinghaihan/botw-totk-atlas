@@ -26,6 +26,10 @@
 body {
   margin: 0;
 }
+/* Netlify injects this frame over the map controls and mobile navigation. */
+#nl-badge-frame {
+  display: none !important;
+}
 button,
 input,
 textarea {
@@ -630,6 +634,18 @@ button:hover:not(:disabled) {
   color: #8b927d;
   margin-top: 4px;
   line-height: 1.5;
+}
+.point-chest-type {
+  display: inline-block;
+  margin-inline-end: 6px;
+  padding: 0 4px;
+  border: 1px solid currentColor;
+  border-radius: 3px;
+  color: var(--gold);
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1.5;
+  vertical-align: 1px;
 }
 .point-state {
   font-size: 12px;

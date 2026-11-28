@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import { describe, expect, it, vi } from 'vitest'
 import { createProgressReader } from '@/domain/completion'
 import { loadCatalog } from '@/games/catalog'
+import { isExChest } from '@/games/chests'
 import { snapshot } from './helpers/snapshot'
 
 const read = (game: string): CatalogPoint[] => JSON.parse(readFileSync(`public/catalogs/${game}.json`, 'utf8'))
@@ -26,6 +27,15 @@ describe('bundled catalogs', () => {
     }
     const quests = read('botw').filter(point => point.rule === 'boolean' && Object.hasOwn(flags, point.id))
     expect(Object.fromEntries(quests.map(point => [point.id, point.key]))).toEqual(flags)
+  })
+  it('identifies EX chest actors without confusing their contents or collaboration chests', () => {
+    const chests = read('botw').filter(point => point.category === 'chest')
+    const ex = chests.filter(point => isExChest('botw', point))
+    expect(ex).toHaveLength(24)
+    expect(ex.map(point => point.name)).toEqual(expect.arrayContaining(['Travel Medallion', 'Phantom Helmet', 'Ruby', 'Bomb Arrow x5', 'Nintendo Switch Shirt']))
+    expect(chests.filter(point => String(point.key).includes('_Collabo_')).every(point => !isExChest('botw', point))).toBe(true)
+    expect(chests.filter(point => point.name === 'Ruby').some(point => !isExChest('botw', point))).toBe(true)
+    expect(read('totk').some(point => isExChest('totk', point))).toBe(false)
   })
   it('links all 166 TOTK shrine chests to parents and individual save flags', () => {
     const points = read('totk')

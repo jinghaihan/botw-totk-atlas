@@ -5,7 +5,9 @@ import type { HeroPath } from '@/games/hero-path'
 import * as L from 'leaflet'
 import { useHeroPathPlayback } from '@/composables/hero-path-playback'
 import { coordinateLabel, mapToWorld, tileUrl, worldToMap } from '@/domain/coordinates'
+import { pointCategoryLabel } from '@/games/catalog'
 import { explorationIcons, pointIconName } from '@/games/category-icons'
+import { isExChest } from '@/games/chests'
 import { HeroPathLayer } from '@/games/hero-path-layer'
 import { tr as t } from '@/modules/i18n'
 import HeroPathPlayer from './hero-path-player.vue'
@@ -77,7 +79,8 @@ function markerSvg(game: GameId, point: CatalogPoint, status: PointStatus) {
   const color = status === 'complete' ? '#a89e84' : '#d8bd7f'
   const { body } = explorationIcons.icons[pointIconName(game, point)]
   const badge = '<g class="atlas-marker-check" color="#d8bd7f" stroke="currentColor"><circle cx="24" cy="26" r="5.5" fill="#292b2c"/><path d="m21.5 26 1.5 1.5 3.5-3.5" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g>'
-  return `<svg width="24" height="28" viewBox="0 0 30 34" aria-hidden="true" style="color:${color}"><g class="atlas-marker-body"><path d="M15 1 28 8v16l-13 8L2 24V8Z" fill="${status === 'complete' ? '#3e3b32' : '#292b2c'}" stroke="currentColor" stroke-width="1.5"/><g transform="translate(4.44 5.44) scale(.88)">${body}</g></g>${status === 'complete' ? badge : ''}</svg>`
+  const ex = isExChest(game, point) ? '<g class="atlas-marker-ex"><rect x="12" y="-3" width="20" height="12" rx="3" fill="#292b2c" stroke="currentColor"/><path d="M19.5 0H16v6h3.5M16 3h3M23 0l4 6m0-6-4 6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></g>' : ''
+  return `<svg width="24" height="28" viewBox="0 0 30 34" aria-hidden="true" style="color:${color}"><g class="atlas-marker-body"><path d="M15 1 28 8v16l-13 8L2 24V8Z" fill="${status === 'complete' ? '#3e3b32' : '#292b2c'}" stroke="currentColor" stroke-width="1.5"/><g transform="translate(4.44 5.44) scale(.88)">${body}</g>${ex}</g>${status === 'complete' ? badge : ''}</svg>`
 }
 function base() {
   if (!map)
@@ -104,9 +107,10 @@ function markers() {
   for (const row of props.rows) {
     if (!row.point.at)
       continue
-    const marker = L.marker(worldToMap(row.point.at), { title: row.point.name, icon: L.divIcon({ className: `atlas-marker ${row.status}`, html: markerSvg(props.game, row.point, row.status), iconSize: [24, 28], iconAnchor: [12, 14], tooltipAnchor: [0, -15] }) })
+    const title = isExChest(props.game, row.point) ? `${row.point.name} · ${pointCategoryLabel(props.game, row.point)}` : row.point.name
+    const marker = L.marker(worldToMap(row.point.at), { title, icon: L.divIcon({ className: `atlas-marker ${row.status}`, html: markerSvg(props.game, row.point, row.status), iconSize: [24, 28], iconAnchor: [12, 14], tooltipAnchor: [0, -15] }) })
     const label = document.createElement('span')
-    label.textContent = row.point.name
+    label.textContent = title
     marker.bindTooltip(label, { direction: 'top' }).on('click', (event) => {
       L.DomEvent.stopPropagation(event)
       emit('select', row.point.id)

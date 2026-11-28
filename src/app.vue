@@ -27,6 +27,14 @@ const importOpen = ref(false)
 const importer = ref<InstanceType<typeof ImportDialog>>()
 const browseGame = useLocalStorage('wilds-atlas:browse-game', 'botw')
 const game = computed(() => current.value?.game ?? (browseGame.value === 'totk' ? 'totk' : 'botw'))
+// Keep the current map mounted when the first manual mark creates a profile.
+const manualProfileOrigin = shallowRef<{ id: string, key: string }>()
+const explorerKey = computed(() => current.value && current.value.id === manualProfileOrigin.value?.id ? manualProfileOrigin.value.key : current.value?.id ?? game.value)
+function acceptManualProfile(profile: SaveProfile) {
+  manualProfileOrigin.value = { id: profile.id, key: explorerKey.value }
+  profiles.value = [profile, ...profiles.value]
+  activeId.value = profile.id
+}
 const exporting = ref(false)
 async function download() {
   if (exporting.value)
@@ -133,7 +141,7 @@ onMounted(async () => {
           {{ t(error.key, error.values) }}
         </p>
         <TabsContent v-if="!busy || current" value="atlas" class="map-page" force-mount :hidden="tab === 'progress'">
-          <ExplorerPanel ref="explorer" :key="current?.id ?? game" :mobile-page="tab" :active="tab !== 'progress' && !managerOpen && !importOpen && !moreOpen" :profile="current" :game="game" @navigate="tab = $event" @import="importer?.chooseFile()" />
+          <ExplorerPanel ref="explorer" :key="explorerKey" :mobile-page="tab" :active="tab !== 'progress' && !managerOpen && !importOpen && !moreOpen" :profile="current" :game="game" @navigate="tab = $event" @profile-created="acceptManualProfile" />
         </TabsContent>
         <div v-if="tab === 'progress' && !busy" class="journal-page">
           <header class="journal-heading">
