@@ -1,7 +1,7 @@
 {
   "name": "botw-totk-atlas",
   "type": "module",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "packageManager": "pnpm@11.9.0",
   "description": "A local-first exploration and collection tracker for Breath of the Wild and Tears of the Kingdom.",
   "author": "jinghaihan",
